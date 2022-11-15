@@ -7,6 +7,8 @@
 - Wiktor Topolski
 
 # Proponowany temat projektu:
-## **Gra w wisielca**
-- interfejs użytkownika w Swing
-- baza danych słów z podziałem na kategorie
+## Gra Koło Fortuny
+Gra oparta na popularnym teleturnieju
+- dwa tryby gry - jednoosobowy (wisielec z punktacją) oraz wieloosobowy przez internet - rozgrywka zgodnie z formułą teleturnieju
+- baza danych przechowująca słowa-hasła wraz z podziałem na kategorie oraz wyniki rozegranych gier, statystyki każdego gracza
+- interfejs aplikacji wykonany w Java Swing
