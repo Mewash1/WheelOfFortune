@@ -12,10 +12,6 @@ def mainClassName = "${group}.${rootProject.name}"
 def jarName = "${rootProject.name}-${version}-all.jar"
 def jarPath = "build/libs/${jarName}"
 
-println mainClassName
-println jarName
-println jarPath
-
 repositories {
     mavenCentral()
 }
