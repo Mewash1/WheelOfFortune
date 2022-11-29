@@ -1,14 +1,46 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'pap.z26.wheeloffortune'
 version '1.0-SNAPSHOT'
+compileJava.options.encoding = 'UTF-8'
+
+def mainClassName = "${group}.${rootProject.name}"
+def jarName = "${rootProject.name}-${version}-all.jar"
+def jarPath = "build/libs/${jarName}"
+
+println mainClassName
+println jarName
+println jarPath
 
 repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = mainClassName
+}
+
 dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.40.0.0'
+}
+
+task stage(dependsOn: ['build', 'shadowJar', 'clean'])
+build.mustRunAfter clean
+
+jar {
+    manifest {
+        attributes 'Class-Path': jarPath, 'Main-Class': mainClassName
+    }
+}
+
+wrapper {
+    gradleVersion = '7.2'
+}
+
+shadowJar {
+    archiveFileName = jarName
 }
