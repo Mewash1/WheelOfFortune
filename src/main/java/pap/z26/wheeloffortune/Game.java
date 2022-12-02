@@ -38,11 +38,11 @@ public class Game {
         return false;
     }
 
-    public boolean guessLetter(Player player) {
+    public boolean guessLetter(Player player, char letter) {
         return false;
     }
 
-    public boolean guessPhrase(Player player) {
+    public boolean guessPhrase(Player player, String phrase) {
         return false;
     }
 
