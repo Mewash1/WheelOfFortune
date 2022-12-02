@@ -61,4 +61,8 @@ public class Game {
     public int getLastRolled() {
         return wheel.getLastRolled();
     }
+
+    public boolean hasNotGuessedConsonants() {
+        return false;
+    }
 }
