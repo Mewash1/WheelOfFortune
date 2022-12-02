@@ -17,7 +17,10 @@ public class HumanPlayer implements Player {
     }
 
     private char getVowel(){
-            return ' ';
+        System.out.println("What Vowel you want to uncover? :");
+        Scanner vovInput = new Scanner(System.in);
+        String vov = vovInput.nextLine();
+        return ' ';
     }
 
     private char getConsonant(){
@@ -29,7 +32,7 @@ public class HumanPlayer implements Player {
     }
 
 
-    private int getDecision(){
+    private int getDecision() throws IllegalArgumentException{
         System.out.println("What is your move:");
         System.out.println("1: Spin the wheel and guess a letter");
         System.out.println("2: Buy a vowel (200 points)");
@@ -40,8 +43,7 @@ public class HumanPlayer implements Player {
         if ( 3>= moveInt &&  moveInt>= 0){
             return moveInt;
         }else {
-                System.out.println("Wrong input - insert a number from 1 to 3!");
-                return getDecision();
+                throw new IllegalArgumentException("Wrong input - insert a number from 1 to 3!");
         }
     }
 
@@ -70,16 +72,21 @@ public class HumanPlayer implements Player {
     @Override
     public void makeAMove() {
         showGameState();
-        int decision = getDecision();
+        int decision = 0;
+        while (decision == 0) {
+            try{
+            decision = getDecision();}
+            catch (IllegalArgumentException ignored){}
+        }
         switch (decision){
             case 1:{
                 this.game.spinTheWheel(this);
             }
             case 2:{
-                this.game.guessLetter(this);
+                this.game.guessLetter(this, getVowel());
             }
             default:{
-                this.game.guessPhrase(this);
+                this.game.guessPhrase(this, getPhrase());
             }
         }
     }
