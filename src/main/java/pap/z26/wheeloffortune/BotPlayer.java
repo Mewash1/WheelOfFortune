@@ -16,6 +16,18 @@ public class BotPlayer implements Player {
         this.name = input.nextLine();
     }
 
+    private char getVowel(){
+        return ' ';
+    }
+
+    private char getConsonant(){
+        return ' ';
+    }
+
+    private String getPhrase(){
+        return "";
+    }
+
     @Override
     public String getName(){
         return this.name;
