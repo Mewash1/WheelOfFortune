@@ -24,7 +24,4 @@ public class GameWindowGUI {
     private JCheckBox visibleCheckBox;
     private JLabel roundNr3Label;
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
 }
