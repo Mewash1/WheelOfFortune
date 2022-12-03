@@ -76,6 +76,7 @@
                     <properties>
                       <showHorizontalLines value="true"/>
                       <showVerticalLines value="false"/>
+                      <toolTipText value="players"/>
                     </properties>
                   </component>
                   <component id="c9fd0" class="javax.swing.JList" binding="guessesHistory">
@@ -83,7 +84,9 @@
                       <splitpane position="right"/>
                     </constraints>
                     <properties>
-                      <model/>
+                      <model>
+                        <item value="temp"/>
+                      </model>
                     </properties>
                   </component>
                 </children>
@@ -188,7 +191,7 @@
                     <properties>
                       <editable value="false"/>
                       <focusable value="false"/>
-                      <text value="egsample _____ion"/>
+                      <text value="example _____ion"/>
                       <toolTipText value="solution goes here:"/>
                     </properties>
                   </component>
