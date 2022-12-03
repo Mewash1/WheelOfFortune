@@ -33,6 +33,12 @@
               <text value="Help"/>
             </properties>
           </component>
+          <component id="a9585" class="javax.swing.JButton" binding="addPlayerButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Add Player"/>
+            </properties>
+          </component>
         </children>
       </toolbar>
       <component id="7baaf" class="javax.swing.JProgressBar" binding="RoundProgress">

@@ -23,5 +23,6 @@ public class GameWindowGUI {
     private JPanel bottomPanel;
     private JCheckBox visibleCheckBox;
     private JLabel roundNr3Label;
+    private JButton addPlayerButton;
 
 }
