@@ -13,7 +13,7 @@ public class Game {
     private boolean inProgress;
     private GameState state;
     private GameWord gameWord;
-    private Wheel wheel = new Wheel();
+    private final Wheel wheel = new Wheel();
     private GameWindow window;
 
     private static class Mover implements ActionListener {
@@ -55,6 +55,7 @@ public class Game {
     public void startGame() {
         inProgress = true;
         winner = null;
+        state = GameState.NOT_STARTED;
         while (players.size() < 3) {
             players.add(new BotPlayer(this));
         }
