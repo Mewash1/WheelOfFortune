@@ -13,18 +13,21 @@ public class GameWord {
         displayedWord = "_".repeat(word.length());
     }
 
-    public boolean guessLetter(char letter) {
+    public int guessLetter(char letter) {
+        int count = 0;
         if (notGuessedWord.contains(String.valueOf(letter))) {
+            count = 1;
             notGuessedWord = notGuessedWord.replaceAll(String.valueOf(letter), "#");
             StringBuilder updatedWord = new StringBuilder(displayedWord);
             int findIndex = notGuessedWord.indexOf(letter);
             while (findIndex != -1) {
+                count++;
                 updatedWord.setCharAt(findIndex, letter);
                 findIndex = notGuessedWord.indexOf(letter, findIndex);
             }
             displayedWord = updatedWord.toString();
         }
-        return false;
+        return count;
     }
 
     public boolean guessPhrase(String phrase) {
