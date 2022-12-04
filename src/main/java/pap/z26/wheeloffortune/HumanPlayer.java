@@ -16,15 +16,44 @@ public class HumanPlayer implements Player {
         this.name = input.nextLine();
     }
 
-    private char getVowel(){
-        System.out.println("What Vowel you want to uncover? :");
-        Scanner vovInput = new Scanner(System.in);
-        String vov = vovInput.nextLine();
-        return ' ';
+    private char getVowel() {
+        char [] vowelList ={'a', 'e', 'i', 'o', 'u', 'y'};
+        while (true){
+            try {
+                System.out.println("What Vowel you want to uncover? :");
+                Scanner vowInput = new Scanner(System.in);
+                String vow = vowInput.nextLine();
+                for (char i : vowelList){
+                    if (i == vow.charAt(0)){
+                        return vow.charAt(0);
+                    }
+                }
+                throw new IllegalArgumentException("Provided character is not a vowel");
+                } catch (Exception e) {
+                System.out.println(e.getMessage());
+
+            }
+        }
     }
 
     private char getConsonant(){
-        return ' ';
+        char [] consonantList ={'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'};
+        while (true){
+            try {
+                System.out.println("What consonant you want to uncover? :");
+                Scanner consonantInput = new Scanner(System.in);
+                String consonant = consonantInput.nextLine();
+                for (char i : consonantList){
+                    if (i == consonant.charAt(0)){
+                        return consonant.charAt(0);
+                    }
+                }
+                throw new IllegalArgumentException("Provided character is not a consonant");
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+
+            }
+        }
     }
 
     private String getPhrase(){
@@ -34,7 +63,7 @@ public class HumanPlayer implements Player {
 
     private int getDecision() throws IllegalArgumentException{
         System.out.println("What is your move:");
-        System.out.println("1: Spin the wheel and guess a letter");
+        System.out.println("1: Spin the wheel and guess a consonant");
         System.out.println("2: Buy a vowel (200 points)");
         System.out.println("3: Guess the Phrase");
         Scanner moveGetter = new Scanner(System.in);
@@ -74,19 +103,29 @@ public class HumanPlayer implements Player {
         showGameState();
         int decision = 0;
         while (decision == 0) {
-            try{
-            decision = getDecision();}
-            catch (IllegalArgumentException ignored){}
-        }
-        switch (decision){
-            case 1:{
-                this.game.spinTheWheel(this);
+            try {
+                decision = getDecision();
+
+                switch (decision) {
+                    case 1: {
+                        if (game.hasNotGuessedConsonants()){
+                            this.game.spinTheWheel(this);
+                            System.out.println(this.game.getLastRolled());
+                            this.game.guessLetter(this, getConsonant());
+                        }
+                        throw new IllegalArgumentException("You cannot spin the wheel as there are no uncovered consonants in the phrase");
+                    }
+                    case 2: {
+                        this.game.guessLetter(this, getVowel());
+                    }
+                    default: {
+                        this.game.guessPhrase(this, getPhrase());
+                    }
+                }
             }
-            case 2:{
-                this.game.guessLetter(this, getVowel());
-            }
-            default:{
-                this.game.guessPhrase(this, getPhrase());
+            catch (IllegalArgumentException e){
+                decision = 0;
+                System.out.println(e.getMessage());
             }
         }
     }
