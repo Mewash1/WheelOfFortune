@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class GameWindowGUI {
+public class GameWindowGUI extends JFrame {
     private JButton newGameButton;
     private JProgressBar RoundProgress;
     private JButton guessLetter;
@@ -25,4 +25,14 @@ public class GameWindowGUI {
     private JLabel roundNr3Label;
     private JButton addPlayerButton;
 
+    public GameWindowGUI() {
+        setTitle("WheelOfFortune");
+        setSize(450, 300);
+        setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        GameWindowGUI myFrame = new GameWindowGUI();
+    }
 }
