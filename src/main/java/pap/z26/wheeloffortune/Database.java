@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Database {
 
@@ -53,7 +54,16 @@ public class Database {
         DatabaseCommand.callCommand(new DatabaseCommand.InsertPhrases(), establishConnection());
     }
     public String getRandomPhrase(String category) {
-        return null;
+        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+        ArrayList<String> phraseNames = new ArrayList<>();
+        for (String phrase : allPhrases) {
+            String[] phraseList = phrase.split("\n");
+            if (phraseList[1].equals(category)) {
+                phraseNames.add(phraseList[0]);
+            }
+        }
+        Random randomizer = new Random();
+        return phraseNames.get(randomizer.nextInt(phraseNames.size()));
     }
 
     public ArrayList<String> getCategoriesList() {
@@ -65,9 +75,13 @@ public class Database {
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch){
-        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.GetAllPhrases(), establishConnection());
+        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+        ArrayList<String> phraseNames = new ArrayList<>();
+        for (String phrase : allPhrases) {
+            phraseNames.add(phrase.split("\n")[0]);
+        }
         ArrayList<String> matchingPhrases = new ArrayList<>();
-        for (String phrase : allPhrases){
+        for (String phrase : phraseNames){
             boolean isMatching = true;
             if (phrase.length() == toMatch.length()){
                 for (int i = 0; i < phrase.length(); i++){
@@ -93,7 +107,7 @@ public class Database {
 
     public static void main(String[] args) {
         Database database = Database.getInstance();
-        database.insertPhrases();
         System.out.println(database.getMatchingPhrases("Kod da _____"));
+        System.out.println(database.getRandomPhrase("Filmy"));
     }
 }

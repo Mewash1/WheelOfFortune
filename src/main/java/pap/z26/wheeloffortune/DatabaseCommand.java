@@ -65,7 +65,6 @@ public class DatabaseCommand{
             phrases.add("INSERT INTO Phrases VALUES (8, 'Ojciec Chrzestny', 'Filmy')");
             phrases.add("INSERT INTO Phrases VALUES (9, 'Kod da Vinci', 'Filmy')");
             phrases.add("INSERT INTO Phrases VALUES (10, 'Faceci w czerni', 'Filmy')");
-            phrases.add("INSERT INTO Phrases VALUES (11, 'Kod da Matka', 'Filmy')");
             for (String phrase : phrases) {
                 try {
                     stmt.execute(phrase);
@@ -74,14 +73,14 @@ public class DatabaseCommand{
         }
     }
 
-    public static class GetAllPhrases implements returnArrayListCommand{
+    public static class getAllPhrases implements returnArrayListCommand{
         @Override
         public ArrayList<String> execute(Statement stmt) {
             ArrayList<String> phrases = new ArrayList<>();
             try{
-                ResultSet results = stmt.executeQuery("SELECT Content FROM Phrases");
+                ResultSet results = stmt.executeQuery("SELECT Content, Category FROM Phrases");
                 while (results.next()){
-                    phrases.add(results.getString("Content"));
+                    phrases.add(results.getString("Content") + "\n" + results.getString("Category"));
                 }
             } catch (SQLException ignored) {}
             return phrases;
