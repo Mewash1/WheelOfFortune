@@ -106,8 +106,10 @@ public class BotPlayer implements Player {
         switch (choice) {
             case 3 -> this.game.guessLetter(this, getVowel());
             case 2 -> {
-                this.hasSpunTheWheel = true;
-                this.game.spinTheWheel(this);
+
+                if (this.game.spinTheWheel(this)){
+                    this.hasSpunTheWheel = true;
+                }
             }
             default -> this.game.guessPhrase(this, getPhrase());
         }
