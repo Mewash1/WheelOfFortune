@@ -82,6 +82,8 @@ public class BotPlayer implements Player {
     public Game getGame(){
         return this.game;
     }
+
+
     @Override
     public void makeAMove() {
         if (hasSpunTheWheel){

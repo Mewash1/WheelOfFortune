@@ -107,6 +107,8 @@ public class HumanPlayer implements Player {
     public Game getGame(){
         return this.game;
     }
+
+
     @Override
     public void makeAMove() {
         showGameState();
