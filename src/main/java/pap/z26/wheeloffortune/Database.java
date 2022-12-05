@@ -64,11 +64,36 @@ public class Database {
         return false;
     }
 
+    public ArrayList<String> getMatchingPhrases(String toMatch){
+        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.GetAllPhrases(), establishConnection());
+        ArrayList<String> matchingPhrases = new ArrayList<>();
+        for (String phrase : allPhrases){
+            boolean isMatching = true;
+            if (phrase.length() == toMatch.length()){
+                for (int i = 0; i < phrase.length(); i++){
+                    if ((Character.compare(toMatch.charAt(i), '_') != 0 && (Character.compare(toMatch.charAt(i), phrase.charAt(i)) != 0))){
+                        isMatching = false;
+                        break;
+                    }
+                }
+                if (isMatching){
+                    matchingPhrases.add(phrase);
+                }
+            }
+        }
+        return matchingPhrases;
+    }
     /*public ArrayList<LeaderboardRecord> getHighScores(int count) {
         return null;
     }*/
 
     public boolean updateDatabase() {
         return false; // to na później
+    }
+
+    public static void main(String[] args) {
+        Database database = Database.getInstance();
+        database.insertPhrases();
+        System.out.println(database.getMatchingPhrases("Kod da _____"));
     }
 }

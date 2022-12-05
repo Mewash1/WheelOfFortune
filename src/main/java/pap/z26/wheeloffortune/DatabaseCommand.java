@@ -1,5 +1,6 @@
 package pap.z26.wheeloffortune;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -7,6 +8,9 @@ import java.util.ArrayList;
 public class DatabaseCommand{
     public interface Command {
         void execute(Statement stmt);
+    }
+    public interface returnArrayListCommand{
+        ArrayList<String> execute(Statement stmt);
     }
     public static class CreateTables implements Command {
         public void execute(Statement stmt) {
@@ -61,6 +65,7 @@ public class DatabaseCommand{
             phrases.add("INSERT INTO Phrases VALUES (8, 'Ojciec Chrzestny', 'Filmy')");
             phrases.add("INSERT INTO Phrases VALUES (9, 'Kod da Vinci', 'Filmy')");
             phrases.add("INSERT INTO Phrases VALUES (10, 'Faceci w czerni', 'Filmy')");
+            phrases.add("INSERT INTO Phrases VALUES (11, 'Kod da Matka', 'Filmy')");
             for (String phrase : phrases) {
                 try {
                     stmt.execute(phrase);
@@ -69,8 +74,23 @@ public class DatabaseCommand{
         }
     }
 
+    public static class GetAllPhrases implements returnArrayListCommand{
+        @Override
+        public ArrayList<String> execute(Statement stmt) {
+            ArrayList<String> phrases = new ArrayList<>();
+            try{
+                ResultSet results = stmt.executeQuery("SELECT Content FROM Phrases");
+                while (results.next()){
+                    phrases.add(results.getString("Content"));
+                }
+            } catch (SQLException ignored) {}
+            return phrases;
+        }
+    }
+
     public static void callCommand(Command command, Statement stmt) {
         command.execute(stmt);
     }
+    public static ArrayList<String> callReturnArrayListCommand(returnArrayListCommand command, Statement stmt) {return command.execute(stmt);}
 }
 
