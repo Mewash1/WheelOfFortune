@@ -24,6 +24,7 @@ public class GameWindowGUI extends JFrame {
     private JCheckBox visibleCheckBox;
     private JLabel roundNr3Label;
     private JButton addPlayerButton;
+    private JButton spinWheelButton;
 
     public GameWindowGUI() {
         setTitle("WheelOfFortune");
