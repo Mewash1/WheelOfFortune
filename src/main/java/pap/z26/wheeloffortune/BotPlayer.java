@@ -1,24 +1,27 @@
 package pap.z26.wheeloffortune;
 
 import java.util.ArrayList;
-import java.util.Collections;
+//import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
+//import java.util.stream.Stream;
 
 public class BotPlayer implements Player {
 
     public BotPlayer(String name) {
-        this.name = name;
+        if (name.length() == 0) name = "";
+        setName(name);
     }
     Game game;
     String name;
 
     private boolean hasSpunTheWheel = false;
+    private boolean hasGuessedCorrectly = false;
 
 
-    public void setName(){
-        this.name = "Jeff";
+    public void setName(String name){
+        this.name = name;
+        if (name.equals("")) this.name = "Jeff";
     }
 
 
@@ -57,7 +60,7 @@ public class BotPlayer implements Player {
         String returnPhraseStr = this.game.getPhrase();
         var returnPhrase = returnPhraseStr.toCharArray();
         for (int i = 0; i < returnPhrase.length; i++){
-            if (returnPhrase[i] == '#'){
+            if (returnPhrase[i] == '_'){
                 Random rand = new Random();
                 returnPhrase[i] = GameWord.letters.get(rand.nextInt(GameWord.letters.size()));
             }
@@ -81,41 +84,62 @@ public class BotPlayer implements Player {
 
     @Override
     public void makeAMove() {
+
         if (hasSpunTheWheel){
-            this.game.guessLetter(this, getConsonant());
+            //guess a consonant after spinning the wheel
+            hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
             hasSpunTheWheel = false;
             return;
         }
+
         int choice;
         Random rand = new Random();
-        if (this.game.getRoundScores().get(this) >= 200){
-            if (this.game.hasNotGuessedConsonants()){
-                choice = rand.nextInt(3);
+
+        if (!this.game.hasNotGuessedConsonants()){
+            //no vowels - cannot spin the wheel
+            //guess a phrase or buy vowel if you can afford it
+            if (this.game.getRoundScores().get(this) >= 200){
+                char[] options = {1, 3};
+                choice = options[rand.nextInt(2)];
+            } else {
+                choice = 1;
             }
-            else{
-                choice = rand.nextInt(2);
-            }
-        } else if (this.game.hasNotGuessedConsonants()) {
-            char[] options = {1, 3};
-            choice = options[rand.nextInt(2)];
-        }else {
-            choice = 1;
         }
-        if(!this.hasSpunTheWheel)  choice = 2;
+        else {
+            if (hasGuessedCorrectly) {
+                //can spin, buy vowel, guess the phrase
+                if (this.game.getRoundScores().get(this) >= 200) {
+                    choice = rand.nextInt(3);
+
+                    if (choice == 1){
+                        //to reduce guessing the phrase (1/21 chance)
+                        choice = rand.nextInt(7);
+                    }
+                } else {
+                    //to reduce guessing the phrase (1/20 chance)
+                    choice = rand.nextInt(20);
+                }
+            } else {
+                //first move - opponent failed
+                //can only spin the wheel
+                choice = 2;
+            }
+        }
+
         switch (choice) {
             case 3 -> {
-                this.game.guessLetter(this, getVowel());
+                hasGuessedCorrectly = (this.game.guessLetter(this, getVowel()) != 0) ;
                 hasSpunTheWheel = false;
             }
-            case 2 -> {
+            case 1 -> {
+                this.game.guessPhrase(this, getPhrase());
+                hasSpunTheWheel = false;
+            }
+            default -> {
 
                 if (this.game.spinTheWheel(this)){
                     this.hasSpunTheWheel = true;
                 }
-            }
-            default -> {
-                this.game.guessPhrase(this, getPhrase());
-                hasSpunTheWheel = false;
             }
         }
     }
