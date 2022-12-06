@@ -7,11 +7,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.Vector;
 
 public class GameWindowGUI extends JFrame {
     private JButton newGameButton;
-    private JProgressBar RoundProgress;
+    private JProgressBar roundProgress;
     private JButton guessLetter;
     private JButton fullGuess;
     private JTable playersScores;
@@ -61,7 +60,9 @@ public class GameWindowGUI extends JFrame {
         setContentPane(mainPannel);
         setTitle("WheelOfFortune");
         setSize(650, 400);
+        roundProgress.setMaximum(5);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
+        currentPlayer.setText(ourPlayer.getName());
         setVisible(true);
 
         this.game = game;
@@ -94,6 +95,7 @@ public class GameWindowGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean result = game.spinTheWheel(ourPlayer);
+                pricePool.setText(Integer.toString(game.getLastRolled())+"$");
                 System.out.println(result?"Spinning":"You can't spin now");
             }
         });
@@ -101,6 +103,7 @@ public class GameWindowGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 game.startGame();
+                roundProgress.setValue(3);
                 System.out.println("Starting a new game");
             }
         });
@@ -150,9 +153,9 @@ public class GameWindowGUI extends JFrame {
         addPlayerButton = new JButton();
         addPlayerButton.setText("Add Player");
         topToolBar.add(addPlayerButton);
-        RoundProgress = new JProgressBar();
-        RoundProgress.setString("75%");
-        mainPannel.add(RoundProgress, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 4), null, 0, false));
+        roundProgress = new JProgressBar();
+        roundProgress.setString("75%");
+        mainPannel.add(roundProgress, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 4), null, 0, false));
         mainDivider = new JSplitPane();
         mainDivider.setContinuousLayout(true);
         mainDivider.setEnabled(true);

@@ -41,7 +41,7 @@
           </component>
         </children>
       </toolbar>
-      <component id="7baaf" class="javax.swing.JProgressBar" binding="RoundProgress">
+      <component id="7baaf" class="javax.swing.JProgressBar" binding="roundProgress">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="475" height="4"/>
@@ -194,8 +194,8 @@
                 <properties>
                   <editable value="false"/>
                   <focusable value="false"/>
-                  <text value="example _____ion"/>
-                  <toolTipText value="solution goes here:"/>
+                  <text value="Start New Round"/>
+                  <toolTipText value=""/>
                 </properties>
               </component>
             </children>
