@@ -46,15 +46,15 @@ public class GameWindowGUI extends JFrame {
 
     public void updateGUI() {
         roundSollution.setText(game.getPhrase());
-        HashMap<Player, Integer> playersScoresMap = game.getScores();
+        HashMap<Player, Integer> playersScoresMap = game.getRoundScores();
         DefaultTableModel tableModel = new DefaultTableModel();
-        tableModel.setRowCount(playersScoresMap.size());
         tableModel.setColumnCount(2);
         for(Player player: playersScoresMap.keySet()) {
             Object[] row = {player.getName(), playersScoresMap.get(player)};
             tableModel.addRow(row);
         }
         playersScores.setModel(tableModel);
+        guessesHistory.ensureIndexIsVisible(listModel.size()-1);
     }
 
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {

@@ -73,7 +73,6 @@ public class Game {
     }
 
     private void nextMove() {
-        wheelSpun = false;
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
@@ -89,8 +88,10 @@ public class Game {
                 assignNextPlayer();
             } else if (result == -1) {
                 assignNextPlayer();
+            } else if (result == -2) {
+                wheelSpun = false;
             }
-            window.writeToGameLog("Player " + player.getGame() + " spun the wheel and got " + result);
+            window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + result);
             window.updateGUI();
             nextMove();
             return true;
@@ -108,8 +109,10 @@ public class Game {
     public int guessLetter(Player player, char letter) {
         if(!wheelSpun) {
             window.writeToGameLog("You need to spin the wheel first");
+            nextMove();
             return -69;
         }
+        wheelSpun = false;
         int result = gameWord.guessLetter(letter);
         if (result == 0) {
             assignNextPlayer();

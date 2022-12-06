@@ -101,6 +101,7 @@ public class BotPlayer implements Player {
         }else {
             choice = 1;
         }
+        if(!this.hasSpunTheWheel)  choice = 2;
         switch (choice) {
             case 3 -> this.game.guessLetter(this, getVowel());
             case 2 -> {

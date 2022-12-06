@@ -36,11 +36,11 @@ public class GameWord {
             count = 1;
             notGuessedWord = notGuessedWord.replaceAll(String.valueOf(letter), "#");
             StringBuilder updatedWord = new StringBuilder(displayedWord);
-            int findIndex = notGuessedWord.indexOf(letter);
+            int findIndex = word.indexOf(letter);
             while (findIndex != -1) {
                 count++;
                 updatedWord.setCharAt(findIndex, letter);
-                findIndex = notGuessedWord.indexOf(letter, findIndex);
+                findIndex = word.indexOf(letter, findIndex+1);
             }
             displayedWord = updatedWord.toString();
         }
