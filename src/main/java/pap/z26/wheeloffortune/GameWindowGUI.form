@@ -86,8 +86,8 @@
                     </constraints>
                     <properties>
                       <enabled value="true"/>
-                      <text value="5000$"/>
-                      <toolTipText value="random price:"/>
+                      <text value=""/>
+                      <toolTipText value="Price for guessing a letter"/>
                     </properties>
                   </component>
                   <component id="d7a0d" class="javax.swing.JLabel" binding="currentPlayer">
@@ -96,8 +96,8 @@
                     </constraints>
                     <properties>
                       <enabled value="true"/>
-                      <text value="Player1"/>
-                      <toolTipText value="currentplayer:"/>
+                      <text value="Category"/>
+                      <toolTipText value="Category"/>
                     </properties>
                   </component>
                   <component id="89e0a" class="javax.swing.JLabel" binding="roundNr3Label" default-binding="true">
@@ -109,7 +109,8 @@
                     <properties>
                       <horizontalAlignment value="0"/>
                       <horizontalTextPosition value="0"/>
-                      <text value="Round nr 3"/>
+                      <text value="Round"/>
+                      <toolTipText value="Round number"/>
                     </properties>
                   </component>
                   <component id="731fd" class="javax.swing.JButton" binding="spinWheelButton">
@@ -243,12 +244,8 @@
                         <constraints/>
                         <properties>
                           <enabled value="true"/>
-                          <model>
-                            <item value="temp"/>
-                            <item value="temp2"/>
-                            <item value="temp3"/>
-                            <item value="temp4"/>
-                          </model>
+                          <model/>
+                          <toolTipText value="Game logs"/>
                         </properties>
                       </component>
                     </children>
