@@ -1,8 +1,10 @@
 package pap.z26.wheeloffortune;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class BotPlayer implements Player {
 
@@ -22,10 +24,9 @@ public class BotPlayer implements Player {
 
 
     private char getVowel(){
-        char [] vowelList ={'a', 'e', 'i', 'o', 'u', 'y'};
         ArrayList<Character> possibleVowels = new ArrayList<>();
-        for (int k = 0; k < vowelList.length; k++) {
-            char i = vowelList[k];
+        for (int k = 0; k < GameWord.vowels.size(); k++) {
+            char i = GameWord.vowels.get(k);
             possibleVowels.add(i);
             for (char j : game.getPhrase().toCharArray()) {
                 if (i == j) {
@@ -39,9 +40,8 @@ public class BotPlayer implements Player {
     }
 
     private char getConsonant(){
-        char [] consonantList ={'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'};
         List<Character> possibleConsonants = new ArrayList<>();
-        for (char i : consonantList){
+        for (char i : GameWord.consonants){
             possibleConsonants.add(i);
             for (char j : game.getPhrase().toCharArray()){
                 if (i == j){
@@ -55,13 +55,12 @@ public class BotPlayer implements Player {
     }
 
     private String getPhrase(){
-        char [] letterList = {'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z', 'a', 'e', 'i', 'o', 'u', 'y'};
         String returnPhraseStr = this.game.getPhrase();
         var returnPhrase = returnPhraseStr.toCharArray();
         for (int i = 0; i < returnPhrase.length; i++){
             if (returnPhrase[i] == '#'){
                 Random rand = new Random();
-                returnPhrase[i] = letterList[rand.nextInt(letterList.length)];
+                returnPhrase[i] = GameWord.letters.get(rand.nextInt(GameWord.letters.size()));
             }
         }
         return String.valueOf(returnPhrase);

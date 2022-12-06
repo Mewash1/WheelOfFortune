@@ -2,9 +2,12 @@ package pap.z26.wheeloffortune;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class GameWindowGUI extends JFrame {
     private JButton newGameButton;
@@ -34,9 +37,24 @@ public class GameWindowGUI extends JFrame {
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
+    private Game game;
+
     public void writeToGameLog(String content) {
         listModel.addElement(content);
         guessesHistory.setModel(listModel);
+    }
+
+    public void updateGUI() {
+        roundSollution.setText(game.getPhrase());
+        HashMap<Player, Integer> playersScoresMap = game.getScores();
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.setRowCount(playersScoresMap.size());
+        tableModel.setColumnCount(2);
+        for(Player player: playersScoresMap.keySet()) {
+            Object[] row = {player.getName(), playersScoresMap.get(player)};
+            tableModel.addRow(row);
+        }
+        playersScores.setModel(tableModel);
     }
 
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {
@@ -45,6 +63,8 @@ public class GameWindowGUI extends JFrame {
         setSize(450, 300);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
         setVisible(true);
+
+        this.game = game;
 
         guessLetter.addActionListener(new ActionListener() {
             @Override

@@ -1,11 +1,28 @@
 package pap.z26.wheeloffortune;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class GameWord {
 
     private final String word;
     private String displayedWord, notGuessedWord;
+
+    public static ArrayList<Character> consonants, vowels, letters;
+
+    static {
+        consonants = new ArrayList<>();
+        vowels = new ArrayList<>();
+        String consonantsString = "qwrtpsdfghjklzxcvbnmćżźńłś", vowelsString = "aeiouyąęó";
+        for (int i=0; i<consonantsString.length(); i++) {
+            consonants.add(consonantsString.charAt(i));
+        }
+        for(int i=0; i<vowelsString.length(); i++) {
+            vowels.add(vowelsString.charAt(i));
+        }
+        letters = new ArrayList<>(consonants);
+        letters.addAll(vowels);
+    }
 
     public GameWord(String word) {
         this.word = word.toLowerCase(Locale.ROOT);
@@ -39,7 +56,6 @@ public class GameWord {
     }
 
     public boolean hasNotGuessedConsonants() {
-        char[] consonants = {'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'c', 'b', 'n', 'm'};
         for (char consonant : consonants) {
             if (notGuessedWord.contains(String.valueOf(consonant))) {
                 return true;

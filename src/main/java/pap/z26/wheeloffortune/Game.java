@@ -10,7 +10,7 @@ public class Game {
     private final ArrayList<Player> players = new ArrayList<>();
     private Player currentPlayer = null, winner = null;
     private final HashMap<Player, Integer> scores = new HashMap<>(), roundScores = new HashMap<>();
-    private boolean inProgress;
+    private boolean inProgress, wheelSpun;
     private GameState state;
     private GameWord gameWord;
     private final Wheel wheel = new Wheel();
@@ -68,10 +68,12 @@ public class Game {
         currentPlayer = players.get(0);
         advanceRound();
         window.writeToGameLog("The game has started!");
+        window.updateGUI();
         nextMove();
     }
 
     private void nextMove() {
+        wheelSpun = false;
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
@@ -79,7 +81,8 @@ public class Game {
     }
 
     public boolean spinTheWheel(Player player) {
-        if (currentPlayer != null && currentPlayer == player) {
+        if (currentPlayer != null && currentPlayer == player && !wheelSpun) {
+            wheelSpun = true;
             int result = wheel.spin(state);
             if (result == 0) {
                 roundScores.put(currentPlayer, 0);
@@ -88,9 +91,12 @@ public class Game {
                 assignNextPlayer();
             }
             window.writeToGameLog("Player " + player.getGame() + " spun the wheel and got " + result);
+            window.updateGUI();
             nextMove();
+            return true;
         }
         window.writeToGameLog("You can't spin the wheel now!");
+        window.updateGUI();
         return false;
     }
 
@@ -100,6 +106,10 @@ public class Game {
     }
 
     public int guessLetter(Player player, char letter) {
+        if(!wheelSpun) {
+            window.writeToGameLog("You need to spin the wheel first");
+            return -69;
+        }
         int result = gameWord.guessLetter(letter);
         if (result == 0) {
             assignNextPlayer();
@@ -108,11 +118,16 @@ public class Game {
             roundScores.put(player, currentScore + result * wheel.getLastRolled());
         }
         window.writeToGameLog("Player" + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+        window.updateGUI();
         nextMove();
         return result;
     }
 
     public boolean guessPhrase(Player player, String phrase) {
+//        if(!wheelSpun) {
+//            window.writeToGameLog("You need to spin the wheel first");
+//            return false;
+//        }
         boolean result = gameWord.guessPhrase(phrase);
         if (!result) {
             assignNextPlayer();
@@ -122,6 +137,7 @@ public class Game {
             advanceRound();
         }
         window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
+        window.updateGUI();
         nextMove();
         return result;
     }
@@ -141,6 +157,7 @@ public class Game {
         if (state == GameState.FINAL) {
             winner = Collections.max(scores.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
+        window.updateGUI();
     }
 
     public String getPhrase() {
@@ -168,5 +185,9 @@ public class Game {
             return winner;
         }
         return null;
+    }
+
+    public boolean isWheelSpun() {
+        return wheelSpun;
     }
 }
