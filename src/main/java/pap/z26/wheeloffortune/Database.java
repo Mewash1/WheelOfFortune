@@ -53,13 +53,13 @@ public class Database {
     private void insertPhrases() {
         DatabaseCommand.callCommand(new DatabaseCommand.InsertPhrases(), establishConnection());
     }
-    public String getRandomPhrase(String category) {
+    public Phrase getRandomPhrase(String category) {
         ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
-        ArrayList<String> phraseNames = new ArrayList<>();
+        ArrayList<Phrase> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             String[] phraseList = phrase.split("\n");
             if (category == null || phraseList[1].equals(category)) {
-                phraseNames.add(phraseList[0]);
+                phraseNames.add(new Phrase(phraseList[0], phraseList[1]));
             }
         }
         Random randomizer = new Random();

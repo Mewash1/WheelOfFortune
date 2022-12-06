@@ -13,6 +13,7 @@ public class Game {
     private boolean inProgress, wheelSpun;
     private GameState state;
     private GameWord gameWord;
+    private String category;
     private final Wheel wheel = new Wheel();
     private GameWindowGUI window;
 
@@ -165,7 +166,9 @@ public class Game {
                 }
                 roundScores.put(player, 0);
             }
-            gameWord = new GameWord(database.getRandomPhrase(null));
+            Phrase gamePhrase = database.getRandomPhrase(null);
+            gameWord = new GameWord(gamePhrase.phrase());
+            category = gamePhrase.category();
         }
         state = state.next();
         window.writeToGameLog("Round " + state.toString() + " is starting!");
@@ -190,8 +193,15 @@ public class Game {
         return roundScores;
     }
 
-    public int getLastRolled() {
-        return wheel.getLastRolled();
+    public String getLastRolled() {
+        String lastRolled;
+        switch (wheel.getLastRolled()) {
+            case -2 -> lastRolled = "Roll again";
+            case -1 -> lastRolled = "Pass";
+            case 0 -> lastRolled = "Bankrupt!";
+            default -> lastRolled = "$" + wheel.getLastRolled();
+        }
+        return lastRolled;
     }
 
     public boolean hasNotGuessedConsonants() {
@@ -211,5 +221,9 @@ public class Game {
 
     public GameState getState() {
         return state;
+    }
+
+    public String getCategory() {
+        return category;
     }
 }

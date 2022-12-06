@@ -46,7 +46,11 @@ public class GameWindowGUI extends JFrame {
 
     public void updateGUI() {
         if(game.getState() != GameState.ENDED) {
-            roundSollution.setText(game.getPhrase());
+            String phrase = game.getPhrase();
+            if(!game.hasNotGuessedConsonants()) {
+                phrase += " [NO CONSONANTS LEFT]";
+            }
+            roundSollution.setText(phrase);
         } else {
             roundSollution.setText(game.getWinner().getName() + " wins!");
         }
@@ -61,6 +65,9 @@ public class GameWindowGUI extends JFrame {
             tableModel.addRow(row);
         }
         playersScores.setModel(tableModel);
+        roundNr3Label.setText(String.valueOf(game.getState()));
+        currentPlayer.setText(game.getCategory());
+        pricePool.setText(game.getLastRolled());
     }
 
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {
