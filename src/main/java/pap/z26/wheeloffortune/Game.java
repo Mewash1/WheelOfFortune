@@ -77,6 +77,7 @@ public class Game {
     }
 
     private void nextMove() {
+        if(currentPlayer == null) return;
         window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
@@ -85,7 +86,8 @@ public class Game {
     }
 
     public boolean spinTheWheel(Player player) {
-        if (currentPlayer != null && currentPlayer == player && !wheelSpun) {
+        if(currentPlayer == null) return false;
+        if (currentPlayer == player && !wheelSpun) {
             wheelSpun = true;
             int result = wheel.spin(state);
             if (result == 0) {
@@ -114,6 +116,7 @@ public class Game {
     }
 
     public int guessLetter(Player player, char letter) {
+        if(currentPlayer == null) return -69;
         if(!wheelSpun) {
             window.writeToGameLog("You need to spin the wheel first");
             nextMove();
@@ -138,6 +141,7 @@ public class Game {
 //            window.writeToGameLog("You need to spin the wheel first");
 //            return false;
 //        }
+        if(currentPlayer == null || player != currentPlayer) return false;
         boolean result = gameWord.guessPhrase(phrase);
         window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
         if (!result) {
@@ -167,6 +171,9 @@ public class Game {
         window.writeToGameLog("Round " + state.toString() + " is starting!");
         if (state == GameState.FINAL) {
             winner = Collections.max(scores.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+        }
+        if (state == GameState.ENDED) {
+            currentPlayer = null;
         }
         window.updateGUI();
     }
@@ -200,5 +207,9 @@ public class Game {
 
     public boolean isWheelSpun() {
         return wheelSpun;
+    }
+
+    public GameState getState() {
+        return state;
     }
 }

@@ -45,7 +45,11 @@ public class GameWindowGUI extends JFrame {
     }
 
     public void updateGUI() {
-        roundSollution.setText(game.getPhrase());
+        if(game.getState() != GameState.ENDED) {
+            roundSollution.setText(game.getPhrase());
+        } else {
+            roundSollution.setText(game.getWinner().getName() + " wins!");
+        }
         HashMap<Player, Integer> roundScores = game.getRoundScores();
         HashMap<Player, Integer> playerScoresMap = game.getScores();
         DefaultTableModel tableModel = new DefaultTableModel();
