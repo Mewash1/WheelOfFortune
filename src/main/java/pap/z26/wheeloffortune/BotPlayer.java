@@ -8,9 +8,8 @@ import java.util.stream.Stream;
 
 public class BotPlayer implements Player {
 
-    public BotPlayer(Game game) {
-        this.game = game;
-        setName();
+    public BotPlayer(String name) {
+        this.name = name;
     }
     Game game;
     String name;
@@ -84,6 +83,7 @@ public class BotPlayer implements Player {
     public void makeAMove() {
         if (hasSpunTheWheel){
             this.game.guessLetter(this, getConsonant());
+            hasSpunTheWheel = false;
             return;
         }
         int choice;
@@ -103,14 +103,20 @@ public class BotPlayer implements Player {
         }
         if(!this.hasSpunTheWheel)  choice = 2;
         switch (choice) {
-            case 3 -> this.game.guessLetter(this, getVowel());
+            case 3 -> {
+                this.game.guessLetter(this, getVowel());
+                hasSpunTheWheel = false;
+            }
             case 2 -> {
 
                 if (this.game.spinTheWheel(this)){
                     this.hasSpunTheWheel = true;
                 }
             }
-            default -> this.game.guessPhrase(this, getPhrase());
+            default -> {
+                this.game.guessPhrase(this, getPhrase());
+                hasSpunTheWheel = false;
+            }
         }
     }
 }

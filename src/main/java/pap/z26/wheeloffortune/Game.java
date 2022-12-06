@@ -73,6 +73,7 @@ public class Game {
     }
 
     private void nextMove() {
+        window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
@@ -86,8 +87,10 @@ public class Game {
             if (result == 0) {
                 roundScores.put(currentPlayer, 0);
                 assignNextPlayer();
+                wheelSpun = false;
             } else if (result == -1) {
                 assignNextPlayer();
+                wheelSpun = false;
             } else if (result == -2) {
                 wheelSpun = false;
             }
@@ -120,7 +123,7 @@ public class Game {
             int currentScore = roundScores.get(player);
             roundScores.put(player, currentScore + result * wheel.getLastRolled());
         }
-        window.writeToGameLog("Player" + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+        window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
         window.updateGUI();
         nextMove();
         return result;
@@ -152,6 +155,7 @@ public class Game {
         } else {
             for(Player player: players) {
                 roundScores.put(player, 0);
+                scores.put(player, 0);
             }
             gameWord = new GameWord(database.getRandomPhrase(null));
         }

@@ -9,5 +9,7 @@ public class WheelOfFortune {
         game.setGameWindow(gameWindow);
 
         game.joinGame(ourPlayer);
+        game.joinGame(new BotPlayer("Jeff"));
+        game.joinGame(new BotPlayer("Andruszkiewicz"));
     }
 }

@@ -113,7 +113,7 @@ public class GameWindowGUI extends JFrame {
         addPlayerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                game.joinGame(new BotPlayer(game));
+                game.joinGame(new BotPlayer("RandomBot"));
                 System.out.println("Adding a bot...");
             }
         });
