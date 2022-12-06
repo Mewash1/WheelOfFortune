@@ -66,6 +66,10 @@ public class Game {
         }
         inProgress = true;
         currentPlayer = players.get(0);
+        for(Player player: players) {
+            roundScores.put(player, 0);
+            scores.put(player, 0);
+        }
         advanceRound();
         window.writeToGameLog("The game has started!");
         window.updateGUI();
@@ -135,14 +139,12 @@ public class Game {
 //            return false;
 //        }
         boolean result = gameWord.guessPhrase(phrase);
+        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
         if (!result) {
             assignNextPlayer();
         } else {
-            int currentScore = scores.get(player);
-            scores.put(player, currentScore + roundScores.get(player));
             advanceRound();
         }
-        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
         window.updateGUI();
         nextMove();
         return result;
@@ -154,8 +156,10 @@ public class Game {
             database.saveGameResult(winner.getName(), scores.get(winner));
         } else {
             for(Player player: players) {
+                if(currentPlayer != null) {
+                    scores.put(player, scores.get(player) + (player == currentPlayer ? roundScores.get(player) : 0));
+                }
                 roundScores.put(player, 0);
-                scores.put(player, 0);
             }
             gameWord = new GameWord(database.getRandomPhrase(null));
         }

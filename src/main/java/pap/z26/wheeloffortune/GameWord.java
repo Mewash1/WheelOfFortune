@@ -27,13 +27,18 @@ public class GameWord {
     public GameWord(String word) {
         this.word = word.toLowerCase(Locale.ROOT);
         this.notGuessedWord = word.toLowerCase(Locale.ROOT);
-        displayedWord = "_".repeat(word.length());
+        StringBuilder displayedWordBuilder = new StringBuilder("_".repeat(word.length()));
+        for(int i = 0; i<this.word.length(); i++) {
+            if(word.charAt(i) == ' ') {
+                displayedWordBuilder.setCharAt(i, ' ');
+            }
+        }
+        displayedWord = displayedWordBuilder.toString();
     }
 
     public int guessLetter(char letter) {
         int count = 0;
         if (notGuessedWord.contains(String.valueOf(letter))) {
-            count = 1;
             notGuessedWord = notGuessedWord.replaceAll(String.valueOf(letter), "#");
             StringBuilder updatedWord = new StringBuilder(displayedWord);
             int findIndex = word.indexOf(letter);

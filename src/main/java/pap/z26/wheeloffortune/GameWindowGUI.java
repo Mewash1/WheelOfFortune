@@ -40,21 +40,23 @@ public class GameWindowGUI extends JFrame {
     private Game game;
 
     public void writeToGameLog(String content) {
-        listModel.addElement(content);
+        listModel.add(0, content);
         guessesHistory.setModel(listModel);
     }
 
     public void updateGUI() {
         roundSollution.setText(game.getPhrase());
-        HashMap<Player, Integer> playersScoresMap = game.getRoundScores();
+        HashMap<Player, Integer> roundScores = game.getRoundScores();
+        HashMap<Player, Integer> playerScoresMap = game.getScores();
         DefaultTableModel tableModel = new DefaultTableModel();
-        tableModel.setColumnCount(2);
-        for(Player player: playersScoresMap.keySet()) {
-            Object[] row = {player.getName(), playersScoresMap.get(player)};
+        tableModel.setColumnCount(3);
+        Object[] header = {"Player", "Round score", "Total"};
+        tableModel.addRow(header);
+        for(Player player: roundScores.keySet()) {
+            Object[] row = {player.getName(), roundScores.get(player), playerScoresMap.get(player)};
             tableModel.addRow(row);
         }
         playersScores.setModel(tableModel);
-        guessesHistory.ensureIndexIsVisible(listModel.size()-1);
     }
 
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {

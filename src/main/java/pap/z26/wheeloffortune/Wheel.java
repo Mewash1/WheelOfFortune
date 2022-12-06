@@ -21,6 +21,7 @@ public class Wheel {
     }
 
     public int spin(GameState state) {
+        state = GameState.ROUND1;
         lastRolled = wheelContents.get(state)[random.nextInt(wheelContents.get(state).length)];
         return lastRolled;
     }
