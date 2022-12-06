@@ -58,7 +58,7 @@ public class Database {
         ArrayList<String> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             String[] phraseList = phrase.split("\n");
-            if (phraseList[1].equals(category)) {
+            if (category == null || phraseList[1].equals(category)) {
                 phraseNames.add(phraseList[0]);
             }
         }

@@ -9,7 +9,7 @@ public class GameWord {
 
     public GameWord(String word) {
         this.word = word.toLowerCase(Locale.ROOT);
-        this.notGuessedWord = word;
+        this.notGuessedWord = word.toLowerCase(Locale.ROOT);
         displayedWord = "_".repeat(word.length());
     }
 

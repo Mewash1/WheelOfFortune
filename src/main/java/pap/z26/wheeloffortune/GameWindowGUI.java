@@ -32,12 +32,20 @@ public class GameWindowGUI extends JFrame {
     private JButton addPlayerButton;
     private JButton spinWheelButton;
 
+    private final DefaultListModel<String> listModel = new DefaultListModel<>();
+
+    public void writeToGameLog(String content) {
+        listModel.addElement(content);
+        guessesHistory.setModel(listModel);
+    }
+
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {
         setContentPane(mainPannel);
         setTitle("WheelOfFortune");
         setSize(450, 300);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
         setVisible(true);
+
         guessLetter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

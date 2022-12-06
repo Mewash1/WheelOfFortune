@@ -112,34 +112,34 @@ public class HumanPlayer implements Player {
 
     @Override
     public void makeAMove() {
-        showGameState();
-        int decision = 0;
-        while (decision == 0) {
-            try {
-                decision = getDecision();
-                switch (decision) {
-                    case 1: {
-                        if (game.hasNotGuessedConsonants()) {
-                            this.game.spinTheWheel(this);
-                            System.out.println(this.game.getLastRolled());
-                        }
-                        throw new IllegalArgumentException("You cannot spin the wheel as there are no uncovered consonants in the phrase");
-                    }
-                    case 2: {
-                        this.game.guessLetter(this, getConsonant());
-                    }
-
-                    case 3: {
-                        this.game.guessLetter(this, getVowel());
-                    }
-                    default: {
-                        this.game.guessPhrase(this, getPhrase());
-                    }
-                }
-            } catch (IllegalArgumentException e) {
-                decision = 0;
-                System.out.println(e.getMessage());
-            }
-        }
+//        showGameState();
+//        int decision = 0;
+//        while (decision == 0) {
+//            try {
+//                decision = getDecision();
+//                switch (decision) {
+//                    case 1: {
+//                        if (game.hasNotGuessedConsonants()) {
+//                            this.game.spinTheWheel(this);
+//                            System.out.println(this.game.getLastRolled());
+//                        }
+//                        throw new IllegalArgumentException("You cannot spin the wheel as there are no uncovered consonants in the phrase");
+//                    }
+//                    case 2: {
+//                        this.game.guessLetter(this, getConsonant());
+//                    }
+//
+//                    case 3: {
+//                        this.game.guessLetter(this, getVowel());
+//                    }
+//                    default: {
+//                        this.game.guessPhrase(this, getPhrase());
+//                    }
+//                }
+//            } catch (IllegalArgumentException e) {
+//                decision = 0;
+//                System.out.println(e.getMessage());
+//            }
+//        }
     }
 }

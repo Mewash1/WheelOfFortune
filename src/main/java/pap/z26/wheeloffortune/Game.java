@@ -14,7 +14,7 @@ public class Game {
     private GameState state;
     private GameWord gameWord;
     private final Wheel wheel = new Wheel();
-    private GameWindow window;
+    private GameWindowGUI window;
 
     private static class Mover implements ActionListener {
 
@@ -34,10 +34,15 @@ public class Game {
 
     }
 
+    public void setGameWindow(GameWindowGUI window) {
+        this.window = window;
+    }
+
     public boolean joinGame(Player player) {
         if (player.getGame() == null && players.size() < 3 && !inProgress) {
             players.add(player);
             player.setGame(this);
+            window.writeToGameLog("Player " + player.getName() + " joined the game");
             return true;
         }
         return false;
@@ -47,20 +52,22 @@ public class Game {
         if (!inProgress) {
             player.setGame(null);
             players.remove(player);
+            window.writeToGameLog("Player " + player.getGame() + " left the game");
             return true;
         }
         return false;
     }
 
     public void startGame() {
-        inProgress = true;
         winner = null;
         state = GameState.NOT_STARTED;
         while (players.size() < 3) {
-            players.add(new BotPlayer(this));
+            joinGame(new BotPlayer(null));
         }
+        inProgress = true;
         currentPlayer = players.get(0);
         advanceRound();
+        window.writeToGameLog("The game has started!");
         nextMove();
     }
 
@@ -80,8 +87,10 @@ public class Game {
             } else if (result == -1) {
                 assignNextPlayer();
             }
+            window.writeToGameLog("Player " + player.getGame() + " spun the wheel and got " + result);
             nextMove();
         }
+        window.writeToGameLog("You can't spin the wheel now!");
         return false;
     }
 
@@ -98,6 +107,7 @@ public class Game {
             int currentScore = roundScores.get(player);
             roundScores.put(player, currentScore + result * wheel.getLastRolled());
         }
+        window.writeToGameLog("Player" + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
         nextMove();
         return result;
     }
@@ -111,6 +121,7 @@ public class Game {
             scores.put(player, currentScore + roundScores.get(player));
             advanceRound();
         }
+        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
         nextMove();
         return result;
     }
@@ -126,6 +137,7 @@ public class Game {
             gameWord = new GameWord(database.getRandomPhrase(null));
         }
         state = state.next();
+        window.writeToGameLog("Round " + state.toString() + " is starting!");
         if (state == GameState.FINAL) {
             winner = Collections.max(scores.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
