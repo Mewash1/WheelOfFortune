@@ -2,7 +2,6 @@ package pap.z26.wheeloffortune;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Random;
 
 public class BotPlayer implements Player {
@@ -18,9 +17,7 @@ public class BotPlayer implements Player {
 
 
     public void setName(){
-        System.out.println("Name a bot player :");
-        Scanner input = new Scanner(System.in);
-        this.name = input.nextLine();
+        this.name = "Jeff";
     }
 
 

@@ -1,4 +1,5 @@
 package pap.z26.wheeloffortune;
+
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -6,47 +7,46 @@ public class HumanPlayer implements Player {
 
     Game game;
     String name;
+
     public HumanPlayer(Game game) {
         setGame(game);
-        setName();
+        setName("Player");
     }
 
 
-
-     public void setName(){
-        Scanner input = new Scanner(System.in);
-        this.name = input.nextLine();
+    public void setName(String name) {
+        this.name = name;
     }
 
     private char getVowel() {
-        char [] vowelList ={'a', 'e', 'i', 'o', 'u', 'y'};
-        while (true){
+        char[] vowelList = {'a', 'e', 'i', 'o', 'u', 'y'};
+        while (true) {
             try {
                 System.out.println("What Vowel you want to uncover? :");
                 Scanner vowInput = new Scanner(System.in);
                 String vow = vowInput.nextLine();
-                for (char i : vowelList){
-                    if (i == vow.charAt(0)){
+                for (char i : vowelList) {
+                    if (i == vow.charAt(0)) {
                         return vow.charAt(0);
                     }
                 }
                 throw new IllegalArgumentException("Provided character is not a vowel");
-                } catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
 
             }
         }
     }
 
-    private char getConsonant(){
-        char [] consonantList ={'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'};
-        while (true){
+    private char getConsonant() {
+        char[] consonantList = {'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'};
+        while (true) {
             try {
                 System.out.println("What consonant you want to uncover? :");
                 Scanner consonantInput = new Scanner(System.in);
                 String consonant = consonantInput.nextLine();
-                for (char i : consonantList){
-                    if (i == consonant.charAt(0)){
+                for (char i : consonantList) {
+                    if (i == consonant.charAt(0)) {
                         return consonant.charAt(0);
                     }
                 }
@@ -58,14 +58,14 @@ public class HumanPlayer implements Player {
         }
     }
 
-    private String getPhrase(){
+    private String getPhrase() {
         System.out.println("The phrase is :");
         Scanner consonantInput = new Scanner(System.in);
         return consonantInput.nextLine();
     }
 
 
-    private int getDecision() throws IllegalArgumentException{
+    private int getDecision() throws IllegalArgumentException {
         System.out.println("What is your move? :");
         System.out.println("1: Spin the wheel to guess a consonant");
         System.out.println("2: Guess a consonant");
@@ -74,37 +74,38 @@ public class HumanPlayer implements Player {
         Scanner moveGetter = new Scanner(System.in);
         String theMove = moveGetter.nextLine();
         int moveInt = Integer.parseInt(theMove);
-        if ( 4>= moveInt &&  moveInt>= 0){
+        if (4 >= moveInt && moveInt >= 0) {
             return moveInt;
-        }else {
-                throw new IllegalArgumentException("Wrong input - insert a number from 1 to 4!");
+        } else {
+            throw new IllegalArgumentException("Wrong input - insert a number from 1 to 4!");
         }
     }
 
-    private void showGameState(){
+    private void showGameState() {
         //very temporary function
 
         System.out.println(game.getPhrase());
         HashMap<Player, Integer> scores = game.getRoundScores();
-        for (Player pl : scores.keySet()){
-            if (pl == this){
+        for (Player pl : scores.keySet()) {
+            if (pl == this) {
                 System.out.println("YOU -> ");
             }
             System.out.println(pl.getName() + ": " + scores.get(pl));
         }
     }
+
     @Override
-    public void setGame(Game game){
+    public void setGame(Game game) {
         this.game = game;
     }
 
     @Override
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
     @Override
-    public Game getGame(){
+    public Game getGame() {
         return this.game;
     }
 
@@ -118,7 +119,7 @@ public class HumanPlayer implements Player {
                 decision = getDecision();
                 switch (decision) {
                     case 1: {
-                        if (game.hasNotGuessedConsonants()){
+                        if (game.hasNotGuessedConsonants()) {
                             this.game.spinTheWheel(this);
                             System.out.println(this.game.getLastRolled());
                         }
@@ -135,8 +136,7 @@ public class HumanPlayer implements Player {
                         this.game.guessPhrase(this, getPhrase());
                     }
                 }
-            }
-            catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 decision = 0;
                 System.out.println(e.getMessage());
             }

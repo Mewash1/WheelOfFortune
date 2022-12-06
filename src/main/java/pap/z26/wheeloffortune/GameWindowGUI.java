@@ -32,7 +32,7 @@ public class GameWindowGUI extends JFrame {
     private JButton addPlayerButton;
     private JButton spinWheelButton;
 
-    public GameWindowGUI() {
+    public GameWindowGUI(Game game, HumanPlayer ourPlayer) {
         setContentPane(mainPannel);
         setTitle("WheelOfFortune");
         setSize(450, 300);
@@ -41,13 +41,18 @@ public class GameWindowGUI extends JFrame {
         guessLetter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(playerInput.getText());
+                String toGuess = playerInput.getText();
+                char letterToGuess = toGuess.charAt(0);
+                System.out.println("Guessing " + letterToGuess);
+                game.guessLetter(ourPlayer, letterToGuess);
             }
         });
         fullGuess.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(playerInput.getText());
+                String toGuess = playerInput.getText();
+                System.out.println("Guessing " + toGuess);
+                game.guessPhrase(ourPlayer, toGuess);
             }
         });
         visibleCheckBox.addActionListener(new ActionListener() {
@@ -60,27 +65,28 @@ public class GameWindowGUI extends JFrame {
         spinWheelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Brryyyyt");
+                boolean result = game.spinTheWheel(ourPlayer);
+                System.out.println(result?"Spinning":"You can't spin now");
             }
         });
         newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("We are rich");
+                game.startGame();
+                System.out.println("Starting a new game");
             }
         });
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Nope");
-
+                System.out.println("There's no help");
             }
         });
         addPlayerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Hello player nb 2");
-
+                game.joinGame(new BotPlayer(game));
+                System.out.println("Adding a bot...");
             }
         });
     }
