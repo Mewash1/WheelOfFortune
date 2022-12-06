@@ -87,7 +87,7 @@ public class GameWindowGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JCheckBox c = (JCheckBox) e.getSource();
-                playerInput.setEchoChar(c.isSelected() ? '\u0000' : (char) 0);
+                playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
             }
         });
         spinWheelButton.addActionListener(new ActionListener() {
