@@ -35,7 +35,7 @@ public class GameWindowGUI extends JFrame {
     public GameWindowGUI(Game game, HumanPlayer ourPlayer) {
         setContentPane(mainPannel);
         setTitle("WheelOfFortune");
-        setSize(450, 300);
+        setSize(650, 400);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
         setVisible(true);
         guessLetter.addActionListener(new ActionListener() {
