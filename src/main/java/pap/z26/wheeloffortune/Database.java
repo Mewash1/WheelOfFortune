@@ -11,8 +11,6 @@ public class Database {
 
     private static volatile Database instance;
 
-    private Connection connection;
-
     private Database(){
         DatabaseCommand.callCommand(new DatabaseCommand.CreateTables(), establishConnection());
         this.insertPhrases();
@@ -41,7 +39,7 @@ public class Database {
         }
 
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:wofDatabase.db");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:wofDatabase.db");
             return connection.createStatement();
         } catch (SQLException e) {
             System.err.println("Couldn't connect to wofDatabase.db");
@@ -85,7 +83,7 @@ public class Database {
             boolean isMatching = true;
             if (phrase.length() == toMatch.length()){
                 for (int i = 0; i < phrase.length(); i++){
-                    if ((Character.compare(toMatch.charAt(i), '_') != 0 && (Character.compare(toMatch.charAt(i), phrase.charAt(i)) != 0))){
+                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))){
                         isMatching = false;
                         break;
                     }
@@ -97,9 +95,10 @@ public class Database {
         }
         return matchingPhrases;
     }
-    /*public ArrayList<LeaderboardRecord> getHighScores(int count) {
+
+    public ArrayList<LeaderboardRecord> getHighScores(int count) {
         return null;
-    }*/
+    }
 
     public boolean updateDatabase() {
         return false; // to na później

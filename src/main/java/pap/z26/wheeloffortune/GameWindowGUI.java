@@ -7,8 +7,6 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 public class GameWindowGUI extends JFrame {
@@ -82,57 +80,34 @@ public class GameWindowGUI extends JFrame {
 
         this.game = game;
 
-        guessLetter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String toGuess = playerInput.getText();
-                char letterToGuess = toGuess.charAt(0);
-                System.out.println("Guessing " + letterToGuess);
-                game.guessLetter(ourPlayer, letterToGuess);
-            }
+        guessLetter.addActionListener(e -> {
+            String toGuess = playerInput.getText();
+            char letterToGuess = toGuess.charAt(0);
+            System.out.println("Guessing " + letterToGuess);
+            game.guessLetter(ourPlayer, letterToGuess);
         });
-        fullGuess.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String toGuess = playerInput.getText();
-                System.out.println("Guessing " + toGuess);
-                game.guessPhrase(ourPlayer, toGuess);
-            }
+        fullGuess.addActionListener(e -> {
+            String toGuess = playerInput.getText();
+            System.out.println("Guessing " + toGuess);
+            game.guessPhrase(ourPlayer, toGuess);
         });
-        visibleCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBox c = (JCheckBox) e.getSource();
-                playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
-            }
+        visibleCheckBox.addActionListener(e -> {
+            JCheckBox c = (JCheckBox) e.getSource();
+            playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
-        spinWheelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean result = game.spinTheWheel(ourPlayer);
-                System.out.println(result ? "Spinning" : "You can't spin now");
-            }
+        spinWheelButton.addActionListener(e -> {
+            boolean result = game.spinTheWheel(ourPlayer);
+            System.out.println(result ? "Spinning" : "You can't spin now");
         });
-        newGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                game.startGame();
-                roundProgress.setValue(3);
-                System.out.println("Starting a new game");
-            }
+        newGameButton.addActionListener(e -> {
+            game.startGame();
+            roundProgress.setValue(3);
+            System.out.println("Starting a new game");
         });
-        helpButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("There's no help");
-            }
-        });
-        addPlayerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                game.joinGame(new BotPlayer("RandomBot"));
-                System.out.println("Adding a bot...");
-            }
+        helpButton.addActionListener(e -> System.out.println("There's no help"));
+        addPlayerButton.addActionListener(e -> {
+            game.joinGame(new BotPlayer("RandomBot"));
+            System.out.println("Adding a bot...");
         });
     }
 

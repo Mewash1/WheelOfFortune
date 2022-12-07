@@ -71,7 +71,7 @@ public class Game {
         winner = null;
         state = GameState.NOT_STARTED;
         while (players.size() < 3) {
-            joinGame(new BotPlayer(null));
+            joinGame(new BotPlayer(""));
         }
         inProgress = true;
         currentPlayer = players.get(0);
