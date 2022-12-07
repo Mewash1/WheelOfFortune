@@ -7,5 +7,10 @@ enum GameState {
     ROUND3,
     ROUND4,
     ROUND5,
-    FINAL
+    FINAL,
+    ENDED;
+
+    public GameState next() {
+        return values()[(this.ordinal() + 1) % values().length];
+    }
 }
