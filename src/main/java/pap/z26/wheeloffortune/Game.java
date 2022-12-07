@@ -87,7 +87,7 @@ public class Game {
 
     private void nextMove() {
         if (currentPlayer == null) return;
-        if(moveState == MoveState.HAS_TO_SPIN) {
+        if (moveState == MoveState.HAS_TO_SPIN) {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         Mover mover = new Mover(currentPlayer);
@@ -101,11 +101,11 @@ public class Game {
         if (currentPlayer == player && (moveState == MoveState.HAS_TO_SPIN || moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) && gameWord.hasNotGuessedConsonants()) {
             moveState = MoveState.HAS_TO_GUESS_CONSONANT;
             int result = wheel.spin(state);
-            if(result <= 0) {
-                if(result == 0) {
+            if (result <= 0) {
+                if (result == 0) {
                     roundScores.put(currentPlayer, 0);
                 }
-                if(result >= -1) {
+                if (result >= -1) {
                     assignNextPlayer();
                 }
                 moveState = MoveState.HAS_TO_SPIN;
@@ -127,27 +127,27 @@ public class Game {
     }
 
     public int guessLetter(Player player, char letter) {
-        if (currentPlayer == null || currentPlayer != player ) return -3;
+        if (currentPlayer == null || currentPlayer != player) return -3;
         if (moveState == MoveState.HAS_TO_SPIN && hasNotGuessedConsonants()) {
             window.writeToGameLog("You need to spin the wheel first");
             nextMove();
             return -3;
         }
         int result;
-        if(moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
-            if(!gameWord.hasNotGuessedConsonants()) {
+        if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
+            if (!gameWord.hasNotGuessedConsonants()) {
                 window.writeToGameLog("There are no consonants left!");
                 nextMove();
                 return -3;
             }
-            if(GameWord.vowels.contains(letter)) {
+            if (GameWord.vowels.contains(letter)) {
                 window.writeToGameLog("You have to guess a consonant!");
                 nextMove();
                 return -3;
             }
             result = gameWord.guessLetter(letter);
             window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
-            if(result == 0) {
+            if (result == 0) {
                 assignNextPlayer();
             } else {
                 int currentScore = roundScores.get(player);
@@ -155,12 +155,12 @@ public class Game {
                 moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
             }
         } else { // vowel
-            if(!GameWord.vowels.contains(letter)) {
+            if (!GameWord.vowels.contains(letter)) {
                 window.writeToGameLog("You need to either buy a vowel or guess the phrase!");
                 nextMove();
                 return -3;
             }
-            if(roundScores.get(player) < 200) {
+            if (roundScores.get(player) < 200) {
                 window.writeToGameLog("You don't have enough money to buy a vowel!");
                 nextMove();
                 return -3;
@@ -175,7 +175,8 @@ public class Game {
     }
 
     public boolean guessPhrase(Player player, String phrase) {
-        if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants())) return false;
+        if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants()))
+            return false;
         boolean result = gameWord.guessPhrase(phrase);
         window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
         if (!result) {
@@ -205,7 +206,7 @@ public class Game {
             category = gamePhrase.category();
         }
         state = state.next();
-        if(state != GameState.ENDED) {
+        if (state != GameState.ENDED) {
             window.writeToGameLog("Round " + state.toString() + " is starting!");
         }
         if (state == GameState.FINAL) {

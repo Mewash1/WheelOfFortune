@@ -6,7 +6,7 @@ public interface Player {
 
     Game getGame();
 
-   void setGame(Game game);
+    void setGame(Game game);
 
     void makeAMove();
 }

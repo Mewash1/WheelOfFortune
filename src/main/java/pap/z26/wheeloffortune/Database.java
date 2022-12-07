@@ -11,7 +11,7 @@ public class Database {
 
     private static volatile Database instance;
 
-    private Database(){
+    private Database() {
         DatabaseCommand.callCommand(new DatabaseCommand.CreateTables(), establishConnection());
         this.insertPhrases();
     }
@@ -29,7 +29,7 @@ public class Database {
         }
     }
 
-    private Statement establishConnection(){
+    private Statement establishConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -48,9 +48,11 @@ public class Database {
         }
         return null;
     }
+
     private void insertPhrases() {
         DatabaseCommand.callCommand(new DatabaseCommand.InsertPhrases(), establishConnection());
     }
+
     public Phrase getRandomPhrase(String category) {
         ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
         ArrayList<Phrase> phraseNames = new ArrayList<>();
@@ -72,23 +74,23 @@ public class Database {
         return false;
     }
 
-    public ArrayList<String> getMatchingPhrases(String toMatch){
+    public ArrayList<String> getMatchingPhrases(String toMatch) {
         ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
         ArrayList<String> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             phraseNames.add(phrase.split("\n")[0]);
         }
         ArrayList<String> matchingPhrases = new ArrayList<>();
-        for (String phrase : phraseNames){
+        for (String phrase : phraseNames) {
             boolean isMatching = true;
-            if (phrase.length() == toMatch.length()){
-                for (int i = 0; i < phrase.length(); i++){
-                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))){
+            if (phrase.length() == toMatch.length()) {
+                for (int i = 0; i < phrase.length(); i++) {
+                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))) {
                         isMatching = false;
                         break;
                     }
                 }
-                if (isMatching){
+                if (isMatching) {
                     matchingPhrases.add(phrase);
                 }
             }

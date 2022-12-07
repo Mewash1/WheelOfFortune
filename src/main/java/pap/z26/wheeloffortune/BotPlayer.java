@@ -12,6 +12,7 @@ public class BotPlayer implements Player {
         if (name.length() == 0) name = "";
         setName(name);
     }
+
     Game game;
     String name;
 
@@ -19,13 +20,13 @@ public class BotPlayer implements Player {
     private boolean hasGuessedCorrectly = false;
 
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
         if (name.equals("")) this.name = "Jeff";
     }
 
 
-    private char getVowel(){
+    private char getVowel() {
         ArrayList<Character> possibleVowels = new ArrayList<>();
         for (int k = 0; k < GameWord.vowels.size(); k++) {
             char i = GameWord.vowels.get(k);
@@ -41,13 +42,13 @@ public class BotPlayer implements Player {
         return possibleVowels.get(rand.nextInt(possibleVowels.size()));
     }
 
-    private char getConsonant(){
+    private char getConsonant() {
         List<Character> possibleConsonants = new ArrayList<>();
-        for (char i : GameWord.consonants){
+        for (char i : GameWord.consonants) {
             possibleConsonants.add(i);
-            for (char j : game.getPhrase().toCharArray()){
-                if (i == j){
-                    possibleConsonants.remove(possibleConsonants.size()-1);
+            for (char j : game.getPhrase().toCharArray()) {
+                if (i == j) {
+                    possibleConsonants.remove(possibleConsonants.size() - 1);
                     break;
                 }
             }
@@ -56,11 +57,11 @@ public class BotPlayer implements Player {
         return possibleConsonants.get(rand.nextInt(possibleConsonants.size()));
     }
 
-    private String getPhrase(){
+    private String getPhrase() {
         String returnPhraseStr = this.game.getPhrase();
         var returnPhrase = returnPhraseStr.toCharArray();
-        for (int i = 0; i < returnPhrase.length; i++){
-            if (returnPhrase[i] == '_'){
+        for (int i = 0; i < returnPhrase.length; i++) {
+            if (returnPhrase[i] == '_') {
                 Random rand = new Random();
                 returnPhrase[i] = GameWord.letters.get(rand.nextInt(GameWord.letters.size()));
             }
@@ -69,15 +70,17 @@ public class BotPlayer implements Player {
     }
 
     @Override
-    public void setGame(Game game){
+    public void setGame(Game game) {
         this.game = game;
     }
+
     @Override
-    public String getName(){
+    public String getName() {
         return this.name;
     }
+
     @Override
-    public Game getGame(){
+    public Game getGame() {
         return this.game;
     }
 
@@ -85,7 +88,7 @@ public class BotPlayer implements Player {
     @Override
     public void makeAMove() {
 
-        if (hasSpunTheWheel){
+        if (hasSpunTheWheel) {
             //guess a consonant after spinning the wheel
             hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
             hasSpunTheWheel = false;
@@ -95,23 +98,22 @@ public class BotPlayer implements Player {
         int choice;
         Random rand = new Random();
 
-        if (!this.game.hasNotGuessedConsonants()){
+        if (!this.game.hasNotGuessedConsonants()) {
             //no vowels - cannot spin the wheel
             //guess a phrase or buy vowel if you can afford it
-            if (this.game.getRoundScores().get(this) >= 200){
+            if (this.game.getRoundScores().get(this) >= 200) {
                 char[] options = {1, 3};
                 choice = options[rand.nextInt(2)];
             } else {
                 choice = 1;
             }
-        }
-        else {
+        } else {
             if (hasGuessedCorrectly) {
                 //can spin, buy vowel, guess the phrase
                 if (this.game.getRoundScores().get(this) >= 200) {
                     choice = rand.nextInt(3);
 
-                    if (choice == 1){
+                    if (choice == 1) {
                         //to reduce guessing the phrase (1/21 chance)
                         choice = rand.nextInt(7);
                     }
@@ -128,7 +130,7 @@ public class BotPlayer implements Player {
 
         switch (choice) {
             case 3 -> {
-                hasGuessedCorrectly = (this.game.guessLetter(this, getVowel()) != 0) ;
+                hasGuessedCorrectly = (this.game.guessLetter(this, getVowel()) != 0);
                 hasSpunTheWheel = false;
             }
             case 1 -> {
@@ -137,7 +139,7 @@ public class BotPlayer implements Player {
             }
             default -> {
 
-                if (this.game.spinTheWheel(this)){
+                if (this.game.spinTheWheel(this)) {
                     this.hasSpunTheWheel = true;
                 }
             }

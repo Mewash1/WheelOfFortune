@@ -14,10 +14,10 @@ public class GameWord {
         consonants = new ArrayList<>();
         vowels = new ArrayList<>();
         String consonantsString = "qwrtpsdfghjklzxcvbnmćżźńłś", vowelsString = "aeiouyąęó";
-        for (int i=0; i<consonantsString.length(); i++) {
+        for (int i = 0; i < consonantsString.length(); i++) {
             consonants.add(consonantsString.charAt(i));
         }
-        for(int i=0; i<vowelsString.length(); i++) {
+        for (int i = 0; i < vowelsString.length(); i++) {
             vowels.add(vowelsString.charAt(i));
         }
         letters = new ArrayList<>(consonants);
@@ -28,8 +28,8 @@ public class GameWord {
         this.word = word.toLowerCase(Locale.ROOT);
         this.notGuessedWord = word.toLowerCase(Locale.ROOT);
         StringBuilder displayedWordBuilder = new StringBuilder("_".repeat(word.length()));
-        for(int i = 0; i<this.word.length(); i++) {
-            if(word.charAt(i) == ' ') {
+        for (int i = 0; i < this.word.length(); i++) {
+            if (word.charAt(i) == ' ') {
                 displayedWordBuilder.setCharAt(i, ' ');
             }
         }
@@ -45,7 +45,7 @@ public class GameWord {
             while (findIndex != -1) {
                 count++;
                 updatedWord.setCharAt(findIndex, letter);
-                findIndex = word.indexOf(letter, findIndex+1);
+                findIndex = word.indexOf(letter, findIndex + 1);
             }
             displayedWord = updatedWord.toString();
         }

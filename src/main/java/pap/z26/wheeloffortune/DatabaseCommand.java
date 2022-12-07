@@ -5,52 +5,58 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class DatabaseCommand{
+public class DatabaseCommand {
     public interface Command {
         void execute(Statement stmt);
     }
-    public interface returnArrayListCommand{
+
+    public interface returnArrayListCommand {
         ArrayList<String> execute(Statement stmt);
     }
+
     public static class CreateTables implements Command {
         public void execute(Statement stmt) {
-            try{
+            try {
                 String sql_Phrases = """
-                    CREATE TABLE Phrases(
-                        PhraseID INTEGER PRIMARY KEY,
-                        Content TEXT NOT NULL,
-                        Category TEXT NOT NULL
-                    )""";
+                        CREATE TABLE Phrases(
+                            PhraseID INTEGER PRIMARY KEY,
+                            Content TEXT NOT NULL,
+                            Category TEXT NOT NULL
+                        )""";
                 stmt.execute(sql_Phrases);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
 
-            try{
+            try {
                 String sql_HighScores = """
-                    CREATE TABLE HighScores(
-                        PlayerID INTEGER PRIMARY KEY,
-                        Score INTEGER NOT NULL,
-                        AchievedOn DATE NOT NULL
-                    )
-                    """;
+                        CREATE TABLE HighScores(
+                            PlayerID INTEGER PRIMARY KEY,
+                            Score INTEGER NOT NULL,
+                            AchievedOn DATE NOT NULL
+                        )
+                        """;
                 stmt.execute(sql_HighScores);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
 
             try {
                 String sql_PhrasesToHighScores = """
-                    CREATE TABLE PhrasesToHighScores(
-                        PhsID INTEGER PRIMARY KEY,
-                        PlayerID INTEGER NOT NULL,
-                        PhraseID INTEGER NOT NULL,
-                        CONSTRAINT fk_highscores FOREIGN KEY (PlayerID)
-                            REFERENCES HighScores(PlayerID),
-                        CONSTRAINT fk_phrases FOREIGN KEY (PhraseID)
-                            REFERENCES Phrases(PhraseID)
-                    )
-                    """;
+                        CREATE TABLE PhrasesToHighScores(
+                            PhsID INTEGER PRIMARY KEY,
+                            PlayerID INTEGER NOT NULL,
+                            PhraseID INTEGER NOT NULL,
+                            CONSTRAINT fk_highscores FOREIGN KEY (PlayerID)
+                                REFERENCES HighScores(PlayerID),
+                            CONSTRAINT fk_phrases FOREIGN KEY (PhraseID)
+                                REFERENCES Phrases(PhraseID)
+                        )
+                        """;
                 stmt.execute(sql_PhrasesToHighScores);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         }
     }
+
     public static class InsertPhrases implements Command {
         public void execute(Statement stmt) {
 
@@ -68,21 +74,23 @@ public class DatabaseCommand{
             for (String phrase : phrases) {
                 try {
                     stmt.execute(phrase);
-                } catch (SQLException ignored) {}
+                } catch (SQLException ignored) {
+                }
             }
         }
     }
 
-    public static class getAllPhrases implements returnArrayListCommand{
+    public static class getAllPhrases implements returnArrayListCommand {
         @Override
         public ArrayList<String> execute(Statement stmt) {
             ArrayList<String> phrases = new ArrayList<>();
-            try{
+            try {
                 ResultSet results = stmt.executeQuery("SELECT Content, Category FROM Phrases");
-                while (results.next()){
+                while (results.next()) {
                     phrases.add(results.getString("Content") + "\n" + results.getString("Category"));
                 }
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             return phrases;
         }
     }
@@ -90,6 +98,9 @@ public class DatabaseCommand{
     public static void callCommand(Command command, Statement stmt) {
         command.execute(stmt);
     }
-    public static ArrayList<String> callReturnArrayListCommand(returnArrayListCommand command, Statement stmt) {return command.execute(stmt);}
+
+    public static ArrayList<String> callReturnArrayListCommand(returnArrayListCommand command, Statement stmt) {
+        return command.execute(stmt);
+    }
 }
 
