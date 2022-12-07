@@ -8,7 +8,7 @@ import java.util.*;
 public class Game {
 
     private final ArrayList<Player> players = new ArrayList<>();
-    private Player currentPlayer = null, winner = null;
+    private Player currentPlayer = null, roundStarter = null, winner = null;
     private final HashMap<Player, Integer> scores = new HashMap<>(), roundScores = new HashMap<>();
     private boolean inProgress;
     private GameState state;
@@ -74,7 +74,7 @@ public class Game {
             joinGame(new BotPlayer(""));
         }
         inProgress = true;
-        currentPlayer = players.get(0);
+        roundStarter = players.get(players.size()-1);
         for (Player player : players) {
             roundScores.put(player, 0);
             scores.put(player, 0);
@@ -91,7 +91,7 @@ public class Game {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         Mover mover = new Mover(currentPlayer);
-        Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
+        Timer timer = new Timer(1000, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
         timer.start();
     }
@@ -178,7 +178,7 @@ public class Game {
         if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants()))
             return false;
         boolean result = gameWord.guessPhrase(phrase);
-        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
+        window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
         if (!result) {
             assignNextPlayer();
         } else {
@@ -206,6 +206,8 @@ public class Game {
             category = gamePhrase.category();
         }
         state = state.next();
+        roundStarter = players.get((players.indexOf(roundStarter)+1)%players.size());
+        currentPlayer = roundStarter;
         if (state != GameState.ENDED) {
             window.writeToGameLog("Round " + state.toString() + " is starting!");
         }
