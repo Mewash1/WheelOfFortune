@@ -105,10 +105,4 @@ public class Database {
     public boolean updateDatabase() {
         return false; // to na później
     }
-
-    public static void main(String[] args) {
-        Database database = Database.getInstance();
-        System.out.println(database.getMatchingPhrases("Kod da _____"));
-        System.out.println(database.getRandomPhrase("Filmy"));
-    }
 }

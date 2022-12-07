@@ -83,12 +83,10 @@ public class GameWindowGUI extends JFrame {
         guessLetter.addActionListener(e -> {
             String toGuess = playerInput.getText();
             char letterToGuess = toGuess.charAt(0);
-            System.out.println("Guessing " + letterToGuess);
             game.guessLetter(ourPlayer, letterToGuess);
         });
         fullGuess.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            System.out.println("Guessing " + toGuess);
             game.guessPhrase(ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
@@ -97,17 +95,14 @@ public class GameWindowGUI extends JFrame {
         });
         spinWheelButton.addActionListener(e -> {
             boolean result = game.spinTheWheel(ourPlayer);
-            System.out.println(result ? "Spinning" : "You can't spin now");
         });
         newGameButton.addActionListener(e -> {
             game.startGame();
             roundProgress.setValue(3);
-            System.out.println("Starting a new game");
         });
-        helpButton.addActionListener(e -> System.out.println("There's no help"));
+        helpButton.addActionListener(e -> writeToGameLog("There's no help available"));
         addPlayerButton.addActionListener(e -> {
             game.joinGame(new BotPlayer("RandomBot"));
-            System.out.println("Adding a bot...");
         });
     }
 
