@@ -127,8 +127,8 @@ public class Game {
     }
 
     public int guessLetter(Player player, char letter) {
-        if (currentPlayer == null) return -3;
-        if (moveState == MoveState.HAS_TO_SPIN) {
+        if (currentPlayer == null || currentPlayer != player ) return -3;
+        if (moveState == MoveState.HAS_TO_SPIN && hasNotGuessedConsonants()) {
             window.writeToGameLog("You need to spin the wheel first");
             nextMove();
             return -3;
@@ -175,7 +175,7 @@ public class Game {
     }
 
     public boolean guessPhrase(Player player, String phrase) {
-        if (currentPlayer == null || player != currentPlayer || moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) return false;
+        if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants())) return false;
         boolean result = gameWord.guessPhrase(phrase);
         window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
         if (!result) {
