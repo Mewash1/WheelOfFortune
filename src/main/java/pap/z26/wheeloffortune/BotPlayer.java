@@ -120,6 +120,9 @@ public class BotPlayer implements Player {
                 } else {
                     //to reduce guessing the phrase (1/20 chance)
                     choice = rand.nextInt(20);
+                    if (choice == 3){
+                        choice = 2;
+                    }
                 }
             } else {
                 //first move - opponent failed
