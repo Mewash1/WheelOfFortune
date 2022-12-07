@@ -10,12 +10,20 @@ public class Game {
     private final ArrayList<Player> players = new ArrayList<>();
     private Player currentPlayer = null, winner = null;
     private final HashMap<Player, Integer> scores = new HashMap<>(), roundScores = new HashMap<>();
-    private boolean inProgress, wheelSpun;
+    private boolean inProgress;
     private GameState state;
     private GameWord gameWord;
     private String category;
     private final Wheel wheel = new Wheel();
     private GameWindowGUI window;
+
+    private enum MoveState {
+        HAS_TO_SPIN,
+        HAS_TO_GUESS_CONSONANT,
+        CAN_BUY_VOWEL_SPIN_OR_GUESS
+    }
+
+    private MoveState moveState;
 
     private static class Mover implements ActionListener {
 
@@ -67,7 +75,7 @@ public class Game {
         }
         inProgress = true;
         currentPlayer = players.get(0);
-        for(Player player: players) {
+        for (Player player : players) {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
@@ -78,8 +86,10 @@ public class Game {
     }
 
     private void nextMove() {
-        if(currentPlayer == null) return;
-        window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
+        if (currentPlayer == null) return;
+        if(moveState == MoveState.HAS_TO_SPIN) {
+            window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
+        }
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(500, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
@@ -87,21 +97,20 @@ public class Game {
     }
 
     public boolean spinTheWheel(Player player) {
-        if(currentPlayer == null) return false;
-        if (currentPlayer == player && !wheelSpun) {
-            wheelSpun = true;
+        if (currentPlayer == null) return false;
+        if (currentPlayer == player && (moveState == MoveState.HAS_TO_SPIN || moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) && gameWord.hasNotGuessedConsonants()) {
+            moveState = MoveState.HAS_TO_GUESS_CONSONANT;
             int result = wheel.spin(state);
-            if (result == 0) {
-                roundScores.put(currentPlayer, 0);
-                assignNextPlayer();
-                wheelSpun = false;
-            } else if (result == -1) {
-                assignNextPlayer();
-                wheelSpun = false;
-            } else if (result == -2) {
-                wheelSpun = false;
+            if(result <= 0) {
+                if(result == 0) {
+                    roundScores.put(currentPlayer, 0);
+                }
+                if(result >= -1) {
+                    assignNextPlayer();
+                }
+                moveState = MoveState.HAS_TO_SPIN;
             }
-            window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + result);
+            window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + getLastRolled());
             window.updateGUI();
             nextMove();
             return true;
@@ -114,37 +123,61 @@ public class Game {
     private void assignNextPlayer() {
         int currentPlayerIndex = players.indexOf(currentPlayer);
         currentPlayer = players.get((currentPlayerIndex + 1) % players.size());
+        moveState = MoveState.HAS_TO_SPIN;
     }
 
     public int guessLetter(Player player, char letter) {
-        if(currentPlayer == null) return -69;
-        if(!wheelSpun) {
+        if (currentPlayer == null) return -3;
+        if (moveState == MoveState.HAS_TO_SPIN) {
             window.writeToGameLog("You need to spin the wheel first");
             nextMove();
-            return -69;
+            return -3;
         }
-        wheelSpun = false;
-        int result = gameWord.guessLetter(letter);
-        if (result == 0) {
-            assignNextPlayer();
-        } else {
-            int currentScore = roundScores.get(player);
-            roundScores.put(player, currentScore + result * wheel.getLastRolled());
+        int result;
+        if(moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
+            if(!gameWord.hasNotGuessedConsonants()) {
+                window.writeToGameLog("There are no consonants left!");
+                nextMove();
+                return -3;
+            }
+            if(GameWord.vowels.contains(letter)) {
+                window.writeToGameLog("You have to guess a consonant!");
+                nextMove();
+                return -3;
+            }
+            result = gameWord.guessLetter(letter);
+            window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+            if(result == 0) {
+                assignNextPlayer();
+            } else {
+                int currentScore = roundScores.get(player);
+                roundScores.put(player, currentScore + result * wheel.getLastRolled());
+                moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
+            }
+        } else { // vowel
+            if(!GameWord.vowels.contains(letter)) {
+                window.writeToGameLog("You need to either buy a vowel or guess the phrase!");
+                nextMove();
+                return -3;
+            }
+            if(roundScores.get(player) < 200) {
+                window.writeToGameLog("You don't have enough money to buy a vowel!");
+                nextMove();
+                return -3;
+            }
+            result = gameWord.guessLetter(letter);
+            window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+            roundScores.put(player, roundScores.get(player) - 200);
         }
-        window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
         window.updateGUI();
         nextMove();
         return result;
     }
 
     public boolean guessPhrase(Player player, String phrase) {
-//        if(!wheelSpun) {
-//            window.writeToGameLog("You need to spin the wheel first");
-//            return false;
-//        }
-        if(currentPlayer == null || player != currentPlayer) return false;
+        if (currentPlayer == null || player != currentPlayer || moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) return false;
         boolean result = gameWord.guessPhrase(phrase);
-        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result?"succeeded!":"failed."));
+        window.writeToGameLog("Player" + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
         if (!result) {
             assignNextPlayer();
         } else {
@@ -157,11 +190,12 @@ public class Game {
 
     private void advanceRound() {
         Database database = Database.getInstance();
-        if(state == GameState.FINAL) {
+        if (state == GameState.FINAL) {
+            scores.put(winner, scores.get(winner) + roundScores.get(winner));
             database.saveGameResult(winner.getName(), scores.get(winner));
         } else {
-            for(Player player: players) {
-                if(currentPlayer != null) {
+            for (Player player : players) {
+                if (currentPlayer != null) {
                     scores.put(player, scores.get(player) + (player == currentPlayer ? roundScores.get(player) : 0));
                 }
                 roundScores.put(player, 0);
@@ -171,13 +205,16 @@ public class Game {
             category = gamePhrase.category();
         }
         state = state.next();
-        window.writeToGameLog("Round " + state.toString() + " is starting!");
+        if(state != GameState.ENDED) {
+            window.writeToGameLog("Round " + state.toString() + " is starting!");
+        }
         if (state == GameState.FINAL) {
             winner = Collections.max(scores.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
         if (state == GameState.ENDED) {
             currentPlayer = null;
         }
+        moveState = MoveState.HAS_TO_SPIN;
         window.updateGUI();
     }
 
@@ -209,14 +246,10 @@ public class Game {
     }
 
     public Player getWinner() {
-        if(state == GameState.ENDED) {
+        if (state == GameState.ENDED) {
             return winner;
         }
         return null;
-    }
-
-    public boolean isWheelSpun() {
-        return wheelSpun;
     }
 
     public GameState getState() {
