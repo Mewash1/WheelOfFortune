@@ -82,6 +82,7 @@ public class GameWindowGUI extends JFrame {
 
         guessLetter.addActionListener(e -> {
             String toGuess = playerInput.getText();
+            if(toGuess.isEmpty()) return;
             char letterToGuess = toGuess.charAt(0);
             game.guessLetter(ourPlayer, letterToGuess);
         });
