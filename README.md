@@ -25,5 +25,6 @@ Po wykonaniu tych kroków w katalogu z projektem pojawi się plik `WheelOfFortun
 
 # Inne informacje
 
-Dokumentacja wykonanych prac znajduje się w pliku `PAP22Z-Z26_etap_2.pdf`.
+Dokumentacja wykonanych prac znajduje się w pliku `PAP22Z-Z26_etap_2.pdf`.  
+Film prezentujący działanie aplikacji znajduje się [tutaj]{https://youtu.be/BBDL65iB4lw}.
 
