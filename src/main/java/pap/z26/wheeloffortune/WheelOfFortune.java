@@ -10,6 +10,10 @@ public class WheelOfFortune {
         // nop
     }
 
+    public void setNetworkClient(NetworkClient client) {
+        game.setNetworkClient(client);
+    }
+
     public WheelOfFortune() {
         game = new Game();
         ourPlayer = new HumanPlayer(null);

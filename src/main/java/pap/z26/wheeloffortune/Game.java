@@ -16,6 +16,7 @@ public class Game {
     private String category;
     private final Wheel wheel = new Wheel();
     private GameWindowGUI window;
+    private NetworkClient networkClient;
 
     private enum MoveState {
         HAS_TO_SPIN,
@@ -39,9 +40,7 @@ public class Game {
         }
     }
 
-    public Game() {
-
-    }
+    public Game() {}
 
     public void setGameWindow(GameWindowGUI window) {
         this.window = window;
@@ -82,6 +81,7 @@ public class Game {
         advanceRound();
         window.writeToGameLog("The game has started!");
         window.updateGUI();
+        reportActionToServer(null, "game has started");
         nextMove();
     }
 
@@ -113,6 +113,7 @@ public class Game {
             window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + getLastRolled());
             window.updateGUI();
             nextMove();
+            reportActionToServer(player, "spun the wheel and got " + getLastRolled());
             return true;
         }
         window.writeToGameLog("You can't spin the wheel now!");
@@ -171,6 +172,7 @@ public class Game {
         }
         window.updateGUI();
         nextMove();
+        reportActionToServer(player, "tried to guess a letter " + letter + " with result " + result);
         return result;
     }
 
@@ -186,6 +188,7 @@ public class Game {
         }
         window.updateGUI();
         nextMove();
+        reportActionToServer(player, "tried to guess phrase " + phrase + " with result " + result);
         return result;
     }
 
@@ -219,6 +222,7 @@ public class Game {
         }
         moveState = MoveState.HAS_TO_SPIN;
         window.updateGUI();
+        reportActionToServer(null, "round advanced");
     }
 
     public String getPhrase() {
@@ -261,5 +265,17 @@ public class Game {
 
     public String getCategory() {
         return category;
+    }
+
+    public void setNetworkClient(NetworkClient client) {
+        networkClient = client;
+    }
+
+    private void reportActionToServer(Player player, String action) {
+        if(player != null) {
+            networkClient.sendData(player.getName() + ": " + action);
+        } else {
+            networkClient.sendData(action);
+        }
     }
 }

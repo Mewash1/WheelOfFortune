@@ -12,7 +12,7 @@ public class GameServer {
         networkClient.run();
     }
 
-    public void receiveDataFromServer(String data) {
-        // nop
+    public void receiveDataFromClient(String data, String ipAddress, int port) {
+        System.out.println("[Local server, data from " + ipAddress + ":" + port + "]: " + data);
     }
 }

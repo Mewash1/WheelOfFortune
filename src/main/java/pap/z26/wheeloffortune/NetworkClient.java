@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-public class NetworkClient {
+public class NetworkClient extends Thread {
 
     private InetAddress serverAddress;
     private DatagramSocket socket;
@@ -47,19 +47,18 @@ public class NetworkClient {
                 if (game != null) {
                     game.receiveDataFromServer(message);
                 } else { // server mode
-                    server.receiveDataFromServer(message);
+                    server.receiveDataFromClient(message, packet.getAddress().toString(), packet.getPort());
                 }
             }
         }
     }
 
+    public void sendData(String data) {
+        this.sendData(data, serverAddress, port);
+    }
+
     public void sendData(String data, InetAddress targetAddress, int targetPort) {
-        DatagramPacket packet;
-        if (game != null) {
-            packet = new DatagramPacket(data.getBytes(), data.getBytes().length, serverAddress, targetPort);
-        } else { // server mode
-            packet = new DatagramPacket(data.getBytes(), data.getBytes().length, targetAddress, targetPort);
-        }
+        DatagramPacket packet = new DatagramPacket(data.getBytes(), data.getBytes().length, targetAddress, targetPort);
         try {
             socket.send(packet);
         } catch (IOException e) {
