@@ -148,4 +148,9 @@ public class BotPlayer implements Player {
             }
         }
     }
+
+    @Override
+    public boolean isBot() {
+        return true;
+    }
 }

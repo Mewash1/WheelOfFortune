@@ -36,4 +36,9 @@ public class HumanPlayer implements Player {
     public void makeAMove() {
 
     }
+
+    @Override
+    public boolean isBot() {
+        return false;
+    }
 }

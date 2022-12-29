@@ -9,4 +9,6 @@ public interface Player {
     void setGame(Game game);
 
     void makeAMove();
+
+    boolean isBot();
 }
