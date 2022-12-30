@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.40.0.0'
     implementation 'com.intellij:javac2:7.0.3'
     implementation 'com.intellij:forms_rt:7.0.3'
+    implementation 'org.json:json:20220924'
 }
 
 task stage(dependsOn: ['build', 'shadowJar', 'clean'])
