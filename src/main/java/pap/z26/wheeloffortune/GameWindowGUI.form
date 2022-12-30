@@ -21,10 +21,22 @@
         </properties>
         <border type="none"/>
         <children>
+          <component id="384ab" class="javax.swing.JButton" binding="connectToServerButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Connect to server"/>
+            </properties>
+          </component>
+          <component id="5c228" class="javax.swing.JButton" binding="joinGameButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Join Game"/>
+            </properties>
+          </component>
           <component id="22adf" class="javax.swing.JButton" binding="newGameButton" default-binding="true">
             <constraints/>
             <properties>
-              <text value="New Game"/>
+              <text value="Start Game"/>
             </properties>
           </component>
           <component id="ad5d2" class="javax.swing.JButton" binding="helpButton" default-binding="true">
