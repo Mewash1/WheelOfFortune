@@ -47,7 +47,7 @@ public class NetworkClient extends Thread {
                 if (game != null) {
                     game.receiveDataFromServer(message);
                 } else { // server mode
-                    server.receiveDataFromClient(message, packet.getAddress().toString(), packet.getPort());
+                    server.receiveDataFromClient(message, packet.getAddress(), packet.getPort());
                 }
             }
         }

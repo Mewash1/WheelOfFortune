@@ -1,5 +1,7 @@
 package pap.z26.wheeloffortune;
 
+import org.json.JSONObject;
+
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +19,8 @@ public class Game {
     private final Wheel wheel = new Wheel();
     private GameWindowGUI window;
     private NetworkClient networkClient;
+    private GameServer gameServer = null;
+    boolean beingExecutedByServer = false;
 
     private enum MoveState {
         HAS_TO_SPIN,
@@ -41,6 +45,9 @@ public class Game {
     }
 
     public Game() {}
+    public Game(GameServer server) {
+        this.gameServer = server;
+    }
 
     public void setGameWindow(GameWindowGUI window) {
         this.window = window;
@@ -67,6 +74,11 @@ public class Game {
     }
 
     public void startGame() {
+        start();
+        advanceRound();
+    }
+
+    public void start() {
         winner = null;
         state = GameState.NOT_STARTED;
         while (players.size() < 3) {
@@ -78,11 +90,6 @@ public class Game {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
-        advanceRound();
-        window.writeToGameLog("The game has started!");
-        window.updateGUI();
-        reportActionToServer(null, "game has started");
-        nextMove();
     }
 
     private void nextMove() {
@@ -91,7 +98,7 @@ public class Game {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         Mover mover = new Mover(currentPlayer);
-        Timer timer = new Timer(1000, mover); // so the moves aren't instant in case of bots
+        Timer timer = new Timer(3000, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
         timer.start();
     }
@@ -113,7 +120,7 @@ public class Game {
             window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + getLastRolled());
             window.updateGUI();
             nextMove();
-            reportActionToServer(player, "spun the wheel and got " + getLastRolled());
+            reportActionToServer(player, "spin:" + result);
             return true;
         }
         window.writeToGameLog("You can't spin the wheel now!");
@@ -172,7 +179,7 @@ public class Game {
         }
         window.updateGUI();
         nextMove();
-        reportActionToServer(player, "tried to guess a letter " + letter + " with result " + result);
+        reportActionToServer(player, "guessl:" + letter);
         return result;
     }
 
@@ -181,18 +188,19 @@ public class Game {
             return false;
         boolean result = gameWord.guessPhrase(phrase);
         window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
+        window.updateGUI();
         if (!result) {
             assignNextPlayer();
         } else {
+            nextMove();
+            reportActionToServer(player, "guessp:" + phrase);
             advanceRound();
         }
-        window.updateGUI();
-        nextMove();
-        reportActionToServer(player, "tried to guess phrase " + phrase + " with result " + result);
         return result;
     }
 
     private void advanceRound() {
+        if(gameServer == null) return; // only the server can advance rounds
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
@@ -204,9 +212,11 @@ public class Game {
                 }
                 roundScores.put(player, 0);
             }
-            Phrase gamePhrase = database.getRandomPhrase(null);
-            gameWord = new GameWord(gamePhrase.phrase());
-            category = gamePhrase.category();
+            if(!beingExecutedByServer) {
+                Phrase gamePhrase = database.getRandomPhrase(null);
+                gameWord = new GameWord(gamePhrase.phrase());
+                category = gamePhrase.category();
+            }
         }
         state = state.next();
         roundStarter = players.get((players.indexOf(roundStarter)+1)%players.size());
@@ -221,8 +231,9 @@ public class Game {
             currentPlayer = null;
         }
         moveState = MoveState.HAS_TO_SPIN;
+        nextMove();
         window.updateGUI();
-        reportActionToServer(null, "round advanced");
+        reportActionToServer(null, "newword:" + gameWord + ":" + category);
     }
 
     public String getPhrase() {
@@ -235,6 +246,10 @@ public class Game {
 
     public HashMap<Player, Integer> getRoundScores() {
         return roundScores;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
     }
 
     public String getLastRolled() {
@@ -267,15 +282,79 @@ public class Game {
         return category;
     }
 
+    private Player getPlayerByName(String name) {
+        for(Player player: players) {
+            if(player.getName().equals(name)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
     public void setNetworkClient(NetworkClient client) {
         networkClient = client;
     }
 
-    private void reportActionToServer(Player player, String action) {
-        if(player != null) {
-            networkClient.sendData(player.getName() + ": " + action);
-        } else {
-            networkClient.sendData(action);
+    public void executeFromServer(JSONObject jsonData) {
+        beingExecutedByServer = true;
+        Player actionMaker = null;
+        if(jsonData.has("player")) {
+            actionMaker = getPlayerByName(jsonData.getString("player"));
         }
+        switch(jsonData.getString("action")) {
+            case "spin" -> {
+                int value = jsonData.getInt("value");
+                wheel.rig(value);
+                spinTheWheel(actionMaker);
+            }
+            case "guessl" -> {
+                String letter = jsonData.getString("letter");
+                guessLetter(actionMaker, letter.toCharArray()[0]);
+            }
+            case "guessp" -> {
+                String phrase = jsonData.getString("phrase");
+                guessPhrase(actionMaker, phrase);
+            }
+            case "newword" -> {
+                gameWord = new GameWord(jsonData.getString("word"));
+                category = jsonData.getString("cat");
+                advanceRound();
+            }
+            case "start" -> {
+                start();
+            }
+        }
+        beingExecutedByServer = false;
+    }
+
+    private void reportActionToServer(Player player, String action) {
+        if(beingExecutedByServer) return;
+        JSONObject response = new JSONObject();
+        if(player != null) {
+            response.put("player", player.getName());
+        }
+        String[] parts = action.split(":");
+        response.put("action", parts[0]);
+        switch (parts[0]) {
+            case "spin" -> {
+                response.put("value", Integer.parseInt(parts[1]));
+            }
+            case "guessl" -> {
+                response.put("letter", parts[1]);
+            }
+            case "guessp" -> {
+                response.put("phrase", parts[1]);
+            }
+            case "newword" -> {
+                response.put("word", parts[1]);
+                response.put("cat", parts[2]);
+            }
+        }
+        if(gameServer == null) { // local game
+            networkClient.sendData(response.toString());
+        } else { // running on server
+            gameServer.tellEveryoneBut(response.toString(), player, this);
+        }
+
     }
 }

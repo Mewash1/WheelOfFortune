@@ -6,7 +6,7 @@ import java.util.Random;
 public class Wheel {
 
     private final HashMap<GameState, int[]> wheelContents = new HashMap<>();
-    private int lastRolled;
+    private int lastRolled, riggedRoll = -174;
     private final Random random = new Random();
 
     public Wheel() {
@@ -21,9 +21,18 @@ public class Wheel {
     }
 
     public int spin(GameState state) {
-        state = GameState.ROUND1;
-        lastRolled = wheelContents.get(state)[random.nextInt(wheelContents.get(state).length)];
+        if(riggedRoll != -174) { // rigged by server
+            lastRolled = riggedRoll;
+            riggedRoll = -174;
+        } else {
+            state = GameState.ROUND1;
+            lastRolled = wheelContents.get(state)[random.nextInt(wheelContents.get(state).length)];
+        }
         return lastRolled;
+    }
+
+    public void rig(int value) {
+        riggedRoll = value;
     }
 
     public int getLastRolled() {
