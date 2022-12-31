@@ -8,6 +8,13 @@ import java.util.Random;
 
 public class BotPlayer implements Player {
 
+    private String[] botNames = {"Kot", "Duke", "Tux", "Blinky", "Ferris", "Geeko", "Gopher", "Konqi", "Kiki", "Larry", "Octocat", "Wilber"};
+
+    public BotPlayer() {
+        Random random = new Random();
+        this.name = botNames[random.nextInt(botNames.length)];
+    }
+
     public BotPlayer(String name) {
         if (name.length() == 0) name = "";
         setName(name);
