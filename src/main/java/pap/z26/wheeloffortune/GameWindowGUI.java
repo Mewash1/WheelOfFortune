@@ -100,7 +100,7 @@ public class GameWindowGUI extends JFrame {
             boolean result = game.spinTheWheel(wof.ourPlayer);
         });
         newGameButton.addActionListener(e -> {
-            game.startGame();
+            wof.startGame();
             roundProgress.setValue(3);
         });
         helpButton.addActionListener(e -> writeToGameLog("There's no help available"));

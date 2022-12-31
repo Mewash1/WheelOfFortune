@@ -21,7 +21,6 @@ public class GameServer {
     }
 
     public void receiveDataFromClient(String data, InetAddress ipAddress, int port) {
-        System.out.println("[Local server, data from " + ipAddress + ":" + port + "]: " + data);
         JSONObject jsonData = new JSONObject(data);
         String action = jsonData.getString("action");
         switch (action) {
@@ -35,7 +34,9 @@ public class GameServer {
                 }
                 if(!response.has("message")) {
                     response.put("message", "success");
-                    addresses.put(new HumanPlayer(jsonData.getString("player")), new IpAndPort(ipAddress, port));
+                    HumanPlayer newPlayer = new HumanPlayer(jsonData.getString("player"));
+                    addresses.put(newPlayer, new IpAndPort(ipAddress, port));
+                    players.put(jsonData.getString("player"), newPlayer);
                 }
                 networkClient.sendData(response.toString(), ipAddress, port);
             }
@@ -71,12 +72,35 @@ public class GameServer {
                     }
                 }
             }
+            case "start" -> {
+                Player playerStarting = players.get(jsonData.getString("player"));
+                Game gameToStart = playerStarting.getGame();
+                while(gameToStart.getPlayers().size() < 3) {
+                    BotPlayer fillerPlayer = new BotPlayer();
+                    while(!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();
+                    JSONObject joinothResponse = new JSONObject();
+                    joinothResponse.put("action", "joinoth");
+                    joinothResponse.put("player", fillerPlayer.getName());
+                    for(Player playerToNotify: gameToStart.getPlayers()) {
+                        if(!playerToNotify.isBot()) {
+                            IpAndPort alreadyInGamePlayerAddress = addresses.get(playerToNotify);
+                            networkClient.sendData(joinothResponse.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
+                        }
+                    }
+                    for(Player inGamePlayer: gameToStart.getPlayers()) {
+                        if(inGamePlayer != playerStarting && !inGamePlayer.isBot()) {
+                            IpAndPort address = addresses.get(inGamePlayer);
+                            networkClient.sendData(data, address.address, address.port);
+                        }
+                    }
+                }
+            }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
-                gameToStart.executeFromServer(jsonData);
+                gameToStart.executeFromOutside(jsonData, true);
                 for(Player inGamePlayer: gameToStart.getPlayers()) {
-                    if(inGamePlayer != playerStarting) {
+                    if(inGamePlayer != playerStarting && !inGamePlayer.isBot()) {
                         IpAndPort address = addresses.get(inGamePlayer);
                         networkClient.sendData(data, address.address, address.port);
                     }
@@ -86,8 +110,8 @@ public class GameServer {
     }
 
     public void tellEveryoneBut(String data, Player player, Game game) {
-        for(Player gamePlayer: game.getPlayers()) {
-            if(gamePlayer != player && !gamePlayer.isBot()) {
+        for (Player gamePlayer : game.getPlayers()) {
+            if (gamePlayer != player && !gamePlayer.isBot()) {
                 IpAndPort address = addresses.get(gamePlayer);
                 networkClient.sendData(data, address.address, address.port);
             }

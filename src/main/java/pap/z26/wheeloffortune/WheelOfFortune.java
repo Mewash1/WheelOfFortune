@@ -14,11 +14,15 @@ public class WheelOfFortune {
         JSONObject jsonData = new JSONObject(data);
         String action = jsonData.getString("action");
         if(action.equals("newword") || action.equals("spin") || action.equals("guessl") || action.equals("guessp") || action.equals("start")) {
-            game.executeFromServer(new JSONObject());
+            game.executeFromOutside(jsonData, false);
         } else {
             switch(action) {
                 case "loginconf" -> {
-                    System.out.println(jsonData.getString("message"));
+                    if(jsonData.getString("message").equals("success")) {
+                        gameWindow.writeToGameLog("Successfully logged in on the server");
+                    } else {
+                        gameWindow.writeToGameLog(jsonData.getString("message"));
+                    }
                 }
                 case "joinconf" -> {
                     JSONArray players = jsonData.getJSONArray("players");
@@ -54,6 +58,13 @@ public class WheelOfFortune {
         joinData.put("action", "join");
         joinData.put("player", ourPlayer.getName());
         networkClient.sendData(joinData.toString());
+    }
+
+    public void startGame() {
+        JSONObject startData = new JSONObject();
+        startData.put("action", "start");
+        startData.put("player", ourPlayer.getName());
+        networkClient.sendData(startData.toString());
     }
 
     public WheelOfFortune() {
