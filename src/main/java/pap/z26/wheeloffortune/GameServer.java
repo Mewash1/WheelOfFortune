@@ -101,12 +101,6 @@ public class GameServer {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
                 gameToStart.executeFromOutside(jsonData, true);
-                for(Player inGamePlayer: gameToStart.getPlayers()) {
-                    if(inGamePlayer != playerStarting && !inGamePlayer.isBot()) {
-                        IpAndPort address = addresses.get(inGamePlayer);
-                        networkClient.sendData(data, address.address, address.port);
-                    }
-                }
             }
         }
     }
