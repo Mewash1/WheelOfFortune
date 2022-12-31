@@ -51,6 +51,7 @@ public class GameServer {
                 }
                 if(joiningPlayer.getGame() == null) {
                     Game newGame = new Game(this);
+                    games.add(newGame);
                     newGame.joinGame(joiningPlayer);
                 }
                 JSONArray inGamePlayers = new JSONArray();
@@ -87,13 +88,14 @@ public class GameServer {
                             networkClient.sendData(joinothResponse.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
                         }
                     }
-                    for(Player inGamePlayer: gameToStart.getPlayers()) {
-                        if(inGamePlayer != playerStarting && !inGamePlayer.isBot()) {
-                            IpAndPort address = addresses.get(inGamePlayer);
-                            networkClient.sendData(data, address.address, address.port);
-                        }
+                }
+                for(Player inGamePlayer: gameToStart.getPlayers()) {
+                    if(!inGamePlayer.isBot()) {
+                        IpAndPort address = addresses.get(inGamePlayer);
+                        networkClient.sendData(data, address.address, address.port);
                     }
                 }
+                gameToStart.startGame();
             }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));

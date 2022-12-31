@@ -68,4 +68,8 @@ public class GameWord {
         }
         return false;
     }
+
+    public String getPhrase() {
+        return word;
+    }
 }

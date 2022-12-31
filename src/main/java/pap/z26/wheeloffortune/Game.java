@@ -233,7 +233,7 @@ public class Game {
     }
 
     private void advanceRound() {
-        if(gameServer == null) return; // only the server can advance rounds
+        if(gameServer == null && !beingExecutedByServer) return; // only the server can advance rounds
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
@@ -270,7 +270,7 @@ public class Game {
         if(window != null) {
             window.updateGUI();
         }
-        reportActionToServer(null, "newword:" + gameWord + ":" + category);
+        reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
     }
 
     public String getPhrase() {
