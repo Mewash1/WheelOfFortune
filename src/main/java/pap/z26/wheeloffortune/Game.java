@@ -227,6 +227,7 @@ public class Game {
         } else {
             nextMove();
             reportActionToServer(player, "guessp:" + phrase);
+            beingExecutedByServer = false;
             advanceRound();
         }
         return result;
