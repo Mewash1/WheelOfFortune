@@ -60,7 +60,7 @@ public class NetworkClient extends Thread {
     }
 
     public void sendData(String data, InetAddress targetAddress, int targetPort) {
-        DatagramPacket packet = new DatagramPacket(data.getBytes(), data.getBytes().length, targetAddress, targetPort);
+        DatagramPacket packet = new DatagramPacket(data.getBytes(StandardCharsets.UTF_8), data.getBytes(StandardCharsets.UTF_8).length, targetAddress, targetPort);
         try {
             socket.send(packet);
         } catch (IOException e) {
