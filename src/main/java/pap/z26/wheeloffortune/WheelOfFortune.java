@@ -4,7 +4,7 @@ public class WheelOfFortune {
     public static void main(String[] args) {
         Game game = new Game();
         HumanPlayer ourPlayer = new HumanPlayer(null);
-        GameWindowGUI gameWindow = new GameWindowGUI(game, ourPlayer);
+        WoF_GUI gameWindow = new WoF_GUI(game, ourPlayer);
         game.setGameWindow(gameWindow);
 
         game.joinGame(ourPlayer);

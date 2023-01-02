@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="pap.z26.wheeloffortune.WoF_GUI">
+  <grid id="27dc6" binding="mainCardLayout" layout-manager="CardLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="0" y="1" width="1030" height="920"/>
+    </constraints>
+    <properties>
+      <enabled value="true"/>
+      <preferredSize width="1280" height="960"/>
+    </properties>
+    <border type="bevel-lowered"/>
+    <children>
+      <grid id="3b2f1" binding="MainMenuPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="40" left="20" bottom="0" right="20"/>
+        <constraints>
+          <card name="MenuCard"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="1a283" class="javax.swing.JTextField" binding="titleText">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <editable value="false"/>
+              <enabled value="true"/>
+              <font name="Arial Black" size="48" style="1"/>
+              <text value=" Wheel Of Fortune The Game "/>
+            </properties>
+          </component>
+          <grid id="bdb8" binding="menuButtons" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="1c00c" class="javax.swing.JButton" binding="SinglePlayerButton">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="500" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <font size="24" style="2"/>
+                  <foreground color="-11184811"/>
+                  <horizontalAlignment value="2"/>
+                  <text value="Single  Player"/>
+                </properties>
+              </component>
+              <component id="3d163" class="javax.swing.JButton" binding="ExitButton">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="500" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <font size="24" style="2"/>
+                  <foreground color="-4521982"/>
+                  <horizontalAlignment value="2"/>
+                  <text value="Exit"/>
+                </properties>
+              </component>
+              <component id="bd442" class="javax.swing.JButton" binding="CreditsButton">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="500" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <font size="24" style="2"/>
+                  <foreground color="-11184811"/>
+                  <horizontalAlignment value="2"/>
+                  <text value="Credits"/>
+                </properties>
+              </component>
+              <component id="fecfc" class="javax.swing.JButton" binding="MultiPlayerButton">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="2" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="500" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <font size="24" style="2"/>
+                  <foreground color="-11184811"/>
+                  <horizontalAlignment value="2"/>
+                  <text value="Multi Player"/>
+                </properties>
+              </component>
+              <hspacer id="3034f">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <grid id="e3576" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="e13ff" class="javax.swing.JPasswordField">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="49" height="33"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <editable value="true"/>
+                      <font size="22"/>
+                      <text value=""/>
+                      <toolTipText value="Your guess goes here:"/>
+                      <verifyInputWhenFocusTarget value="true"/>
+                      <visible value="true"/>
+                    </properties>
+                  </component>
+                  <component id="bf79a" class="javax.swing.JCheckBox">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false">
+                        <preferred-size width="76" height="33"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <hideActionText value="true"/>
+                      <horizontalAlignment value="10"/>
+                      <text value="Visible"/>
+                      <verticalTextPosition value="1"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="4df82" binding="GamePanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <card name="GameCard"/>
+        </constraints>
+        <properties>
+          <enabled value="true"/>
+          <preferredSize width="1280" height="960"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <toolbar id="6ca30" binding="topToolBar">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="475" height="20"/>
+              </grid>
+            </constraints>
+            <properties>
+              <floatable value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="4441b" class="javax.swing.JButton" binding="newGameButton" default-binding="true">
+                <constraints/>
+                <properties>
+                  <text value="New Game"/>
+                </properties>
+              </component>
+              <component id="efa5b" class="javax.swing.JButton" binding="helpButton" default-binding="true">
+                <constraints/>
+                <properties>
+                  <text value="Help"/>
+                </properties>
+              </component>
+              <component id="82269" class="javax.swing.JButton" binding="addPlayerButton" default-binding="true">
+                <constraints/>
+                <properties>
+                  <text value="Add Player"/>
+                </properties>
+              </component>
+              <component id="ced5a" class="javax.swing.JButton" binding="addBotButton">
+                <constraints/>
+                <properties>
+                  <text value="Add Bot"/>
+                </properties>
+              </component>
+            </children>
+          </toolbar>
+          <component id="d9721" class="javax.swing.JProgressBar" binding="roundProgress">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="475" height="4"/>
+              </grid>
+            </constraints>
+            <properties>
+              <string value="75%"/>
+            </properties>
+          </component>
+          <splitpane id="6e558" binding="mainDivider">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+            </constraints>
+            <properties>
+              <continuousLayout value="true"/>
+              <enabled value="true"/>
+              <resizeWeight value="0.8"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <grid id="774ad" binding="leftMenu" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="830b4" binding="bottomPanel" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="91f8d" class="javax.swing.JButton" binding="guessLetter">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="LETTER"/>
+                        </properties>
+                      </component>
+                      <component id="21df8" class="javax.swing.JPasswordField" binding="playerInput">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="49" height="33"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="true"/>
+                          <font size="22"/>
+                          <text value=""/>
+                          <toolTipText value="Your guess goes here:"/>
+                          <verifyInputWhenFocusTarget value="true"/>
+                          <visible value="true"/>
+                        </properties>
+                      </component>
+                      <component id="b1038" class="javax.swing.JCheckBox" binding="visibleCheckBox">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false">
+                            <preferred-size width="76" height="33"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <hideActionText value="true"/>
+                          <horizontalAlignment value="10"/>
+                          <text value="Visible"/>
+                          <verticalTextPosition value="1"/>
+                        </properties>
+                      </component>
+                      <component id="e6a3e" class="javax.swing.JButton" binding="spinWheelButton">
+                        <constraints>
+                          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="Spin The Wheel!!!"/>
+                        </properties>
+                      </component>
+                      <component id="3e5c2" class="javax.swing.JButton" binding="fullGuess">
+                        <constraints>
+                          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="PHRASE"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="63e98" binding="topPanel" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <toolTipText value=""/>
+                    </properties>
+                    <border type="bevel-raised"/>
+                    <children>
+                      <component id="3e71" class="javax.swing.JLabel" binding="currentPlayer">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <text value="Category"/>
+                          <toolTipText value="Category"/>
+                        </properties>
+                      </component>
+                      <component id="907c1" class="javax.swing.JLabel" binding="roundNr3Label" default-binding="true">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                            <preferred-size width="150" height="-1"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <horizontalAlignment value="0"/>
+                          <horizontalTextPosition value="0"/>
+                          <text value="Round"/>
+                          <toolTipText value="Round number"/>
+                        </properties>
+                      </component>
+                      <component id="30f7b" class="javax.swing.JLabel" binding="pricePool">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="2" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="true"/>
+                          <text value=""/>
+                          <toolTipText value="Price for guessing a letter"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="50dff" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-16174180"/>
+                    </properties>
+                    <border type="none"/>
+                    <children/>
+                  </grid>
+                  <component id="957b9" class="javax.swing.JTextField" binding="roundSollution">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <editable value="false"/>
+                      <focusable value="false"/>
+                      <font size="22"/>
+                      <text value="PHRASE "/>
+                      <toolTipText value=""/>
+                    </properties>
+                  </component>
+                  <component id="2b62e" class="javax.swing.JTable" binding="playersScores">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <showHorizontalLines value="true"/>
+                      <showVerticalLines value="false"/>
+                      <toolTipText value="players"/>
+                    </properties>
+                  </component>
+                  <grid id="7f041" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                        <preferred-size width="500" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <foreground color="-11184811"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="294a4" class="javax.swing.JCheckBox" binding="ipVisibleCheck">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false">
+                            <preferred-size width="76" height="33"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <hideActionText value="true"/>
+                          <horizontalAlignment value="10"/>
+                          <text value="Visible"/>
+                          <verticalTextPosition value="1"/>
+                        </properties>
+                      </component>
+                      <component id="80f4c" class="javax.swing.JPasswordField" binding="ipInput">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="49" height="33"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <editable value="true"/>
+                          <font size="22"/>
+                          <text value=""/>
+                          <toolTipText value="Multiplayer ip goes here:"/>
+                          <verifyInputWhenFocusTarget value="true"/>
+                          <visible value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <scrollpane id="26d80" binding="guessLog">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+                <border type="bevel-lowered" title="Logs"/>
+                <children>
+                  <component id="10439" class="javax.swing.JList" binding="guessesHistory">
+                    <constraints/>
+                    <properties>
+                      <enabled value="true"/>
+                      <model/>
+                      <toolTipText value="Game logs"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+            </children>
+          </splitpane>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

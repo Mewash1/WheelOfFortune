@@ -15,7 +15,7 @@ public class Game {
     private GameWord gameWord;
     private String category;
     private final Wheel wheel = new Wheel();
-    private GameWindowGUI window;
+    private WoF_GUI window;
 
     private enum MoveState {
         HAS_TO_SPIN,
@@ -43,7 +43,7 @@ public class Game {
 
     }
 
-    public void setGameWindow(GameWindowGUI window) {
+    public void setGameWindow(WoF_GUI window) {
         this.window = window;
     }
 
