@@ -222,11 +222,12 @@ public class Game {
             window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
             window.updateGUI();
         }
+        reportActionToServer(player, "guessp:" + phrase);
         if (!result) {
             assignNextPlayer();
+            nextMove();
         } else {
             nextMove();
-            reportActionToServer(player, "guessp:" + phrase);
             beingExecutedByServer = false;
             advanceRound();
         }

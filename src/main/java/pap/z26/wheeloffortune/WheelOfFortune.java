@@ -69,7 +69,7 @@ public class WheelOfFortune {
 
     public WheelOfFortune() {
         game = new Game();
-        ourPlayer = new HumanPlayer("You");
+        ourPlayer = new HumanPlayer("B1rtek");
         gameWindow = new GameWindowGUI(this);
         game.setGameWindow(gameWindow);
     }
