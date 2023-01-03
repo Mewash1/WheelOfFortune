@@ -16,7 +16,7 @@
           <card name="MenuCard"/>
         </constraints>
         <properties/>
-        <border type="none"/>
+        <border type="none" title="l"/>
         <children>
           <component id="1a283" class="javax.swing.JTextField" binding="titleText">
             <constraints>
@@ -94,30 +94,19 @@
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <grid id="e3576" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="4f2ab" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="500" height="-1"/>
+                  </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <foreground color="-11184811"/>
+                </properties>
                 <border type="none"/>
                 <children>
-                  <component id="e13ff" class="javax.swing.JPasswordField">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="49" height="33"/>
-                      </grid>
-                    </constraints>
-                    <properties>
-                      <editable value="true"/>
-                      <font size="22"/>
-                      <text value=""/>
-                      <toolTipText value="Your guess goes here:"/>
-                      <verifyInputWhenFocusTarget value="true"/>
-                      <visible value="true"/>
-                    </properties>
-                  </component>
-                  <component id="bf79a" class="javax.swing.JCheckBox">
+                  <component id="dc178" class="javax.swing.JCheckBox" binding="ipVisibleCheck">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false">
                         <preferred-size width="76" height="33"/>
@@ -128,6 +117,21 @@
                       <horizontalAlignment value="10"/>
                       <text value="Visible"/>
                       <verticalTextPosition value="1"/>
+                    </properties>
+                  </component>
+                  <component id="6fe3b" class="javax.swing.JPasswordField" binding="ipInput">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="49" height="33"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <editable value="true"/>
+                      <font size="22"/>
+                      <text value=""/>
+                      <toolTipText value="Multiplayer ip goes here:"/>
+                      <verifyInputWhenFocusTarget value="true"/>
+                      <visible value="true"/>
                     </properties>
                   </component>
                 </children>
@@ -207,7 +211,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <grid id="774ad" binding="leftMenu" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="774ad" binding="leftMenu" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="left"/>
@@ -355,48 +359,6 @@
                       <toolTipText value="players"/>
                     </properties>
                   </component>
-                  <grid id="7f041" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="500" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties>
-                      <foreground color="-11184811"/>
-                    </properties>
-                    <border type="none"/>
-                    <children>
-                      <component id="294a4" class="javax.swing.JCheckBox" binding="ipVisibleCheck">
-                        <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false">
-                            <preferred-size width="76" height="33"/>
-                          </grid>
-                        </constraints>
-                        <properties>
-                          <hideActionText value="true"/>
-                          <horizontalAlignment value="10"/>
-                          <text value="Visible"/>
-                          <verticalTextPosition value="1"/>
-                        </properties>
-                      </component>
-                      <component id="80f4c" class="javax.swing.JPasswordField" binding="ipInput">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="10" fill="1" indent="0" use-parent-layout="false">
-                            <preferred-size width="49" height="33"/>
-                          </grid>
-                        </constraints>
-                        <properties>
-                          <editable value="true"/>
-                          <font size="22"/>
-                          <text value=""/>
-                          <toolTipText value="Multiplayer ip goes here:"/>
-                          <verifyInputWhenFocusTarget value="true"/>
-                          <visible value="true"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
                 </children>
               </grid>
               <scrollpane id="26d80" binding="guessLog">
