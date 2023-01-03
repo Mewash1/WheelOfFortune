@@ -234,6 +234,16 @@ public class Game {
         return result;
     }
 
+    private Player assignRoundStarter() {
+        return switch (state) {
+            case NOT_STARTED, ROUND4, ENDED -> null;
+            case ROUND1, ROUND2 -> players.get(0);
+            case ROUND3 -> players.get(1);
+            case ROUND5 -> players.get(2);
+            case FINAL -> winner;
+        };
+    }
+
     private void advanceRound() {
         if(gameServer == null && !beingExecutedByServer) return; // only the server can advance rounds
         Database database = Database.getInstance();
@@ -254,8 +264,6 @@ public class Game {
             }
         }
         state = state.next();
-        roundStarter = players.get((players.indexOf(roundStarter)+1)%players.size());
-        currentPlayer = roundStarter;
         if (state != GameState.ENDED) {
             if(window != null) {
                 window.writeToGameLog("Round " + state.toString() + " is starting!");
@@ -264,6 +272,8 @@ public class Game {
         if (state == GameState.FINAL) {
             winner = Collections.max(scores.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
+        roundStarter = assignRoundStarter();
+        currentPlayer = roundStarter;
         if (state == GameState.ENDED) {
             currentPlayer = null;
         }
