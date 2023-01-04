@@ -21,6 +21,7 @@ public class Game {
     private NetworkClient networkClient;
     private GameServer gameServer = null;
     boolean beingExecutedByServer = false;
+    private Timer moveTimeoutTimer;
 
     private enum MoveState {
         HAS_TO_SPIN,
@@ -44,9 +45,28 @@ public class Game {
         }
     }
 
-    public Game() {}
+    private class MoveTimeouter implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            assignNextPlayer();
+            nextMove();
+        }
+    }
+
+    public Game() {
+        setup();
+    }
+
     public Game(GameServer server) {
         this.gameServer = server;
+        setup();
+    }
+
+    private void setup() {
+        MoveTimeouter timeouter = new MoveTimeouter();
+        moveTimeoutTimer = new Timer(1000000000, timeouter);
+        moveTimeoutTimer.setRepeats(true);
+        moveTimeoutTimer.start();
     }
 
     public void setGameWindow(GameWindowGUI window) {
@@ -57,7 +77,7 @@ public class Game {
         if (player.getGame() == null && players.size() < 3 && !inProgress && notInGame(player)) {
             players.add(player);
             player.setGame(this);
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " joined the game");
             }
             return true;
@@ -66,8 +86,8 @@ public class Game {
     }
 
     private boolean notInGame(Player player) {
-        for(Player inGamePlayer: players) {
-            if(inGamePlayer.getName().equals(player.getName())) return false;
+        for (Player inGamePlayer : players) {
+            if (inGamePlayer.getName().equals(player.getName())) return false;
         }
         return true;
     }
@@ -76,7 +96,7 @@ public class Game {
         if (!inProgress) {
             player.setGame(null);
             players.remove(player);
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Player " + player.getGame() + " left the game");
             }
             return true;
@@ -96,11 +116,19 @@ public class Game {
             joinGame(new BotPlayer(""));
         }
         inProgress = true;
-        roundStarter = players.get(players.size()-1);
+        roundStarter = players.get(players.size() - 1);
         for (Player player : players) {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
+    }
+
+    private void applyMoveTimeLimit(int limit) {
+        limit = limit * 1000;
+        moveTimeoutTimer.stop();
+        moveTimeoutTimer.setInitialDelay(limit);
+        moveTimeoutTimer.restart();
+        moveTimeoutTimer.start();
     }
 
     private void nextMove() {
@@ -109,9 +137,11 @@ public class Game {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         Mover mover = new Mover(currentPlayer);
-        Timer timer = new Timer(3000, mover); // so the moves aren't instant in case of bots
+        Timer timer = new Timer(2000, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
         timer.start();
+        int limit = state == GameState.ROUND2 ? 3 : 60;
+        applyMoveTimeLimit(limit);
     }
 
     public boolean spinTheWheel(Player player) {
@@ -128,7 +158,7 @@ public class Game {
                 }
                 moveState = MoveState.HAS_TO_SPIN;
             }
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " spun the wheel and got " + getLastRolled());
                 window.updateGUI();
             }
@@ -136,7 +166,7 @@ public class Game {
             reportActionToServer(player, "spin:" + result);
             return true;
         }
-        if(window != null) {
+        if (window != null) {
             window.writeToGameLog("You can't spin the wheel now!");
             window.updateGUI();
         }
@@ -144,6 +174,7 @@ public class Game {
     }
 
     private void assignNextPlayer() {
+        if(!inProgress) return;
         int currentPlayerIndex = players.indexOf(currentPlayer);
         currentPlayer = players.get((currentPlayerIndex + 1) % players.size());
         moveState = MoveState.HAS_TO_SPIN;
@@ -152,7 +183,7 @@ public class Game {
     public int guessLetter(Player player, char letter) {
         if (currentPlayer == null || currentPlayer != player) return -3;
         if (moveState == MoveState.HAS_TO_SPIN && hasNotGuessedConsonants()) {
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("You need to spin the wheel first");
             }
             nextMove();
@@ -161,21 +192,21 @@ public class Game {
         int result;
         if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
             if (!gameWord.hasNotGuessedConsonants()) {
-                if(window != null) {
+                if (window != null) {
                     window.writeToGameLog("There are no consonants left!");
                 }
                 nextMove();
                 return -3;
             }
             if (GameWord.vowels.contains(letter)) {
-                if(window != null) {
+                if (window != null) {
                     window.writeToGameLog("You have to guess a consonant!");
                 }
                 nextMove();
                 return -3;
             }
             result = gameWord.guessLetter(letter);
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
             }
             if (result == 0) {
@@ -187,26 +218,26 @@ public class Game {
             }
         } else { // vowel
             if (!GameWord.vowels.contains(letter)) {
-                if(window != null) {
+                if (window != null) {
                     window.writeToGameLog("You need to either buy a vowel or guess the phrase!");
                 }
                 nextMove();
                 return -3;
             }
             if (roundScores.get(player) < 200) {
-                if(window != null) {
+                if (window != null) {
                     window.writeToGameLog("You don't have enough money to buy a vowel!");
                 }
                 nextMove();
                 return -3;
             }
             result = gameWord.guessLetter(letter);
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
             }
             roundScores.put(player, roundScores.get(player) - 200);
         }
-        if(window != null) {
+        if (window != null) {
             window.updateGUI();
         }
         nextMove();
@@ -218,7 +249,7 @@ public class Game {
         if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants()))
             return false;
         boolean result = gameWord.guessPhrase(phrase);
-        if(window != null) {
+        if (window != null) {
             window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
             window.updateGUI();
         }
@@ -245,7 +276,7 @@ public class Game {
     }
 
     private void advanceRound() {
-        if(gameServer == null && !beingExecutedByServer) return; // only the server can advance rounds
+        if (gameServer == null && !beingExecutedByServer) return; // only the server can advance rounds
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
@@ -257,7 +288,7 @@ public class Game {
                 }
                 roundScores.put(player, 0);
             }
-            if(!beingExecutedByServer) {
+            if (!beingExecutedByServer) {
                 Phrase gamePhrase = database.getRandomPhrase(null);
                 gameWord = new GameWord(gamePhrase.phrase());
                 category = gamePhrase.category();
@@ -265,7 +296,7 @@ public class Game {
         }
         state = state.next();
         if (state != GameState.ENDED) {
-            if(window != null) {
+            if (window != null) {
                 window.writeToGameLog("Round " + state.toString() + " is starting!");
             }
         }
@@ -279,7 +310,7 @@ public class Game {
         }
         moveState = MoveState.HAS_TO_SPIN;
         nextMove();
-        if(window != null) {
+        if (window != null) {
             window.updateGUI();
         }
         reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
@@ -332,8 +363,8 @@ public class Game {
     }
 
     private Player getPlayerByName(String name) {
-        for(Player player: players) {
-            if(player.getName().equals(name)) {
+        for (Player player : players) {
+            if (player.getName().equals(name)) {
                 return player;
             }
         }
@@ -347,10 +378,10 @@ public class Game {
     public void executeFromOutside(JSONObject jsonData, boolean executedOnServer) {
         beingExecutedByServer = !executedOnServer;
         Player actionMaker = null;
-        if(jsonData.has("player")) {
+        if (jsonData.has("player")) {
             actionMaker = getPlayerByName(jsonData.getString("player"));
         }
-        switch(jsonData.getString("action")) {
+        switch (jsonData.getString("action")) {
             case "spin" -> {
                 int value = jsonData.getInt("value");
                 wheel.rig(value);
@@ -377,9 +408,9 @@ public class Game {
     }
 
     private void reportActionToServer(Player player, String action) {
-        if(beingExecutedByServer) return;
+        if (beingExecutedByServer) return;
         JSONObject response = new JSONObject();
-        if(player != null) {
+        if (player != null) {
             response.put("player", player.getName());
         }
         String[] parts = action.split(":");
@@ -399,7 +430,7 @@ public class Game {
                 response.put("cat", parts[2]);
             }
         }
-        if(gameServer == null) { // local game
+        if (gameServer == null) { // local game
             networkClient.sendData(response.toString());
         } else { // running on server
             gameServer.tellEveryoneBut(response.toString(), player, this);
