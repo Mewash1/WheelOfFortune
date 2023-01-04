@@ -2,6 +2,7 @@ package pap.z26.wheeloffortune;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
 public class GameWord {
 
@@ -71,6 +72,27 @@ public class GameWord {
 
     public boolean hasNotGuessedLetters() {
         return displayedWord.equals(word);
+    }
+
+    public int uncoverRandomLetter() {
+        if(!hasNotGuessedLetters()) return -1;
+        ArrayList<Integer> hiddenLettersIndexes = new ArrayList<>();
+        for(int i=0; i<displayedWord.length(); i++) {
+            if(displayedWord.charAt(i) == '_') hiddenLettersIndexes.add(i);
+        }
+        Random random = new Random();
+        int toUncover = hiddenLettersIndexes.get(random.nextInt(hiddenLettersIndexes.size()));
+        uncoverRandomLetter(toUncover);
+        return toUncover;
+    }
+
+    public void uncoverRandomLetter(int toUncover) {
+        StringBuilder uncovered = new StringBuilder(displayedWord);
+        uncovered.setCharAt(toUncover, word.charAt(toUncover));
+        displayedWord = uncovered.toString();
+        StringBuilder notGuessed = new StringBuilder(notGuessedWord);
+        notGuessed.setCharAt(toUncover, '#');
+        notGuessedWord = notGuessed.toString();
     }
 
     public String getPhrase() {
