@@ -69,6 +69,10 @@ public class GameWord {
         return false;
     }
 
+    public boolean hasNotGuessedLetters() {
+        return displayedWord.equals(word);
+    }
+
     public String getPhrase() {
         return word;
     }

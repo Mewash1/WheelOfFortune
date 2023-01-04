@@ -133,19 +133,19 @@ public class Game {
 
     private void nextMove() {
         if (currentPlayer == null) return;
-        if (moveState == MoveState.HAS_TO_SPIN && window != null) {
+        if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null) {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         Mover mover = new Mover(currentPlayer);
         Timer timer = new Timer(2000, mover); // so the moves aren't instant in case of bots
         timer.setRepeats(false);
         timer.start();
-        int limit = state == GameState.ROUND2 ? 3 : 60;
+        int limit = state == GameState.ROUND2 ? 5 : 60;
         applyMoveTimeLimit(limit);
     }
 
     public boolean spinTheWheel(Player player) {
-        if (currentPlayer == null) return false;
+        if (currentPlayer == null || (!beingExecutedByServer && state == GameState.ROUND2)) return false;
         if (currentPlayer == player && (moveState == MoveState.HAS_TO_SPIN || moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) && gameWord.hasNotGuessedConsonants()) {
             moveState = MoveState.HAS_TO_GUESS_CONSONANT;
             int result = wheel.spin(state);
@@ -174,10 +174,19 @@ public class Game {
     }
 
     private void assignNextPlayer() {
-        if(!inProgress) return;
+        if (!inProgress) return;
         int currentPlayerIndex = players.indexOf(currentPlayer);
         currentPlayer = players.get((currentPlayerIndex + 1) % players.size());
-        moveState = MoveState.HAS_TO_SPIN;
+        if (state == GameState.ROUND2) {
+            if(gameWord.hasNotGuessedLetters()) {
+                moveState = MoveState.HAS_TO_GUESS_CONSONANT;
+            } else {
+                moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
+            }
+        } else {
+            moveState = MoveState.HAS_TO_SPIN;
+        }
+
     }
 
     public int guessLetter(Player player, char letter) {
@@ -190,19 +199,11 @@ public class Game {
             return -3;
         }
         int result;
-        if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
-            if (!gameWord.hasNotGuessedConsonants()) {
-                if (window != null) {
-                    window.writeToGameLog("There are no consonants left!");
+        if(state == GameState.ROUND2) {
+            if(moveState != MoveState.HAS_TO_GUESS_CONSONANT) { // in this case any letter goes
+                if(window != null) {
+                    window.writeToGameLog("You have to try to guess the phrase!");
                 }
-                nextMove();
-                return -3;
-            }
-            if (GameWord.vowels.contains(letter)) {
-                if (window != null) {
-                    window.writeToGameLog("You have to guess a consonant!");
-                }
-                nextMove();
                 return -3;
             }
             result = gameWord.guessLetter(letter);
@@ -212,30 +213,60 @@ public class Game {
             if (result == 0) {
                 assignNextPlayer();
             } else {
-                int currentScore = roundScores.get(player);
-                roundScores.put(player, currentScore + result * wheel.getLastRolled());
+                if(GameWord.consonants.contains(letter)) {
+                    int currentScore = roundScores.get(player);
+                    roundScores.put(player, currentScore + result * wheel.getLastRolled());
+                }
                 moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
             }
-        } else { // vowel
-            if (!GameWord.vowels.contains(letter)) {
-                if (window != null) {
-                    window.writeToGameLog("You need to either buy a vowel or guess the phrase!");
+        } else {
+            if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
+                if (!gameWord.hasNotGuessedConsonants()) {
+                    if (window != null) {
+                        window.writeToGameLog("There are no consonants left!");
+                    }
+                    nextMove();
+                    return -3;
                 }
-                nextMove();
-                return -3;
-            }
-            if (roundScores.get(player) < 200) {
-                if (window != null) {
-                    window.writeToGameLog("You don't have enough money to buy a vowel!");
+                if (GameWord.vowels.contains(letter)) {
+                    if (window != null) {
+                        window.writeToGameLog("You have to guess a consonant!");
+                    }
+                    nextMove();
+                    return -3;
                 }
-                nextMove();
-                return -3;
+                result = gameWord.guessLetter(letter);
+                if (window != null) {
+                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+                }
+                if (result == 0) {
+                    assignNextPlayer();
+                } else {
+                    int currentScore = roundScores.get(player);
+                    roundScores.put(player, currentScore + result * wheel.getLastRolled());
+                    moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
+                }
+            } else { // vowel
+                if (!GameWord.vowels.contains(letter)) {
+                    if (window != null) {
+                        window.writeToGameLog("You need to either buy a vowel or guess the phrase!");
+                    }
+                    nextMove();
+                    return -3;
+                }
+                if (roundScores.get(player) < 200) {
+                    if (window != null) {
+                        window.writeToGameLog("You don't have enough money to buy a vowel!");
+                    }
+                    nextMove();
+                    return -3;
+                }
+                result = gameWord.guessLetter(letter);
+                if (window != null) {
+                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+                }
+                roundScores.put(player, roundScores.get(player) - 200);
             }
-            result = gameWord.guessLetter(letter);
-            if (window != null) {
-                window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
-            }
-            roundScores.put(player, roundScores.get(player) - 200);
         }
         if (window != null) {
             window.updateGUI();
@@ -267,8 +298,8 @@ public class Game {
 
     private Player assignRoundStarter() {
         return switch (state) {
-            case NOT_STARTED, ROUND4, ENDED -> null;
-            case ROUND1, ROUND2 -> players.get(0);
+            case NOT_STARTED, ROUND2, ROUND4, ENDED -> null;
+            case ROUND1 -> players.get(0);
             case ROUND3 -> players.get(1);
             case ROUND5 -> players.get(2);
             case FINAL -> winner;
@@ -314,6 +345,10 @@ public class Game {
             window.updateGUI();
         }
         reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
+        if (state == GameState.ROUND2 && !beingExecutedByServer) {
+            int prizeForLetter = wheel.spin(state);
+            reportActionToServer(null, "spin:" + prizeForLetter);
+        }
     }
 
     public String getPhrase() {
@@ -363,6 +398,10 @@ public class Game {
     }
 
     private Player getPlayerByName(String name) {
+        if (name.equals("SYSTEM")) {
+            currentPlayer = players.get(0);
+            name = currentPlayer.getName();
+        }
         for (Player player : players) {
             if (player.getName().equals(name)) {
                 return player;
@@ -418,6 +457,9 @@ public class Game {
         switch (parts[0]) {
             case "spin" -> {
                 response.put("value", Integer.parseInt(parts[1]));
+                if (player == null) {
+                    response.put("player", "SYSTEM");
+                }
             }
             case "guessl" -> {
                 response.put("letter", parts[1]);

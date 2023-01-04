@@ -46,7 +46,7 @@ public class GameWindowGUI extends JFrame {
         guessesHistory.setModel(listModel);
     }
 
-    public void updateGUI() {
+    public synchronized void updateGUI() {
         if (game.getState() != GameState.ENDED) {
             String phrase = game.getPhrase();
             if (!game.hasNotGuessedConsonants()) {
