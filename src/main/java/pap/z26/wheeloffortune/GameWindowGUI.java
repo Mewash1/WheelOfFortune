@@ -5,9 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.HashMap;
 
 public class GameWindowGUI extends JFrame {
     private JButton newGameButton;
@@ -36,6 +34,8 @@ public class GameWindowGUI extends JFrame {
     private JButton spinWheelButton;
     private JButton joinGameButton;
     private JButton connectToServerButton;
+    private JButton leaveGameButton;
+    private JButton logoutButton;
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
@@ -113,6 +113,12 @@ public class GameWindowGUI extends JFrame {
         joinGameButton.addActionListener(e -> {
             wof.joinGame();
         });
+        leaveGameButton.addActionListener(e -> {
+            wof.leaveGame();
+        });
+        logoutButton.addActionListener(e -> {
+            wof.logout();
+        });
     }
 
 //    public static void main(String[] args) {
@@ -144,9 +150,15 @@ public class GameWindowGUI extends JFrame {
         connectToServerButton = new JButton();
         connectToServerButton.setText("Connect to server");
         topToolBar.add(connectToServerButton);
+        logoutButton = new JButton();
+        logoutButton.setText("Logout");
+        topToolBar.add(logoutButton);
         joinGameButton = new JButton();
         joinGameButton.setText("Join Game");
         topToolBar.add(joinGameButton);
+        leaveGameButton = new JButton();
+        leaveGameButton.setText("Leave Game");
+        topToolBar.add(leaveGameButton);
         newGameButton = new JButton();
         newGameButton.setText("Start Game");
         topToolBar.add(newGameButton);

@@ -45,6 +45,9 @@ public class GameServer {
             }
             case "logout" -> {
                 Player loggingOut = players.get(jsonData.getString("player"));
+                if(loggingOut.getGame() != null) {
+                    leaveGame(jsonData);
+                }
                 players.remove(jsonData.getString("player"));
                 addresses.remove(loggingOut);
             }
@@ -82,18 +85,7 @@ public class GameServer {
                 }
             }
             case "leave" -> {
-                Player leavingPlayer = players.get(jsonData.getString("player"));
-                Game gameBeingLeft = leavingPlayer.getGame();
-                JSONObject response = new JSONObject();
-                response.put("action", "left");
-                response.put("player", jsonData.getString("player"));
-                if(gameBeingLeft.isInProgress()) {
-                    BotPlayer replacement = gameBeingLeft.leaveGameAndReplace(leavingPlayer);
-                    response.put("repl", replacement.getName());
-                } else {
-                    gameBeingLeft.leaveGame(leavingPlayer);
-                }
-
+                leaveGame(jsonData);
             }
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
@@ -134,5 +126,20 @@ public class GameServer {
                 networkClient.sendData(data, address.address, address.port);
             }
         }
+    }
+
+    private void leaveGame(JSONObject jsonData) {
+        Player leavingPlayer = players.get(jsonData.getString("player"));
+        Game gameBeingLeft = leavingPlayer.getGame();
+        JSONObject response = new JSONObject();
+        response.put("action", "left");
+        response.put("player", jsonData.getString("player"));
+        if(gameBeingLeft.isInProgress()) {
+            BotPlayer replacement = gameBeingLeft.leaveGameAndReplace(leavingPlayer);
+            response.put("repl", replacement.getName());
+        } else {
+            gameBeingLeft.leaveGame(leavingPlayer);
+        }
+        tellEveryoneBut(response.toString(), leavingPlayer, gameBeingLeft);
     }
 }

@@ -27,10 +27,22 @@
               <text value="Connect to server"/>
             </properties>
           </component>
+          <component id="3d152" class="javax.swing.JButton" binding="logoutButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Logout"/>
+            </properties>
+          </component>
           <component id="5c228" class="javax.swing.JButton" binding="joinGameButton" default-binding="true">
             <constraints/>
             <properties>
               <text value="Join Game"/>
+            </properties>
+          </component>
+          <component id="44a5c" class="javax.swing.JButton" binding="leaveGameButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Leave Game"/>
             </properties>
           </component>
           <component id="22adf" class="javax.swing.JButton" binding="newGameButton" default-binding="true">

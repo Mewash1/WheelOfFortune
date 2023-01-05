@@ -110,9 +110,28 @@ public class Game {
         return false;
     }
 
-    public BotPlayer leaveGameAndReplace(Player player) {
+    public void leaveGameAndReplace(Player player, String replacementBotName) {
+        HumanPlayer replacementPlayer = new HumanPlayer(replacementBotName);
+        leaveGameAndReplace(player, replacementPlayer);
+    }
 
-        return null;
+    public BotPlayer leaveGameAndReplace(Player player) {
+        BotPlayer replacementPlayer = new BotPlayer();
+        leaveGameAndReplace(player, replacementPlayer);
+        return replacementPlayer;
+    }
+
+    private void leaveGameAndReplace(Player player, Player replacementPlayer) {
+        replacementPlayer.setGame(this);
+        int playerIndex = players.indexOf(player);
+        players.set(playerIndex, replacementPlayer);
+        scores.put(replacementPlayer, scores.get(player));
+        scores.remove(player);
+        roundScores.put(replacementPlayer, roundScores.get(player));
+        roundScores.remove(player);
+        if(window != null) {
+            window.writeToGameLog("Player " + player.getName() + " was replaced by Bot " + replacementPlayer.getName());
+        }
     }
 
     public void startGame() {
@@ -469,6 +488,13 @@ public class Game {
                 gameWord.uncoverRandomLetter(jsonData.getInt("index"));
                 if(window != null) window.updateGUI();
             }
+            case "left" -> {
+                if(jsonData.has("repl")) {
+                    leaveGameAndReplace(actionMaker, jsonData.getString("repl"));
+                } else {
+                    leaveGame(actionMaker);
+                }
+            }
         }
         beingExecutedByServer = false;
     }
@@ -506,6 +532,5 @@ public class Game {
         } else { // running on server
             gameServer.tellEveryoneBut(response.toString(), player, this);
         }
-
     }
 }
