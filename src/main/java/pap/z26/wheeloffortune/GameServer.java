@@ -32,6 +32,9 @@ public class GameServer {
                         response.put("message", "You are already logged in");
                     }
                 }
+                if(jsonData.getString("player").equals("SYSTEM")) {
+                    response.put("message", "Invalid user name");
+                }
                 if(!response.has("message")) {
                     response.put("message", "success");
                     HumanPlayer newPlayer = new HumanPlayer(jsonData.getString("player"));
@@ -39,6 +42,11 @@ public class GameServer {
                     players.put(jsonData.getString("player"), newPlayer);
                 }
                 networkClient.sendData(response.toString(), ipAddress, port);
+            }
+            case "logout" -> {
+                Player loggingOut = players.get(jsonData.getString("player"));
+                players.remove(jsonData.getString("player"));
+                addresses.remove(loggingOut);
             }
             case "join" -> {
                 Player joiningPlayer = players.get(jsonData.getString("player"));
@@ -72,6 +80,20 @@ public class GameServer {
                         networkClient.sendData(responseToOthers.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
                     }
                 }
+            }
+            case "leave" -> {
+                Player leavingPlayer = players.get(jsonData.getString("player"));
+                Game gameBeingLeft = leavingPlayer.getGame();
+                JSONObject response = new JSONObject();
+                response.put("action", "left");
+                response.put("player", jsonData.getString("player"));
+                if(gameBeingLeft.isInProgress()) {
+                    BotPlayer replacement = gameBeingLeft.leaveGameAndReplace(leavingPlayer);
+                    response.put("repl", replacement.getName());
+                } else {
+                    gameBeingLeft.leaveGame(leavingPlayer);
+                }
+
             }
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));

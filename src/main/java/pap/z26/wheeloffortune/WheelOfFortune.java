@@ -52,11 +52,25 @@ public class WheelOfFortune {
         networkClient.sendData(loginData.toString());
     }
 
+    public void logout() {
+        JSONObject logoutData = new JSONObject();
+        logoutData.put("action", "logout");
+        logoutData.put("player", ourPlayer.getName());
+        networkClient.sendData(logoutData.toString());
+    }
+
     public void joinGame() {
         JSONObject joinData = new JSONObject();
         joinData.put("action", "join");
         joinData.put("player", ourPlayer.getName());
         networkClient.sendData(joinData.toString());
+    }
+
+    public void leaveGame() {
+        JSONObject leaveData = new JSONObject();
+        leaveData.put("action", "leave");
+        leaveData.put("player", ourPlayer.getName());
+        networkClient.sendData(leaveData.toString());
     }
 
     public void startGame() {

@@ -110,6 +110,11 @@ public class Game {
         return false;
     }
 
+    public BotPlayer leaveGameAndReplace(Player player) {
+
+        return null;
+    }
+
     public void startGame() {
         start();
         advanceRound();
@@ -379,6 +384,10 @@ public class Game {
 
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public boolean isInProgress() {
+        return inProgress;
     }
 
     public String getLastRolled() {
