@@ -103,7 +103,7 @@ public class Game {
             player.setGame(null);
             players.remove(player);
             if (window != null) {
-                window.writeToGameLog("Player " + player.getGame() + " left the game");
+                window.writeToGameLog("Player " + player.getName() + " left the game");
             }
             return true;
         }
