@@ -11,7 +11,10 @@ public class GameServer {
 
     private NetworkClient networkClient;
     private ArrayList<Game> games = new ArrayList<>();
-    private record IpAndPort(InetAddress address, int port) {}
+
+    private record IpAndPort(InetAddress address, int port) {
+    }
+
     private HashMap<Player, IpAndPort> addresses = new HashMap<>();
     private HashMap<String, Player> players = new HashMap<>();
 
@@ -27,15 +30,15 @@ public class GameServer {
             case "login" -> {
                 JSONObject response = new JSONObject();
                 response.put("action", "loginconf");
-                for(Player player: addresses.keySet()) {
-                    if(player.getName().equals(jsonData.getString("player"))) {
+                for (Player player : addresses.keySet()) {
+                    if (player.getName().equals(jsonData.getString("player"))) {
                         response.put("message", "You are already logged in");
                     }
                 }
-                if(jsonData.getString("player").equals("SYSTEM")) {
+                if (jsonData.getString("player").equals("SYSTEM")) {
                     response.put("message", "Invalid user name");
                 }
-                if(!response.has("message")) {
+                if (!response.has("message")) {
                     response.put("message", "success");
                     HumanPlayer newPlayer = new HumanPlayer(jsonData.getString("player"));
                     addresses.put(newPlayer, new IpAndPort(ipAddress, port));
@@ -45,7 +48,7 @@ public class GameServer {
             }
             case "logout" -> {
                 Player loggingOut = players.get(jsonData.getString("player"));
-                if(loggingOut.getGame() != null) {
+                if (loggingOut.getGame() != null) {
                     leaveGame(jsonData);
                 }
                 players.remove(jsonData.getString("player"));
@@ -53,20 +56,20 @@ public class GameServer {
             }
             case "join" -> {
                 Player joiningPlayer = players.get(jsonData.getString("player"));
-                for(Game game: games) {
-                    if(game.getPlayers().size() < 3) {
-                        if(game.joinGame(joiningPlayer)) {
+                for (Game game : games) {
+                    if (game.getPlayers().size() < 3) {
+                        if (game.joinGame(joiningPlayer)) {
                             break;
                         }
                     }
                 }
-                if(joiningPlayer.getGame() == null) {
+                if (joiningPlayer.getGame() == null) {
                     Game newGame = new Game(this);
                     games.add(newGame);
                     newGame.joinGame(joiningPlayer);
                 }
                 JSONArray inGamePlayers = new JSONArray();
-                for(Player inGamePlayer: joiningPlayer.getGame().getPlayers()) {
+                for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
                     inGamePlayers.put(inGamePlayer.getName());
                 }
                 JSONObject response = new JSONObject();
@@ -77,8 +80,8 @@ public class GameServer {
                 JSONObject responseToOthers = new JSONObject();
                 responseToOthers.put("action", "joinoth");
                 responseToOthers.put("player", joiningPlayer.getName());
-                for(Player inGamePlayer: joiningPlayer.getGame().getPlayers()) {
-                    if(inGamePlayer != joiningPlayer) {
+                for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
+                    if (inGamePlayer != joiningPlayer) {
                         IpAndPort alreadyInGamePlayerAddress = addresses.get(inGamePlayer);
                         networkClient.sendData(responseToOthers.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
                     }
@@ -90,21 +93,21 @@ public class GameServer {
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
-                while(gameToStart.getPlayers().size() < 3) {
+                while (gameToStart.getPlayers().size() < 3) {
                     BotPlayer fillerPlayer = new BotPlayer();
-                    while(!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();
+                    while (!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();
                     JSONObject joinothResponse = new JSONObject();
                     joinothResponse.put("action", "joinoth");
                     joinothResponse.put("player", fillerPlayer.getName());
-                    for(Player playerToNotify: gameToStart.getPlayers()) {
-                        if(!playerToNotify.isBot()) {
+                    for (Player playerToNotify : gameToStart.getPlayers()) {
+                        if (!playerToNotify.isBot()) {
                             IpAndPort alreadyInGamePlayerAddress = addresses.get(playerToNotify);
                             networkClient.sendData(joinothResponse.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
                         }
                     }
                 }
-                for(Player inGamePlayer: gameToStart.getPlayers()) {
-                    if(!inGamePlayer.isBot()) {
+                for (Player inGamePlayer : gameToStart.getPlayers()) {
+                    if (!inGamePlayer.isBot()) {
                         IpAndPort address = addresses.get(inGamePlayer);
                         networkClient.sendData(data, address.address, address.port);
                     }
@@ -134,7 +137,7 @@ public class GameServer {
         JSONObject response = new JSONObject();
         response.put("action", "left");
         response.put("player", jsonData.getString("player"));
-        if(gameBeingLeft.isInProgress()) {
+        if (gameBeingLeft.isInProgress()) {
             BotPlayer replacement = gameBeingLeft.leaveGameAndReplace(leavingPlayer);
             response.put("repl", replacement.getName());
         } else {

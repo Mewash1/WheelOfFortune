@@ -47,9 +47,11 @@ public class Game {
     private class MoveTimeouter implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            if(state == GameState.ROUND4 && gameServer != null) {
-                int index = gameWord.uncoverRandomLetter();
-                reportActionToServer(null, "uncov:"+index);
+            if(state == GameState.ROUND4) {
+                if(gameServer != null) {
+                    int index = gameWord.uncoverRandomLetter();
+                    reportActionToServer(null, "uncov:"+index);
+                }
             } else {
                 assignNextPlayer();
                 nextMove();
@@ -226,7 +228,7 @@ public class Game {
     }
 
     public int guessLetter(Player player, char letter) {
-        if (currentPlayer == null || currentPlayer != player) return -3;
+        if (currentPlayer == null || currentPlayer != player || state == GameState.ROUND4) return -3;
         if (moveState == MoveState.HAS_TO_SPIN && hasNotGuessedConsonants()) {
             if (window != null) {
                 window.writeToGameLog("You need to spin the wheel first");
@@ -313,8 +315,9 @@ public class Game {
     }
 
     public boolean guessPhrase(Player player, String phrase) {
-        if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants()))
-            return false;
+        if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants())) {
+            if(state != GameState.ROUND4) return false;
+        }
         boolean result = gameWord.guessPhrase(phrase);
         if (window != null) {
             window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
@@ -359,7 +362,7 @@ public class Game {
             }
             if (!beingExecutedByServer) {
                 Phrase gamePhrase = database.getRandomPhrase(null);
-                gameWord = new GameWord(gamePhrase.phrase());
+                gameWord = new GameWord("kod da vinci");
                 category = gamePhrase.category();
             }
         }

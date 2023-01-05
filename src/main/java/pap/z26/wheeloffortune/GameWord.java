@@ -87,6 +87,7 @@ public class GameWord {
     }
 
     public void uncoverRandomLetter(int toUncover) {
+        if(toUncover == -1) return;
         StringBuilder uncovered = new StringBuilder(displayedWord);
         uncovered.setCharAt(toUncover, word.charAt(toUncover));
         displayedWord = uncovered.toString();
