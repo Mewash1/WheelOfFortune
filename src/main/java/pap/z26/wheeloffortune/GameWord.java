@@ -71,7 +71,7 @@ public class GameWord {
     }
 
     public boolean hasNotGuessedLetters() {
-        return displayedWord.equals(word);
+        return !displayedWord.equals(word);
     }
 
     public int uncoverRandomLetter() {

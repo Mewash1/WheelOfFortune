@@ -21,7 +21,7 @@ public class Game {
     private NetworkClient networkClient;
     private GameServer gameServer = null;
     boolean beingExecutedByServer = false;
-    private Timer moveTimeoutTimer;
+    private Timer moveTimeoutTimer, moverTimer;
 
     private enum MoveState {
         HAS_TO_SPIN,
@@ -31,25 +31,29 @@ public class Game {
 
     private MoveState moveState;
 
-    private static class Mover implements ActionListener {
-
-        Player player;
-
-        public Mover(Player player) {
-            this.player = player;
-        }
-
+    private class Mover implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            player.makeAMove();
+            if(currentPlayer != null) {
+                currentPlayer.makeAMove();
+            } else if (state == GameState.ROUND4) {
+                for(Player inGamePlayer: players) {
+                    inGamePlayer.makeAMove();
+                }
+            }
         }
     }
 
     private class MoveTimeouter implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            assignNextPlayer();
-            nextMove();
+            if(state == GameState.ROUND4 && gameServer != null) {
+                int index = gameWord.uncoverRandomLetter();
+                reportActionToServer(null, "uncov:"+index);
+            } else {
+                assignNextPlayer();
+                nextMove();
+            }
         }
     }
 
@@ -67,6 +71,8 @@ public class Game {
         moveTimeoutTimer = new Timer(1000000000, timeouter);
         moveTimeoutTimer.setRepeats(true);
         moveTimeoutTimer.start();
+        Mover mover = new Mover();
+        moverTimer = new Timer(2000, mover);
     }
 
     public void setGameWindow(GameWindowGUI window) {
@@ -136,11 +142,15 @@ public class Game {
         if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null) {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
-        Mover mover = new Mover(currentPlayer);
-        Timer timer = new Timer(2000, mover); // so the moves aren't instant in case of bots
-        timer.setRepeats(false);
-        timer.start();
-        int limit = state == GameState.ROUND2 ? 5 : 60;
+        moverTimer.stop();
+        moverTimer.setRepeats(state == GameState.ROUND4);
+        moverTimer.restart();
+        int limit = switch (state) {
+            case ROUND2 -> 5;
+            case ROUND4 -> 2;
+            case FINAL -> 10;
+            default -> 60;
+        };
         applyMoveTimeLimit(limit);
     }
 
@@ -298,8 +308,8 @@ public class Game {
 
     private Player assignRoundStarter() {
         return switch (state) {
-            case NOT_STARTED, ROUND2, ROUND4, ENDED -> null;
-            case ROUND1 -> players.get(0);
+            case NOT_STARTED, ROUND4, ENDED -> null;
+            case ROUND1, ROUND2 -> players.get(0);
             case ROUND3 -> players.get(1);
             case ROUND5 -> players.get(2);
             case FINAL -> winner;
@@ -307,6 +317,8 @@ public class Game {
     }
 
     private void advanceRound() {
+        moverTimer.stop();
+        moveTimeoutTimer.stop();
         if (gameServer == null && !beingExecutedByServer) return; // only the server can advance rounds
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
@@ -442,6 +454,10 @@ public class Game {
             case "start" -> {
                 start();
             }
+            case "uncov" -> {
+                gameWord.uncoverRandomLetter(jsonData.getInt("index"));
+                if(window != null) window.updateGUI();
+            }
         }
         beingExecutedByServer = false;
     }
@@ -451,15 +467,14 @@ public class Game {
         JSONObject response = new JSONObject();
         if (player != null) {
             response.put("player", player.getName());
+        } else {
+            response.put("player", "SYSTEM");
         }
         String[] parts = action.split(":");
         response.put("action", parts[0]);
         switch (parts[0]) {
             case "spin" -> {
                 response.put("value", Integer.parseInt(parts[1]));
-                if (player == null) {
-                    response.put("player", "SYSTEM");
-                }
             }
             case "guessl" -> {
                 response.put("letter", parts[1]);
@@ -470,6 +485,9 @@ public class Game {
             case "newword" -> {
                 response.put("word", parts[1]);
                 response.put("cat", parts[2]);
+            }
+            case "uncov" -> {
+                response.put("index", Integer.parseInt(parts[1]));
             }
         }
         if (gameServer == null) { // local game

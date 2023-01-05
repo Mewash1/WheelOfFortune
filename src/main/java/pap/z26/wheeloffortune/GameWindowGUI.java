@@ -56,17 +56,17 @@ public class GameWindowGUI extends JFrame {
         } else {
             roundSollution.setText(game.getWinner().getName() + " wins!");
         }
-        HashMap<Player, Integer> roundScores = game.getRoundScores();
-        HashMap<Player, Integer> playerScoresMap = game.getScores();
-        DefaultTableModel tableModel = new DefaultTableModel();
-        tableModel.setColumnCount(3);
-        Object[] header = {"Player", "Round score", "Total"};
-        tableModel.addRow(header);
-        for (Player player : roundScores.keySet()) {
-            Object[] row = {player.getName(), roundScores.get(player), playerScoresMap.get(player)};
-            tableModel.addRow(row);
-        }
-        playersScores.setModel(tableModel);
+//        HashMap<Player, Integer> roundScores = game.getRoundScores();
+//        HashMap<Player, Integer> playerScoresMap = game.getScores();
+//        DefaultTableModel tableModel = new DefaultTableModel();
+//        tableModel.setColumnCount(3);
+//        Object[] header = {"Player", "Round score", "Total"};
+//        tableModel.addRow(header);
+//        for (Player player : roundScores.keySet()) {
+//            Object[] row = {player.getName(), roundScores.get(player), playerScoresMap.get(player)};
+//            tableModel.addRow(row);
+//        }
+//        playersScores.setModel(tableModel);
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
