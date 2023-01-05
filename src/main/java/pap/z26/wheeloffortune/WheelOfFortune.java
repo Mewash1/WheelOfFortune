@@ -13,30 +13,29 @@ public class WheelOfFortune {
     public void receiveDataFromServer(String data) {
         JSONObject jsonData = new JSONObject(data);
         String action = jsonData.getString("action");
-        if(action.equals("newword") || action.equals("spin") || action.equals("guessl") || action.equals("guessp") || action.equals("start")) {
-            game.executeFromOutside(jsonData, false);
-        } else {
-            switch(action) {
-                case "loginconf" -> {
-                    if(jsonData.getString("message").equals("success")) {
-                        gameWindow.writeToGameLog("Successfully logged in on the server");
+        switch (action) {
+            case "loginconf" -> {
+                if (jsonData.getString("message").equals("success")) {
+                    gameWindow.writeToGameLog("Successfully logged in on the server");
+                } else {
+                    gameWindow.writeToGameLog(jsonData.getString("message"));
+                }
+            }
+            case "joinconf" -> {
+                JSONArray players = jsonData.getJSONArray("players");
+                for (int i = 0; i < players.length(); i++) {
+                    if (ourPlayer.getName().equals(players.getString(i))) {
+                        game.joinGame(ourPlayer);
                     } else {
-                        gameWindow.writeToGameLog(jsonData.getString("message"));
+                        game.joinGame(new HumanPlayer(players.getString(i)));
                     }
                 }
-                case "joinconf" -> {
-                    JSONArray players = jsonData.getJSONArray("players");
-                    for(int i=0; i<players.length(); i++) {
-                        if(ourPlayer.getName().equals(players.getString(i))) {
-                            game.joinGame(ourPlayer);
-                        } else {
-                            game.joinGame(new HumanPlayer(players.getString(i)));
-                        }
-                    }
-                }
-                case "joinoth" -> {
-                    game.joinGame(new HumanPlayer(jsonData.getString("player")));
-                }
+            }
+            case "joinoth" -> {
+                game.joinGame(new HumanPlayer(jsonData.getString("player")));
+            }
+            default -> {
+                game.executeFromOutside(jsonData, false);
             }
         }
     }

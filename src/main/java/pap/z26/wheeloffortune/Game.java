@@ -133,13 +133,15 @@ public class Game {
         limit = limit * 1000;
         moveTimeoutTimer.stop();
         moveTimeoutTimer.setInitialDelay(limit);
+        moveTimeoutTimer.setDelay(limit);
+        moveTimeoutTimer.setRepeats(state == GameState.ROUND4);
         moveTimeoutTimer.restart();
         moveTimeoutTimer.start();
     }
 
     private void nextMove() {
-        if (currentPlayer == null) return;
-        if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null) {
+        if (currentPlayer == null && state != GameState.ROUND4) return;
+        if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null && currentPlayer != null) {
             window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
         }
         moverTimer.stop();
