@@ -150,7 +150,7 @@ public class Game {
 
     public void start() {
         winner = null;
-        state = GameState.ROUND4;
+        state = GameState.NOT_STARTED;
         while (players.size() < 3) {
             joinGame(new BotPlayer(""));
         }
@@ -406,7 +406,7 @@ public class Game {
             }
             if (!beingExecutedByServer) {
                 Phrase gamePhrase = database.getRandomPhrase(null);
-                gameWord = new GameWord("kod da vinci");
+                gameWord = new GameWord(gamePhrase.phrase());
                 category = gamePhrase.category();
             }
         }
