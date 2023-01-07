@@ -11,4 +11,8 @@ public interface Player {
     void makeAMove();
 
     boolean isBot();
+
+    void notifyLetter(Character letter);
+
+    void notifyNewRound();
 }
