@@ -1,19 +1,24 @@
 package pap.z26.wheeloffortune;
 
-import java.util.ArrayList;
-//import java.util.Collections;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-//import java.util.stream.Stream;
+import java.util.*;
 
 public class BotPlayer implements Player {
 
-    private String[] botNames = {"Kot", "Duke", "Tux", "Blinky", "Ferris", "Geeko", "Gopher", "Konqi", "Kiki", "Larry", "Octocat", "Wilber"};
-
     public BotPlayer() {
         Random random = new Random();
+        String[] botNames = {"Kot", "Duke", "Tux", "Blinky", "Ferris", "Geeko", "Gopher", "Konqi", "Kiki", "Larry", "Octocat", "Wilber"};
         this.name = botNames[random.nextInt(botNames.length)];
+
+        currConsonants.addAll(GameWord.consonants);
+        currVowels.addAll(GameWord.vowels);
+        currConsWeights.addAll(consonantWeights);
+        currVowelWeights.addAll(vowelWeights);
+//        Collections.copy(currConsonants, GameWord.consonants);
+//        Collections.copy(currVowels, GameWord.vowels);
+//        Collections.copy(currConsWeights, consonantWeights);
+//        Collections.copy(currVowelWeights, vowelWeights);
+        currSumConsWeights = consonantSumWeights;
+        currSumVowelWeights = vowelSumWeights;
     }
 
     public BotPlayer(String name) {
@@ -27,7 +32,10 @@ public class BotPlayer implements Player {
     private boolean hasSpunTheWheel = false;
     private boolean hasGuessedCorrectly = false;
 
-    private static ArrayList<Integer> consonantWeights, vowelWeights;
+    private static final ArrayList<Integer> consonantWeights;
+    private static final ArrayList<Integer> vowelWeights;
+    private static final Integer consonantSumWeights= 71;
+    private static final Integer vowelSumWeights = 24;
 
     static {
         consonantWeights = new ArrayList<>();
@@ -42,19 +50,52 @@ public class BotPlayer implements Player {
         }
     }
 
-    private ArrayList<Character> currConsonants, currVowels;
-    private ArrayList<Integer> currConsWeights, currVowelWeights;
+    private Integer randomLetterIndex(ArrayList<Integer> listOfWeights, Integer sumOfWeights){
+        Random rand = new Random();
+        Integer randRes = rand.nextInt(sumOfWeights);
+        for (int i =0; i< listOfWeights.size(); i++){
+            randRes -= listOfWeights.get(i);
+            if (randRes < 0){
+                return i;
+            }
+        }
+        return 0;
+    }
 
+    private ArrayList<Character> currConsonants = new ArrayList<>();
+    private ArrayList<Character> currVowels = new ArrayList<>();
+    private ArrayList<Integer> currConsWeights = new ArrayList<>();
+    private ArrayList<Integer> currVowelWeights = new ArrayList<>();
+
+    private Integer currSumConsWeights, currSumVowelWeights;
 
     public void notifyNewRound(){
         Collections.copy(currConsonants, GameWord.consonants);
         Collections.copy(currVowels, GameWord.vowels);
         Collections.copy(currConsWeights, consonantWeights);
         Collections.copy(currVowelWeights, vowelWeights);
+        currSumConsWeights = consonantSumWeights;
+        currSumVowelWeights = vowelSumWeights;
     }
 
     public void notifyLetter(Character letter){
+        for(int i=0; i< currConsonants.size(); i++){
+            if (letter == currConsonants.get(i)){
+                currConsonants.remove(i);
+                currSumConsWeights -= currConsWeights.get(i);
+                currConsWeights.remove(i);
+                return;
+            }
+        }
 
+        for(int i=0; i<currVowels.size(); i++){
+            if (letter == currVowels.get(i)){
+                currVowels.remove(i);
+                currSumVowelWeights -= currVowelWeights.get(i);
+                currVowelWeights.remove(i);
+                return;
+            }
+        }
     }
 
     public void setName(String name) {
@@ -68,43 +109,49 @@ public class BotPlayer implements Player {
 
 
     private char getVowel() {
-        ArrayList<Character> possibleVowels = new ArrayList<>();
-        for (int k = 0; k < GameWord.vowels.size(); k++) {
-            char i = GameWord.vowels.get(k);
-            possibleVowels.add(i);
-            for (char j : game.getPhrase().toCharArray()) {
-                if (i == j) {
-                    possibleVowels.remove(possibleVowels.size() - 1);
-                    break;
-                }
-            }
-        }
-        Random rand = new Random();
-        return possibleVowels.get(rand.nextInt(possibleVowels.size()));
+        return currVowels.get(randomLetterIndex(currVowelWeights, currSumVowelWeights));
     }
 
     private char getConsonant() {
-        List<Character> possibleConsonants = new ArrayList<>();
-        for (char i : GameWord.consonants) {
-            possibleConsonants.add(i);
-            for (char j : game.getPhrase().toCharArray()) {
-                if (i == j) {
-                    possibleConsonants.remove(possibleConsonants.size() - 1);
-                    break;
-                }
-            }
-        }
-        Random rand = new Random();
-        return possibleConsonants.get(rand.nextInt(possibleConsonants.size()));
+        return currConsonants.get(randomLetterIndex(currConsWeights, currSumVowelWeights));
     }
 
-    private String getPhrase() {
+    private String getPhrase(){
+
+        var listOfPhrases = getAllMatchingPhrases(this.game.getPhrase());
+        String returnPhrase;
+        if (listOfPhrases.size() != 0){
+            Random rand = new Random();
+            int randRes = rand.nextInt(listOfPhrases.size() + 1);
+            if (randRes != listOfPhrases.size()){
+                returnPhrase = listOfPhrases.get(randRes);
+            }
+            else{
+                returnPhrase = stupidGetPhrase();
+            }
+        }
+        else {
+            returnPhrase = stupidGetPhrase();
+        }
+        return returnPhrase;
+    }
+
+    private String stupidGetPhrase() {
+        ArrayList<Character> letterList = new ArrayList<>();
+        letterList.addAll(currVowels);
+        letterList.addAll(currConsonants);
+
+        ArrayList<Integer> letterWeights = new ArrayList<>();
+        letterWeights.addAll(currVowelWeights);
+        letterWeights.addAll(currConsWeights);
+
+        Integer sumLetterWeights = currSumConsWeights + currSumVowelWeights;
+
         String returnPhraseStr = this.game.getPhrase();
         var returnPhrase = returnPhraseStr.toCharArray();
         for (int i = 0; i < returnPhrase.length; i++) {
             if (returnPhrase[i] == '_') {
-                Random rand = new Random();
-                returnPhrase[i] = GameWord.letters.get(rand.nextInt(GameWord.letters.size()));
+                returnPhrase[i] = letterList.get(randomLetterIndex(letterWeights, sumLetterWeights));
             }
         }
         return String.valueOf(returnPhrase);
@@ -133,6 +180,7 @@ public class BotPlayer implements Player {
         switch (this.game.getState()) {
 
             case ROUND1, ROUND5, ROUND3 -> {
+
                 if (hasSpunTheWheel) {
                     //guess a consonant after spinning the wheel
                     hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
