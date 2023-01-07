@@ -88,7 +88,7 @@ public class WoF_GUI extends JFrame {
         mainCardLayout.revalidate();
     }
 
-    public WoF_GUI(Game game, HumanPlayer ourPlayer) {
+    public WoF_GUI(WheelOfFortune wof) {
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
         setSize(1280, 960);
@@ -97,24 +97,24 @@ public class WoF_GUI extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-        this.game = game;
+        this.game = wof.game;
 
         guessLetter.addActionListener(e -> {
             String toGuess = playerInput.getText();
             if(toGuess.isEmpty()) return;
             char letterToGuess = toGuess.charAt(0);
-            game.guessLetter(ourPlayer, letterToGuess);
+            game.guessLetter(wof.ourPlayer, letterToGuess);
         });
         fullGuess.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            game.guessPhrase(ourPlayer, toGuess);
+            game.guessPhrase(wof.ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
             JCheckBox c = (JCheckBox) e.getSource();
             playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
         spinWheelButton.addActionListener(e -> {
-            boolean result = game.spinTheWheel(ourPlayer);
+            boolean result = game.spinTheWheel(wof.ourPlayer);
         });
         newGameButton.addActionListener(e -> {
             game.startGame();

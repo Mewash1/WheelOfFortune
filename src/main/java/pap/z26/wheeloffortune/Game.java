@@ -1,5 +1,7 @@
 package pap.z26.wheeloffortune;
 
+import org.json.JSONObject;
+
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

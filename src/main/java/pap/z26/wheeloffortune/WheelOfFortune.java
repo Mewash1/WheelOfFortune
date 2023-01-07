@@ -7,7 +7,7 @@ public class WheelOfFortune {
 
     public Game game;
     public HumanPlayer ourPlayer;
-    private GameWindowGUI gameWindow;
+    private WoF_GUI gameWindow;
     private NetworkClient networkClient;
 
     public void receiveDataFromServer(String data) {
@@ -83,7 +83,7 @@ public class WheelOfFortune {
     public WheelOfFortune() {
         game = new Game();
         ourPlayer = new HumanPlayer("B1rtek");
-        gameWindow = new GameWindowGUI(this);
+        gameWindow = new WoF_GUI(this);
         game.setGameWindow(gameWindow);
     }
 }
