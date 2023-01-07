@@ -10,10 +10,13 @@ import java.util.Random;
 public class Database {
 
     private static volatile Database instance;
+    private Statement statement;
 
     private Database() {
-        DatabaseCommand.callCommand(new DatabaseCommand.CreateTables(), establishConnection());
+        this.statement = establishConnection();
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.CreateTables(), statement);
         this.insertPhrases();
+        this.insertCategories();
     }
 
     public static Database getInstance() {
@@ -50,11 +53,15 @@ public class Database {
     }
 
     private void insertPhrases() {
-        DatabaseCommand.callCommand(new DatabaseCommand.InsertPhrases(), establishConnection());
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.InsertPhrases(), this.statement);
+    }
+
+    private void insertCategories(){
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.insertCategories(), this.statement);
     }
 
     public Phrase getRandomPhrase(String category) {
-        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+        ArrayList<String> allPhrases = (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllPhrases(), statement);
         ArrayList<Phrase> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             String[] phraseList = phrase.split("\n");
@@ -75,7 +82,8 @@ public class Database {
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch) {
-        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+
+        ArrayList<String> allPhrases = (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllPhrases(), statement);
         ArrayList<String> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             phraseNames.add(phrase.split("\n")[0]);
@@ -104,5 +112,11 @@ public class Database {
 
     public boolean updateDatabase() {
         return false; // to na później
+    }
+
+    public static void main(String[] args){
+        Database db = Database.getInstance();
+        Phrase phrase = db.getRandomPhrase("Filmy");
+        System.out.println(phrase);
     }
 }
