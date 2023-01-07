@@ -31,6 +31,20 @@ public class WheelOfFortune {
                     }
                 }
             }
+            case "lajconf" -> {
+                if(jsonData.getString("message").equals("success")) {
+                    JSONArray players = jsonData.getJSONArray("players");
+                    for (int i = 0; i < players.length(); i++) {
+                        if (ourPlayer.getName().equals(players.getString(i))) {
+                            game.joinGame(ourPlayer);
+                        } else {
+                            game.joinGame(new HumanPlayer(players.getString(i)));
+                        }
+                    }
+                } else {
+                    gameWindow.writeToGameLog(jsonData.getString("message"));
+                }
+            }
             case "joinoth" -> {
                 game.joinGame(new HumanPlayer(jsonData.getString("player")));
             }
@@ -73,6 +87,15 @@ public class WheelOfFortune {
         networkClient.sendData(leaveData.toString());
     }
 
+    public boolean loginAndJoin(String serverIp) {
+        if(!networkClient.setServerAddress(serverIp)) return false;
+        JSONObject lajData = new JSONObject();
+        lajData.put("action", "laj");
+        lajData.put("player", ourPlayer.getName());
+        networkClient.sendData(lajData.toString());
+        return true;
+    }
+
     public void startGame() {
         JSONObject startData = new JSONObject();
         startData.put("action", "start");
@@ -80,9 +103,13 @@ public class WheelOfFortune {
         networkClient.sendData(startData.toString());
     }
 
+    public void connectToServer(String ipAddress) {
+
+    }
+
     public WheelOfFortune() {
         game = new Game();
-        ourPlayer = new HumanPlayer("B1rtek");
+        ourPlayer = new HumanPlayer("You");
         gameWindow = new WoF_GUI(this);
         game.setGameWindow(gameWindow);
     }

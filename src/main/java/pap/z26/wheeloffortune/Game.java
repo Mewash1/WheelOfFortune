@@ -152,7 +152,7 @@ public class Game {
         winner = null;
         state = GameState.NOT_STARTED;
         while (players.size() < 3) {
-            joinGame(new BotPlayer(""));
+            joinGame(new BotPlayer());
         }
         inProgress = true;
         roundStarter = players.get(players.size() - 1);
