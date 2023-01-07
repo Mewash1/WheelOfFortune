@@ -144,7 +144,7 @@ public class WoF_GUI extends JFrame {
             }
         });
         MultiPlayerButton.addActionListener(e -> {
-            String serverIp = Arrays.toString(ipInput.getPassword());
+            String serverIp = ipInput.getText();
             if(serverIp.isEmpty()) serverIp = "localhost";
             if(wof.loginAndJoin(serverIp)) {
                 swap_card(GamePanel);
