@@ -1,7 +1,5 @@
 package pap.z26.wheeloffortune;
 
-import org.json.JSONObject;
-
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,7 +15,7 @@ public class Game {
     private GameWord gameWord;
     private String category;
     private final Wheel wheel = new Wheel();
-    private GameWindowGUI window;
+    private WoF_GUI window;
     private NetworkClient networkClient;
     private GameServer gameServer = null;
     boolean beingExecutedByServer = false;
@@ -84,7 +82,7 @@ public class Game {
         moverTimer = new Timer(2000, mover);
     }
 
-    public void setGameWindow(GameWindowGUI window) {
+    public void setGameWindow(WoF_GUI window) {
         this.window = window;
     }
 

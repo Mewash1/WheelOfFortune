@@ -5,9 +5,13 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
-public class GameWindowGUI extends JFrame {
+public class WoF_GUI extends JFrame {
     private JButton newGameButton;
     private JProgressBar roundProgress;
     private JButton guessLetter;
@@ -18,24 +22,29 @@ public class GameWindowGUI extends JFrame {
     private JLabel currentPlayer;
     private JPasswordField playerInput;
     private JTextField roundSollution;
-    private JPanel mainPannel;
-    private JPanel leftMenu;
-    private JPanel rightMenu;
-    private JToolBar topToolBar;
-    private JSplitPane mainDivider;
-    private JSplitPane leftMenuVertDivider;
+    private JPanel mainCardLayout;
     private JList guessesHistory;
-    private JScrollPane guessLog;
-    private JPanel topPanel;
-    private JPanel bottomPanel;
     private JCheckBox visibleCheckBox;
     private JLabel roundNr3Label;
     private JButton addPlayerButton;
     private JButton spinWheelButton;
-    private JButton joinGameButton;
-    private JButton connectToServerButton;
-    private JButton leaveGameButton;
-    private JButton logoutButton;
+    private JToolBar topToolBar;
+    private JButton addBotButton;
+    private JSplitPane mainDivider;
+    private JPanel leftMenu;
+    private JPanel bottomPanel;
+    private JPanel topPanel;
+    private JScrollPane guessLog;
+    private JPanel MainMenuPanel;
+    private JPanel GamePanel;
+    private JButton SinglePlayerButton;
+    private JButton MultiPlayerButton;
+    private JButton CreditsButton;
+    private JButton ExitButton;
+    private JCheckBox ipVisibleCheck;
+    private JPasswordField ipInput;
+    private JPanel menuButtons;
+    private JTextField titleText;
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
@@ -46,7 +55,7 @@ public class GameWindowGUI extends JFrame {
         guessesHistory.setModel(listModel);
     }
 
-    public synchronized void updateGUI() {
+    public void updateGUI() {
         if (game.getState() != GameState.ENDED) {
             String phrase = game.getPhrase();
             if (!game.hasNotGuessedConsonants()) {
@@ -56,80 +65,97 @@ public class GameWindowGUI extends JFrame {
         } else {
             roundSollution.setText(game.getWinner().getName() + " wins!");
         }
-//        HashMap<Player, Integer> roundScores = game.getRoundScores();
-//        HashMap<Player, Integer> playerScoresMap = game.getScores();
-//        DefaultTableModel tableModel = new DefaultTableModel();
-//        tableModel.setColumnCount(3);
-//        Object[] header = {"Player", "Round score", "Total"};
-//        tableModel.addRow(header);
-//        for (Player player : roundScores.keySet()) {
-//            Object[] row = {player.getName(), roundScores.get(player), playerScoresMap.get(player)};
-//            tableModel.addRow(row);
-//        }
-//        playersScores.setModel(tableModel);
+        HashMap<Player, Integer> roundScores = game.getRoundScores();
+        HashMap<Player, Integer> playerScoresMap = game.getScores();
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.setColumnCount(3);
+        Object[] header = {"Player", "Round score", "Total"};
+        tableModel.addRow(header);
+        for (Player player : roundScores.keySet()) {
+            Object[] row = {player.getName(), roundScores.get(player), playerScoresMap.get(player)};
+            tableModel.addRow(row);
+        }
+        playersScores.setModel(tableModel);
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
     }
 
-    public GameWindowGUI(WheelOfFortune wof) {
-        setContentPane(mainPannel);
+    private void swap_card(JPanel card){
+        mainCardLayout.removeAll();
+        mainCardLayout.add(card);
+        mainCardLayout.repaint();
+        mainCardLayout.revalidate();
+    }
+
+    public WoF_GUI(Game game, HumanPlayer ourPlayer) {
+        setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
-        setSize(650, 400);
+        setSize(1280, 960);
         roundProgress.setMaximum(5);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
+        setLocationRelativeTo(null);
         setVisible(true);
 
-        this.game = wof.game;
+        this.game = game;
 
         guessLetter.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            if (toGuess.isEmpty()) return;
+            if(toGuess.isEmpty()) return;
             char letterToGuess = toGuess.charAt(0);
-            game.guessLetter(wof.ourPlayer, letterToGuess);
+            game.guessLetter(ourPlayer, letterToGuess);
         });
         fullGuess.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            game.guessPhrase(wof.ourPlayer, toGuess);
+            game.guessPhrase(ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
             JCheckBox c = (JCheckBox) e.getSource();
             playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
         spinWheelButton.addActionListener(e -> {
-            boolean result = game.spinTheWheel(wof.ourPlayer);
+            boolean result = game.spinTheWheel(ourPlayer);
         });
         newGameButton.addActionListener(e -> {
-            wof.startGame();
+            game.startGame();
             roundProgress.setValue(3);
         });
         helpButton.addActionListener(e -> writeToGameLog("There's no help available"));
         addPlayerButton.addActionListener(e -> {
             game.joinGame(new BotPlayer("RandomBot"));
         });
-        connectToServerButton.addActionListener(e -> {
-            wof.loginToGameServer();
+        ipVisibleCheck.addActionListener(e -> {
+            JCheckBox c = (JCheckBox) e.getSource();
+            ipInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
-        joinGameButton.addActionListener(e -> {
-            wof.joinGame();
+        ExitButton.addActionListener(e -> {
+        System.exit(0);
         });
-        leaveGameButton.addActionListener(e -> {
-            wof.leaveGame();
+        SinglePlayerButton.addActionListener(e->{
+            game.startGame();//single player TODO
+            swap_card(GamePanel);
+            roundProgress.setValue(4);
         });
-        logoutButton.addActionListener(e -> {
-            wof.logout();
+        MultiPlayerButton.addActionListener(e->{
+            game.startGame();//multiplayer game TODO
+            swap_card(GamePanel);
+            roundProgress.setValue(2);
         });
     }
 
-//    public static void main(String[] args) {
-//        System.out.println("UI Compiled");
-//    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
 // DO NOT EDIT OR ADD ANY CODE HERE!
         $$$setupUI$$$();
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return mainCardLayout;
     }
 
     /**
@@ -140,27 +166,15 @@ public class GameWindowGUI extends JFrame {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        mainPannel = new JPanel();
-        mainPannel.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainPannel.setPreferredSize(new Dimension(1000, 500));
-        mainPannel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Wheel Of Fortune! The game", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        mainCardLayout = new JPanel();
+        mainCardLayout.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+        mainCardLayout.setPreferredSize(new Dimension(1000, 500));
+        mainCardLayout.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Wheel Of Fortune! The game", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         topToolBar = new JToolBar();
         topToolBar.setFloatable(false);
-        mainPannel.add(topToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 20), null, 0, false));
-        connectToServerButton = new JButton();
-        connectToServerButton.setText("Connect to server");
-        topToolBar.add(connectToServerButton);
-        logoutButton = new JButton();
-        logoutButton.setText("Logout");
-        topToolBar.add(logoutButton);
-        joinGameButton = new JButton();
-        joinGameButton.setText("Join Game");
-        topToolBar.add(joinGameButton);
-        leaveGameButton = new JButton();
-        leaveGameButton.setText("Leave Game");
-        topToolBar.add(leaveGameButton);
+        mainCardLayout.add(topToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 20), null, 0, false));
         newGameButton = new JButton();
-        newGameButton.setText("Start Game");
+        newGameButton.setText("New Game");
         topToolBar.add(newGameButton);
         helpButton = new JButton();
         helpButton.setText("Help");
@@ -170,12 +184,12 @@ public class GameWindowGUI extends JFrame {
         topToolBar.add(addPlayerButton);
         roundProgress = new JProgressBar();
         roundProgress.setString("75%");
-        mainPannel.add(roundProgress, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 4), null, 0, false));
+        mainCardLayout.add(roundProgress, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 4), null, 0, false));
         mainDivider = new JSplitPane();
         mainDivider.setContinuousLayout(true);
         mainDivider.setEnabled(true);
         mainDivider.setResizeWeight(0.8);
-        mainPannel.add(mainDivider, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
+        mainCardLayout.add(mainDivider, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         leftMenu = new JPanel();
         leftMenu.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
         mainDivider.setLeftComponent(leftMenu);
@@ -234,21 +248,11 @@ public class GameWindowGUI extends JFrame {
         roundSollution.setText("Start New Round");
         roundSollution.setToolTipText("");
         leftMenu.add(roundSollution, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        rightMenu = new JPanel();
-        rightMenu.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        rightMenu.setFocusable(false);
-        mainDivider.setRightComponent(rightMenu);
-        leftMenuVertDivider = new JSplitPane();
-        leftMenuVertDivider.setOrientation(0);
-        leftMenuVertDivider.setResizeWeight(0.4);
-        rightMenu.add(leftMenuVertDivider, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         playersScores = new JTable();
         playersScores.setShowHorizontalLines(true);
         playersScores.setShowVerticalLines(false);
         playersScores.setToolTipText("players");
-        leftMenuVertDivider.setLeftComponent(playersScores);
         guessLog = new JScrollPane();
-        leftMenuVertDivider.setRightComponent(guessLog);
         guessLog.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLoweredBevelBorder(), "Logs", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         guessesHistory = new JList();
         guessesHistory.setEnabled(true);
@@ -257,12 +261,4 @@ public class GameWindowGUI extends JFrame {
         guessesHistory.setToolTipText("Game logs");
         guessLog.setViewportView(guessesHistory);
     }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return mainPannel;
-    }
-
 }
