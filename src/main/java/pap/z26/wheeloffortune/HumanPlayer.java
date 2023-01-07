@@ -45,4 +45,14 @@ public class HumanPlayer implements Player {
     public boolean isBot() {
         return false;
     }
+
+    @Override
+    public void notifyLetter(Character letter) {
+
+    }
+
+    @Override
+    public void notifyNewRound() {
+
+    }
 }
