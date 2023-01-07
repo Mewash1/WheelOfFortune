@@ -1,9 +1,6 @@
 package pap.z26.wheeloffortune;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,7 +11,7 @@ public class Database {
 
     private Database() {
         this.statement = establishConnection();
-        DatabaseCommand.callVoidCommand(new DatabaseCommand.CreateTables(), statement);
+        this.createTables();
         this.insertPhrases();
         this.insertCategories();
     }
@@ -52,6 +49,9 @@ public class Database {
         return null;
     }
 
+    private void createTables(){
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.CreateTables(), this.statement);
+    }
     private void insertPhrases() {
         DatabaseCommand.callVoidCommand(new DatabaseCommand.InsertPhrases(), this.statement);
     }
@@ -74,11 +74,16 @@ public class Database {
     }
 
     public ArrayList<String> getCategoriesList() {
-        return null;
+        return (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllCategories(), statement);
     }
 
     public boolean saveGameResult(String playerName, int score) {
-        return false;
+        try {
+            String sql_select = String.format("SELECT ID from Player WHERE Name LIKE '%s'", playerName);
+            String sql_insert = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (%s))", score, sql_select);
+            statement.executeQuery(sql_insert);
+        } catch (Exception ignored) {return false;}
+        return true;
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch) {
@@ -107,7 +112,21 @@ public class Database {
     }
 
     public ArrayList<LeaderboardRecord> getHighScores(int count) {
-        return null;
+        ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
+        try {
+            ResultSet results = statement.executeQuery(String.format("""
+                    SELECT Name, Points from Record
+                    join Player P on P.ID = Record.Player_ID
+                    order by Points desc
+                    limit %d;""", count));
+            int i = 1;
+            while (results.next()) {
+                LeaderboardRecord record = new LeaderboardRecord(i, results.getString("Name"), results.getInt("Points"));
+                leaderboard.add(record);
+                i++;
+            }
+        } catch (SQLException ignored) {}
+        return leaderboard;
     }
 
     public boolean updateDatabase() {
@@ -116,7 +135,13 @@ public class Database {
 
     public static void main(String[] args){
         Database db = Database.getInstance();
-        Phrase phrase = db.getRandomPhrase("Filmy");
-        System.out.println(phrase);
+        System.out.println(db.getRandomPhrase("Filmy"));
+        System.out.println(db.getRandomPhrase("Filmy"));
+        //db.saveGameResult("Adam", 10);
+        ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
+        leaderboard = db.getHighScores(6);
+        for (LeaderboardRecord record : leaderboard){
+            System.out.println(record);
+        }
     }
 }

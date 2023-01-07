@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Queue;
 
 public class DatabaseCommand {
     public interface voidCommand {
@@ -25,7 +26,8 @@ public class DatabaseCommand {
                             Name TEXT NOT NULL
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
 
             try {
                 sql = """
@@ -36,7 +38,8 @@ public class DatabaseCommand {
                             Category_ID references Category(ID)
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
 
             try {
                 sql = """
@@ -46,7 +49,8 @@ public class DatabaseCommand {
                             Record_ID INTEGER references Record(ID)
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Player
@@ -55,7 +59,8 @@ public class DatabaseCommand {
                             Name TEXT NOT NULL
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Record
@@ -65,7 +70,8 @@ public class DatabaseCommand {
                             Player_ID INTEGER references Player(ID)
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Move
@@ -80,7 +86,8 @@ public class DatabaseCommand {
                         )
                         """;
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Player_Games
@@ -90,7 +97,8 @@ public class DatabaseCommand {
                             Game_ID INTEGER references Game(ID)
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Phrase_Games
@@ -100,7 +108,8 @@ public class DatabaseCommand {
                             Game_ID INTEGER references Game(ID)
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             try {
                 sql = """
                         CREATE TABLE Wheel
@@ -128,10 +137,11 @@ public class DatabaseCommand {
                             item20 TEXT
                         )""";
                 stmt.execute(sql);
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
             }
-
         }
+
+    }
 
     public static class InsertPhrases implements voidCommand {
         public void execute(Statement stmt) {
@@ -184,6 +194,21 @@ public class DatabaseCommand {
             } catch (SQLException ignored) {
             }
             return phrases;
+        }
+    }
+
+    public static class getAllCategories implements objectCommand {
+        @Override
+        public Object execute(Statement stmt) {
+            ArrayList<String> categories = new ArrayList<>();
+            try {
+                ResultSet results = stmt.executeQuery("SELECT Name from Category");
+                while (results.next()) {
+                    categories.add(results.getString("Name"));
+                }
+            } catch (SQLException ignored) {
+            }
+            return categories;
         }
     }
 
