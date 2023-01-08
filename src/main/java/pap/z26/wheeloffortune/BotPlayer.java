@@ -76,6 +76,8 @@ public class BotPlayer implements Player {
         Collections.copy(currVowelWeights, vowelWeights);
         currSumConsWeights = consonantSumWeights;
         currSumVowelWeights = vowelSumWeights;
+        hasGuessedCorrectly = false;
+        hasSpunTheWheel = false;
     }
 
     public void notifyLetter(Character letter){
@@ -245,7 +247,27 @@ public class BotPlayer implements Player {
                 }
             }
             case ROUND2 -> {
-                return;
+                if (!hasGuessedCorrectly){
+                    if (this.game.hasNotGuessedConsonants()){
+                        ArrayList<Character> letterList = new ArrayList<>();
+                        letterList.addAll(currVowels);
+                        letterList.addAll(currConsonants);
+
+                        ArrayList<Integer> letterWeights = new ArrayList<>();
+                        letterWeights.addAll(currVowelWeights);
+                        letterWeights.addAll(currConsWeights);
+
+                        Integer sumLetterWeights = currSumConsWeights + currSumVowelWeights;
+                        hasGuessedCorrectly = 0 != this.game.guessLetter(this, letterList.get(randomLetterIndex(letterWeights,sumLetterWeights)));
+                    }else {
+                        hasGuessedCorrectly = 0 != this.game.guessLetter(this, currVowels.get(randomLetterIndex(vowelWeights, currSumVowelWeights)));
+                    }
+                }else{
+                    hasGuessedCorrectly = false;
+                    Random rand = new Random();
+                    int res = rand.nextInt(2);
+                    if (res == 0) this.game.getPhrase();
+                }
             }
             case ROUND4 -> {
                 return;
