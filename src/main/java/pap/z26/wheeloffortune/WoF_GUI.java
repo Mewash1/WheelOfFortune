@@ -45,6 +45,13 @@ public class WoF_GUI extends JFrame {
     private JPasswordField ipInput;
     private JPanel menuButtons;
     private JTextField titleText;
+    private JPanel HighScoressPanel;
+    private JTable HighScoresTable;
+    private JLabel HighScoresLabel;
+    private JButton backButton;
+    private JPanel ScoresButtonPannel;
+    private JButton LeaveGameButton;
+    private JButton HighScoresButton;
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
@@ -140,6 +147,25 @@ public class WoF_GUI extends JFrame {
             game.startGame();//multiplayer game TODO
             swap_card(GamePanel);
             roundProgress.setValue(2);
+        });
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                swap_card(MainMenuPanel);
+            }
+        });
+        LeaveGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                wof.leaveGame();
+                swap_card(MainMenuPanel);
+            }
+        });
+        HighScoresButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                swap_card(HighScoressPanel);
+            }
         });
     }
 
