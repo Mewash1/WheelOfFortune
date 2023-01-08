@@ -152,7 +152,7 @@ public class Game {
         winner = null;
         state = GameState.NOT_STARTED;
         while (players.size() < 3) {
-            joinGame(new BotPlayer(""));
+            joinGame(new BotPlayer());
         }
         inProgress = true;
         roundStarter = players.get(players.size() - 1);
@@ -330,6 +330,9 @@ public class Game {
         }
         nextMove();
         reportActionToServer(player, "guessl:" + letter);
+        for(Player playing: players) {
+            if(playing.isBot()) playing.notifyLetter(letter);
+        }
         return result;
     }
 
@@ -437,6 +440,9 @@ public class Game {
         if (state == GameState.ROUND2 && !beingExecutedByServer) {
             int prizeForLetter = wheel.spin(state);
             reportActionToServer(null, "spin:" + prizeForLetter);
+        }
+        for(Player playing: players) {
+            if(playing.isBot()) playing.notifyNewRound();
         }
     }
 

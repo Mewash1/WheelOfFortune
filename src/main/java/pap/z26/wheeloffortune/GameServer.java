@@ -30,20 +30,7 @@ public class GameServer {
             case "login" -> {
                 JSONObject response = new JSONObject();
                 response.put("action", "loginconf");
-                for (Player player : addresses.keySet()) {
-                    if (player.getName().equals(jsonData.getString("player"))) {
-                        response.put("message", "You are already logged in");
-                    }
-                }
-                if (jsonData.getString("player").equals("SYSTEM")) {
-                    response.put("message", "Invalid user name");
-                }
-                if (!response.has("message")) {
-                    response.put("message", "success");
-                    HumanPlayer newPlayer = new HumanPlayer(jsonData.getString("player"));
-                    addresses.put(newPlayer, new IpAndPort(ipAddress, port));
-                    players.put(jsonData.getString("player"), newPlayer);
-                }
+                response.put("message", login(jsonData, ipAddress, port));
                 networkClient.sendData(response.toString(), ipAddress, port);
             }
             case "logout" -> {
@@ -55,36 +42,25 @@ public class GameServer {
                 addresses.remove(loggingOut);
             }
             case "join" -> {
-                Player joiningPlayer = players.get(jsonData.getString("player"));
-                for (Game game : games) {
-                    if (game.getPlayers().size() < 3) {
-                        if (game.joinGame(joiningPlayer)) {
-                            break;
-                        }
-                    }
-                }
-                if (joiningPlayer.getGame() == null) {
-                    Game newGame = new Game(this);
-                    games.add(newGame);
-                    newGame.joinGame(joiningPlayer);
-                }
-                JSONArray inGamePlayers = new JSONArray();
-                for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
-                    inGamePlayers.put(inGamePlayer.getName());
-                }
                 JSONObject response = new JSONObject();
                 response.put("action", "joinconf");
-                response.put("players", inGamePlayers);
+                Player joiningPlayer = players.get(jsonData.getString("player"));
+                response = join(jsonData, response, joiningPlayer);
                 IpAndPort joiningPlayerAddress = addresses.get(joiningPlayer);
                 networkClient.sendData(response.toString(), joiningPlayerAddress.address, joiningPlayerAddress.port);
-                JSONObject responseToOthers = new JSONObject();
-                responseToOthers.put("action", "joinoth");
-                responseToOthers.put("player", joiningPlayer.getName());
-                for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
-                    if (inGamePlayer != joiningPlayer) {
-                        IpAndPort alreadyInGamePlayerAddress = addresses.get(inGamePlayer);
-                        networkClient.sendData(responseToOthers.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
-                    }
+                joinOth(joiningPlayer);
+            }
+            case "laj" -> {
+                JSONObject response = new JSONObject();
+                response.put("action", "lajconf");
+                String loginResult = login(jsonData, ipAddress, port);
+                response.put("message", loginResult);
+                if(loginResult.equals("success")) {
+                    Player joiningPlayer = players.get(jsonData.getString("player"));
+                    response = join(jsonData, response, joiningPlayer);
+                    IpAndPort joiningPlayerAddress = addresses.get(joiningPlayer);
+                    networkClient.sendData(response.toString(), joiningPlayerAddress.address, joiningPlayerAddress.port);
+                    joinOth(joiningPlayer);
                 }
             }
             case "leave" -> {
@@ -144,5 +120,53 @@ public class GameServer {
             gameBeingLeft.leaveGame(leavingPlayer);
         }
         tellEveryoneBut(response.toString(), leavingPlayer, gameBeingLeft);
+    }
+
+    private String login(JSONObject jsonData, InetAddress ipAddress, int port) {
+        for (Player player : addresses.keySet()) {
+            if (player.getName().equals(jsonData.getString("player"))) {
+               return "You are already logged in";
+            }
+        }
+        if (jsonData.getString("player").equals("SYSTEM")) {
+            return "Invalid user name";
+        }
+        HumanPlayer newPlayer = new HumanPlayer(jsonData.getString("player"));
+        addresses.put(newPlayer, new IpAndPort(ipAddress, port));
+        players.put(jsonData.getString("player"), newPlayer);
+        return "success";
+    }
+
+    private JSONObject join(JSONObject jsonData, JSONObject response, Player joiningPlayer) {
+        for (Game game : games) {
+            if (game.getPlayers().size() < 3) {
+                if (game.joinGame(joiningPlayer)) {
+                    break;
+                }
+            }
+        }
+        if (joiningPlayer.getGame() == null) {
+            Game newGame = new Game(this);
+            games.add(newGame);
+            newGame.joinGame(joiningPlayer);
+        }
+        JSONArray inGamePlayers = new JSONArray();
+        for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
+            inGamePlayers.put(inGamePlayer.getName());
+        }
+        response.put("players", inGamePlayers);
+        return response;
+    }
+
+    private void joinOth(Player joiningPlayer) {
+        JSONObject responseToOthers = new JSONObject();
+        responseToOthers.put("action", "joinoth");
+        responseToOthers.put("player", joiningPlayer.getName());
+        for (Player inGamePlayer : joiningPlayer.getGame().getPlayers()) {
+            if (inGamePlayer != joiningPlayer) {
+                IpAndPort alreadyInGamePlayerAddress = addresses.get(inGamePlayer);
+                networkClient.sendData(responseToOthers.toString(), alreadyInGamePlayerAddress.address, alreadyInGamePlayerAddress.port);
+            }
+        }
     }
 }

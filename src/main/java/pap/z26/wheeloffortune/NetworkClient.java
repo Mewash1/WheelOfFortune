@@ -67,4 +67,13 @@ public class NetworkClient extends Thread {
             e.printStackTrace();
         }
     }
+
+    public boolean setServerAddress(String ipAddress) {
+        try {
+            this.serverAddress = InetAddress.getByName(ipAddress);
+            return true;
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
 }
