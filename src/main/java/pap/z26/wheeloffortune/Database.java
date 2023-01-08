@@ -85,7 +85,7 @@ public class Database {
             boolean isMatching = true;
             if (phrase.length() == toMatch.length()) {
                 for (int i = 0; i < phrase.length(); i++) {
-                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))) {
+                    if ((toMatch.charAt(i) != '_' && !(toMatch.charAt(i) == phrase.charAt(i) - 32 ||  toMatch.charAt(i) == phrase.charAt(i)))) {
                         isMatching = false;
                         break;
                     }
