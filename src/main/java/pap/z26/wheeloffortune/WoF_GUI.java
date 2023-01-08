@@ -194,7 +194,7 @@ public class WoF_GUI extends JFrame {
                     if (wof.loginAndJoin(serverIp)) {
                         swap_card(GamePanel);
                     } else {
-                        // toast something went wrong
+                        ipLogMessage.setText("Given Ip is not valid");
                     }
                 }
                 //todo user name to login
