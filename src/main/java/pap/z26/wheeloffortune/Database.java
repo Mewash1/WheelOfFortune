@@ -1,19 +1,19 @@
 package pap.z26.wheeloffortune;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Database {
 
     private static volatile Database instance;
+    private Statement statement;
 
     private Database() {
-        DatabaseCommand.callCommand(new DatabaseCommand.CreateTables(), establishConnection());
+        this.statement = establishConnection();
+        this.createTables();
         this.insertPhrases();
+        this.insertCategories();
     }
 
     public static Database getInstance() {
@@ -49,12 +49,19 @@ public class Database {
         return null;
     }
 
+    private void createTables(){
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.CreateTables(), this.statement);
+    }
     private void insertPhrases() {
-        DatabaseCommand.callCommand(new DatabaseCommand.InsertPhrases(), establishConnection());
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.InsertPhrases(), this.statement);
+    }
+
+    private void insertCategories(){
+        DatabaseCommand.callVoidCommand(new DatabaseCommand.insertCategories(), this.statement);
     }
 
     public Phrase getRandomPhrase(String category) {
-        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+        ArrayList<String> allPhrases = (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllPhrases(), statement);
         ArrayList<Phrase> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             String[] phraseList = phrase.split("\n");
@@ -67,15 +74,21 @@ public class Database {
     }
 
     public ArrayList<String> getCategoriesList() {
-        return null;
+        return (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllCategories(), statement);
     }
 
     public boolean saveGameResult(String playerName, int score) {
-        return false;
+        try {
+            String sql_select = String.format("SELECT ID from Player WHERE Name LIKE '%s'", playerName);
+            String sql_insert = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (%s))", score, sql_select);
+            statement.executeQuery(sql_insert);
+        } catch (Exception ignored) {return false;}
+        return true;
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch) {
-        ArrayList<String> allPhrases = DatabaseCommand.callReturnArrayListCommand(new DatabaseCommand.getAllPhrases(), establishConnection());
+
+        ArrayList<String> allPhrases = (ArrayList<String>) DatabaseCommand.callObjectCommand(new DatabaseCommand.getAllPhrases(), statement);
         ArrayList<String> phraseNames = new ArrayList<>();
         for (String phrase : allPhrases) {
             phraseNames.add(phrase.split("\n")[0]);
@@ -85,7 +98,7 @@ public class Database {
             boolean isMatching = true;
             if (phrase.length() == toMatch.length()) {
                 for (int i = 0; i < phrase.length(); i++) {
-                    if ((toMatch.charAt(i) != '_' && !(toMatch.charAt(i) == phrase.charAt(i) + 32 ||  toMatch.charAt(i) == phrase.charAt(i)))) {
+                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))) {
                         isMatching = false;
                         break;
                     }
@@ -99,10 +112,36 @@ public class Database {
     }
 
     public ArrayList<LeaderboardRecord> getHighScores(int count) {
-        return null;
+        ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
+        try {
+            ResultSet results = statement.executeQuery(String.format("""
+                    SELECT Name, Points from Record
+                    join Player P on P.ID = Record.Player_ID
+                    order by Points desc
+                    limit %d;""", count));
+            int i = 1;
+            while (results.next()) {
+                LeaderboardRecord record = new LeaderboardRecord(i, results.getString("Name"), results.getInt("Points"));
+                leaderboard.add(record);
+                i++;
+            }
+        } catch (SQLException ignored) {}
+        return leaderboard;
     }
 
     public boolean updateDatabase() {
         return false; // to na później
+    }
+
+    public static void main(String[] args){
+        Database db = Database.getInstance();
+        System.out.println(db.getRandomPhrase("Filmy"));
+        System.out.println(db.getRandomPhrase("Filmy"));
+        //db.saveGameResult("Adam", 10);
+        ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
+        leaderboard = db.getHighScores(6);
+        for (LeaderboardRecord record : leaderboard){
+            System.out.println(record);
+        }
     }
 }
