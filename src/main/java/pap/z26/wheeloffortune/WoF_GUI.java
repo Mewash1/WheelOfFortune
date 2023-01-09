@@ -147,7 +147,7 @@ public class WoF_GUI extends JFrame {
             System.exit(0);
         });
         SinglePlayerButton.addActionListener(e -> {
-            if (wof.loginAndJoin("localhost")) {
+            if (wof.join("localhost").equals("Success")) {
                 swap_card(GamePanel);
             } else {
                 // toast something went wrong
@@ -192,7 +192,7 @@ public class WoF_GUI extends JFrame {
                 } else {
                     nameLogMessage.setText("");
                     if (serverIp.isEmpty()) serverIp = "localhost";
-                    if (wof.loginAndJoin(serverIp)) {
+                    if (wof.join(serverIp).equals("Success")) {
                         swap_card(GamePanel);
                     } else {
                         ipLogMessage.setText("Given Ip is not valid");

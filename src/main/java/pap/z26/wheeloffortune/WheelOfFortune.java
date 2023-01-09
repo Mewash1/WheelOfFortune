@@ -9,6 +9,7 @@ public class WheelOfFortune {
     public HumanPlayer ourPlayer;
     private WoF_GUI gameWindow;
     private NetworkClient networkClient;
+    private String currentIp = "";
 
     public void receiveDataFromServer(String data) {
         JSONObject jsonData = new JSONObject(data);
@@ -87,24 +88,31 @@ public class WheelOfFortune {
         networkClient.sendData(leaveData.toString());
     }
 
-    public boolean loginAndJoin(String serverIp) {
-        if(!networkClient.setServerAddress(serverIp)) return false;
+    private void loginAndJoin() {
         JSONObject lajData = new JSONObject();
         lajData.put("action", "laj");
         lajData.put("player", ourPlayer.getName());
         networkClient.sendData(lajData.toString());
-        return true;
     }
+
+    public String join(String serverIp) {
+        if(serverIp.equals(currentIp)) { // just need to join
+            joinGame();
+        } else {
+            currentIp = serverIp;
+            logout();
+            if(!networkClient.setServerAddress(serverIp)) return "Invalid IP";
+            loginAndJoin();
+        }
+        return "Success";
+    }
+
 
     public void startGame() {
         JSONObject startData = new JSONObject();
         startData.put("action", "start");
         startData.put("player", ourPlayer.getName());
         networkClient.sendData(startData.toString());
-    }
-
-    public void connectToServer(String ipAddress) {
-
     }
 
     public WheelOfFortune() {
