@@ -150,7 +150,7 @@ public class Game {
 
     public void start() {
         winner = null;
-        state = GameState.NOT_STARTED;
+        state = GameState.ROUND3;
         while (players.size() < 3) {
             joinGame(new BotPlayer());
         }
@@ -174,11 +174,11 @@ public class Game {
 
     private void nextMove() {
         if (currentPlayer == null && state != GameState.ROUND4) return;
-        if(state != GameState.FINAL) {
+        if(state != GameState.FINAL && state != GameState.ROUND4) {
             if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null && currentPlayer != null) {
                 window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
             }
-        } else if (window != null) {
+        } else if (window != null && state == GameState.FINAL) {
             if(moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
                 window.writeToGameLog("Player" + winner.getName() + " has to choose a vowel and 3 consonants");
             } else {
@@ -231,7 +231,10 @@ public class Game {
         if (state == GameState.FINAL) {
             currentPlayer = winner;
             moveState = MoveState.HAS_TO_GUESS_CONSONANT;
-        } else {
+        } else if (state == GameState.ROUND4) {
+            currentPlayer = null;
+        }
+        else {
             int currentPlayerIndex = players.indexOf(currentPlayer);
             currentPlayer = players.get((currentPlayerIndex + 1) % players.size());
             if (state == GameState.ROUND2) {

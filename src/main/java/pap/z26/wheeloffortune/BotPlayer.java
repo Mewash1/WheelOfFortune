@@ -297,7 +297,7 @@ public class BotPlayer implements Player {
             case ROUND4 -> {
                 Random rand = new Random();
                 int res = rand.nextInt(1 + countEmptyLetters(this.game.getPhrase()));
-                if (res != 0) this.game.guessPhrase(this, getPhrase());
+                if (res == 0) this.game.guessPhrase(this, getPhrase());
             }
             case FINAL ->{
                 if(!hasGuessedCorrectly){
