@@ -118,6 +118,13 @@ public class WheelOfFortune {
         }
     }
 
+    public void updatePlayerName(String newName) {
+        if(!ourPlayer.getName().equals(newName)) {
+            ourPlayer.setName(newName);
+            currentIp = "invalid";
+        }
+    }
+
     public void startGame() {
         JSONObject startData = new JSONObject();
         startData.put("action", "start");

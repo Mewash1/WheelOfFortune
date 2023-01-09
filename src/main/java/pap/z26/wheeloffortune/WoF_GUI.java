@@ -113,6 +113,7 @@ public class WoF_GUI extends JFrame {
     }
 
     public void switchToGameCard() {
+        ipLogMessage.setText("");
         swap_card(GamePanel);
     }
 
@@ -157,6 +158,7 @@ public class WoF_GUI extends JFrame {
         SinglePlayerButton.addActionListener(e -> {
             if (wof.join("localhost").equals("Success")) {
                 swap_card(GamePanel);
+                wof.startGame();
             } else {
                 // toast something went wrong
             }
@@ -192,10 +194,11 @@ public class WoF_GUI extends JFrame {
             String serverIp = ipInputField.getText();
             String userName = nameField.getText();
 
-            if (userName.isEmpty()) {
-                nameLogMessage.setText("Name can't be empty");
+            if (userName.isEmpty() || userName.equals("SYSTEM")) {
+                nameLogMessage.setText("Invalid user name");
             } else {
-                wof.ourPlayer.setName(userName);
+                wof.logout();
+                wof.updatePlayerName(userName);
                 nameLogMessage.setText("");
                 if (serverIp.isEmpty()) serverIp = "localhost";
                 wof.requestGameJoin(serverIp);

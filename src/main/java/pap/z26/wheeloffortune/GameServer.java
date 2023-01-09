@@ -35,6 +35,7 @@ public class GameServer {
             }
             case "logout" -> {
                 Player loggingOut = players.get(jsonData.getString("player"));
+                if(loggingOut == null) return;
                 if (loggingOut.getGame() != null) {
                     leaveGame(jsonData);
                 }
