@@ -175,6 +175,7 @@ public class WoF_GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 wof.leaveGame();
                 swap_card(MainMenuPanel);
+                listModel.clear();
             }
         });
         HighScoresButton.addActionListener(new ActionListener() {
@@ -194,6 +195,7 @@ public class WoF_GUI extends JFrame {
             if (userName.isEmpty()) {
                 nameLogMessage.setText("Name can't be empty");
             } else {
+                wof.ourPlayer.setName(userName);
                 nameLogMessage.setText("");
                 if (serverIp.isEmpty()) serverIp = "localhost";
                 wof.requestGameJoin(serverIp);

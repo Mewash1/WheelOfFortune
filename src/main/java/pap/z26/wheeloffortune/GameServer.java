@@ -119,7 +119,18 @@ public class GameServer {
         } else {
             gameBeingLeft.leaveGame(leavingPlayer);
         }
-        tellEveryoneBut(response.toString(), leavingPlayer, gameBeingLeft);
+        boolean onlyBots = true;
+        for(Player inGamePlayer: gameBeingLeft.getPlayers()) {
+            if(!inGamePlayer.isBot()) {
+                onlyBots = false;
+                break;
+            }
+        }
+        if(onlyBots) {
+            gameBeingLeft.reset();
+        } else {
+            tellEveryoneBut(response.toString(), leavingPlayer, gameBeingLeft);
+        }
     }
 
     private String login(JSONObject jsonData, InetAddress ipAddress, int port) {

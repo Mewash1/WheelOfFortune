@@ -87,6 +87,7 @@ public class WheelOfFortune {
         leaveData.put("action", "leave");
         leaveData.put("player", ourPlayer.getName());
         networkClient.sendData(leaveData.toString());
+        game.reset();
     }
 
     private void loginAndJoin() {

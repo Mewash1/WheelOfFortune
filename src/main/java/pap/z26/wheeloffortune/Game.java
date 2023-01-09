@@ -111,6 +111,8 @@ public class Game {
         if (!inProgress) {
             player.setGame(null);
             players.remove(player);
+            scores.remove(player);
+            roundScores.remove(player);
             if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " left the game");
             }
@@ -132,6 +134,7 @@ public class Game {
 
     private void leaveGameAndReplace(Player player, Player replacementPlayer) {
         replacementPlayer.setGame(this);
+        player.setGame(null);
         int playerIndex = players.indexOf(player);
         players.set(playerIndex, replacementPlayer);
         scores.put(replacementPlayer, scores.get(player));
@@ -150,7 +153,7 @@ public class Game {
 
     public void start() {
         winner = null;
-        state = GameState.ROUND3;
+        state = GameState.NOT_STARTED;
         while (players.size() < 3) {
             joinGame(new BotPlayer());
         }
@@ -598,7 +601,8 @@ public class Game {
 
     public void reset() {
         inProgress = false;
-        for(Player player: players) {
+        ArrayList<Player> playersCopy = new ArrayList<>(players);
+        for(Player player: playersCopy) {
             leaveGame(player);
         }
         scores.clear();
