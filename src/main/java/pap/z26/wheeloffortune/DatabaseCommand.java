@@ -1,9 +1,11 @@
 package pap.z26.wheeloffortune;
 
+import java.security.KeyPair;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Queue;
 
 public class DatabaseCommand {
@@ -142,24 +144,85 @@ public class DatabaseCommand {
         }
 
     }
-
     public static class InsertPhrases implements voidCommand {
         public void execute(Statement stmt) {
 
-            ArrayList<String> phrases = new ArrayList<>();
-            phrases.add("INSERT INTO Phrase VALUES (1, 'Cicha woda brzegi rwie, 1)");
-            phrases.add("INSERT INTO Phrase VALUES (2, 'Baba z wozu koniom lżej', 1)");
-            phrases.add("INSERT INTO Phrase VALUES (3, 'Co się odwlecze to nie uciecze', 1)");
-            phrases.add("INSERT INTO Phrase VALUES (4, 'Uderz w stół a nożyce się odezwą', 1)");
-            phrases.add("INSERT INTO Phrase VALUES (5, 'Elektryka prąd nie tyka', 1)");
-            phrases.add("INSERT INTO Phrase VALUES (6, 'Szklana pułapka', 2)");
-            phrases.add("INSERT INTO Phrase VALUES (7, 'Przeminęło z wiatrem', 2)");
-            phrases.add("INSERT INTO Phrase VALUES (8, 'Ojciec Chrzestny', 2)");
-            phrases.add("INSERT INTO Phrase VALUES (9, 'Kod da Vinci', 2)");
-            phrases.add("INSERT INTO Phrase VALUES (10, 'Faceci w czerni', 2)");
-            for (String phrase : phrases) {
+            HashMap<String, Integer> categories = new HashMap<String, Integer>();
+            ResultSet results = null;
+            try {
+                results = stmt.executeQuery("SELECT * from Category");
+                while (results.next()) {
+                    categories.put(results.getString("Name"), results.getInt("ID"));
+                }
+            } catch (SQLException ignored) {
+            }
+
+
+            ArrayList<Phrase> phrases = new ArrayList<>();
+            phrases.add(new Phrase("Cicha woda brzegi rwie", "Przysłowia"));
+            phrases.add(new Phrase("Baba z wozu koniom lżej", "Przysłowia"));
+            phrases.add(new Phrase("Co się odwlecze to się nie uciecze", "Przysłowia"));
+            phrases.add(new Phrase("Uderz w stół a nożyce się odezwą", "Przysłowia"));
+            phrases.add(new Phrase("Ciągnie swój do swego", "Przysłowia"));
+            phrases.add(new Phrase("Im dalej w las tym więcej drzew", "Przysłowia"));
+            phrases.add(new Phrase("Co dwie głowy to nie jedna", "Przysłowia"));
+            phrases.add(new Phrase("Dzieci i ryby głosu nie mają", "Przysłowia"));
+            phrases.add(new Phrase("Czas to pieniądz", "Przysłowia"));
+            phrases.add(new Phrase("Elektryka prąd nie tyka", "Przysłowia"));
+
+            phrases.add(new Phrase("Szklana pułapka", "Filmy"));
+            phrases.add(new Phrase("Przeminęło z wiatrem", "Filmy"));
+            phrases.add(new Phrase("Ojciec chrzestny", "Filmy"));
+            phrases.add(new Phrase("Kod da Vinci", "Filmy"));
+            phrases.add(new Phrase("Faceci w czerni", "Filmy"));
+            phrases.add(new Phrase("To nie jest kraj dla starych ludzi", "Filmy"));
+            phrases.add(new Phrase("Zielony rycerz", "Filmy"));
+            phrases.add(new Phrase("Raport mniejszosci", "Filmy"));
+            phrases.add(new Phrase("Pulp fiction", "Filmy"));
+            phrases.add(new Phrase("John Wick", "Filmy"));
+
+            phrases.add(new Phrase("Ania z Zielonego Wzgórza", "Książki"));
+            phrases.add(new Phrase("Sto lat samotności", "Książki"));
+            phrases.add(new Phrase("Pan Tadeusz", "Książki"));
+            phrases.add(new Phrase("Pan Wołodyjowski", "Książki"));
+            phrases.add(new Phrase("Ziemia obiecana", "Książki"));
+            phrases.add(new Phrase("I już nie było nikogo", "Książki"));
+            phrases.add(new Phrase("Zbrodnia i kara", "Książki"));
+            phrases.add(new Phrase("Cierpienia młodego Wertera", "Książki"));
+            phrases.add(new Phrase("Morderstwo w Orient Expressie", "Książki"));
+            phrases.add(new Phrase("Dom z liści", "Książki"));
+
+            phrases.add(new Phrase("Super Mario Bros", "Gry"));
+            phrases.add(new Phrase("The Legend of Zelda", "Gry"));
+            phrases.add(new Phrase("DOOM", "Gry"));
+            phrases.add(new Phrase("Geometry Dash", "Gry"));
+            phrases.add(new Phrase("Uncharted", "Gry"));
+            phrases.add(new Phrase("Deep Rock Galactic", "Gry"));
+            phrases.add(new Phrase("Fallout", "Gry"));
+            phrases.add(new Phrase("Bioshock", "Gry"));
+            phrases.add(new Phrase("Final Fantasy", "Gry"));
+            phrases.add(new Phrase("Tetris", "Gry"));
+
+            phrases.add(new Phrase("Warszawa", "Stolice"));
+            phrases.add(new Phrase("Kijów", "Stolice"));
+            phrases.add(new Phrase("Paryz", "Stolice"));
+            phrases.add(new Phrase("Berlin", "Stolice"));
+            phrases.add(new Phrase("Praga", "Stolice"));
+            phrases.add(new Phrase("Meksyk", "Stolice"));
+            phrases.add(new Phrase("Waszyngton", "Stolice"));
+            phrases.add(new Phrase("Mińsk", "Stolice"));
+            phrases.add(new Phrase("Rzym", "Stolice"));
+            phrases.add(new Phrase("Lizbona", "Stolice"));
+
+            for (Phrase phrase : phrases) {
                 try {
-                    stmt.execute(phrase);
+                    int category = categories.get(phrase.category());
+                    String sql = String.format("""
+                                    INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
+                                    SELECT NULL, '%s', %d
+                                    WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
+                            phrase.phrase(), category, phrase.phrase(), category);
+                    stmt.execute(sql);
                 } catch (SQLException ignored) {
                 }
             }
@@ -170,12 +233,21 @@ public class DatabaseCommand {
         @Override
         public void execute(Statement stmt) {
             ArrayList<String> phrases = new ArrayList<>();
-            phrases.add("INSERT INTO Category VALUES (1, 'Przysłowia')");
-            phrases.add("INSERT INTO Category VALUES (2, 'Filmy')");
-            phrases.add("INSERT INTO Category VALUES (3, 'Książki')");
+
+            phrases.add("Przysłowia");
+            phrases.add("Książki");
+            phrases.add("Filmy");
+            phrases.add("Gry");
+            phrases.add("Stolice");
+
             for (String phrase : phrases) {
                 try {
-                    stmt.execute(phrase);
+                    String sql = String.format("""
+                                    INSERT OR REPLACE INTO Category (ID, Name)
+                                    SELECT NULL, '%s'
+                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
+                            phrase, phrase);
+                    stmt.execute(sql);
                 } catch (SQLException ignored) {
                 }
             }

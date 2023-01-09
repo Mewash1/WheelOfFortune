@@ -1,5 +1,9 @@
 package pap.z26.wheeloffortune;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,8 +16,8 @@ public class Database {
     private Database() {
         this.statement = establishConnection();
         this.createTables();
-        this.insertPhrases();
         this.insertCategories();
+        this.insertPhrases();
     }
 
     public static Database getInstance() {
@@ -129,8 +133,14 @@ public class Database {
         return leaderboard;
     }
 
-    public boolean updateDatabase() {
-        return false; // to na później
+    public boolean updateDatabase(String serverIpAddress, int serverPort) {
+        try{
+            Socket socket = new Socket(serverIpAddress, serverPort);
+            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+
+        } catch (IOException ignored) {}
+
+        return false;
     }
 
     public static void main(String[] args){
