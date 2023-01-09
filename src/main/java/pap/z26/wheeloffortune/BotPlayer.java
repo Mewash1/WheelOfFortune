@@ -216,7 +216,7 @@ public class BotPlayer implements Player {
                 int choice;
 
                 if (!this.game.hasNotGuessedConsonants()) {
-                    for (var letter : currConsonants) notifyLetter(letter);
+                    while (currConsonants.size() != 0) notifyLetter(currConsonants.get(0));
                     //no consonants - cannot spin the wheel
                     //guess a phrase or buy vowel if you can afford it
                     if (this.game.getRoundScores().get(this) >= 200) {
@@ -262,6 +262,7 @@ public class BotPlayer implements Player {
                     case 1 -> {
                         this.game.guessPhrase(this, getPhrase());
                         hasSpunTheWheel = false;
+                        hasGuessedCorrectly = false;
                     }
                     default -> {
 
