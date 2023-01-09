@@ -108,6 +108,14 @@ public class WoF_GUI extends JFrame {
         mainCardLayout.revalidate();
     }
 
+    public void setJoinMessage(String message) {
+        ipLogMessage.setText(message);
+    }
+
+    public void switchToGameCard() {
+        swap_card(GamePanel);
+    }
+
     public WoF_GUI(WheelOfFortune wof) {
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
@@ -179,33 +187,22 @@ public class WoF_GUI extends JFrame {
             JCheckBox c = (JCheckBox) e.getSource();
             ipInputField.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
-        joinGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String serverIp = ipInputField.getText();
-                String userName = nameField.getText();
+        joinGameButton.addActionListener(e -> {
+            String serverIp = ipInputField.getText();
+            String userName = nameField.getText();
 
-                if (userName.isEmpty()) {
-                    nameLogMessage.setText("Name can't be empty");
-                } else if (wof.game.getPlayers().contains(userName)) {//TODO sprawdzić
-                    nameLogMessage.setText("Name is taken");
-                } else {
-                    nameLogMessage.setText("");
-                    if (serverIp.isEmpty()) serverIp = "localhost";
-                    if (wof.join(serverIp).equals("Success")) {
-                        swap_card(GamePanel);
-                    } else {
-                        ipLogMessage.setText("Given Ip is not valid");
-                    }
-                }
-                //todo user name to login
+            if (userName.isEmpty()) {
+                nameLogMessage.setText("Name can't be empty");
+            } else {
+                nameLogMessage.setText("");
+                if (serverIp.isEmpty()) serverIp = "localhost";
+                wof.requestGameJoin(serverIp);
             }
+            //todo user name to login
         });
-        mainMenuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(MainMenuPanel);
-            }
+        mainMenuButton.addActionListener(e -> {
+            ipLogMessage.setText("");
+            swap_card(MainMenuPanel);
         });
         playerInput.addKeyListener(new KeyAdapter() {
             boolean shifted = false;

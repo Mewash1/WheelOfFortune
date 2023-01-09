@@ -42,8 +42,9 @@ public class WheelOfFortune {
                             game.joinGame(new HumanPlayer(players.getString(i)));
                         }
                     }
+                    gameWindow.switchToGameCard();
                 } else {
-                    gameWindow.writeToGameLog(jsonData.getString("message"));
+                    gameWindow.setJoinMessage(jsonData.getString("message"));
                 }
             }
             case "joinoth" -> {
@@ -107,6 +108,14 @@ public class WheelOfFortune {
         return "Success";
     }
 
+    public void requestGameJoin(String serverIp) {
+        String response = join(serverIp);
+        if(response.equals("Success")) {
+            gameWindow.setJoinMessage("Connecting...");
+        } else {
+            gameWindow.setJoinMessage(response);
+        }
+    }
 
     public void startGame() {
         JSONObject startData = new JSONObject();

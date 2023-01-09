@@ -595,4 +595,16 @@ public class Game {
             gameServer.tellEveryoneBut(response.toString(), player, this);
         }
     }
+
+    public void reset() {
+        inProgress = false;
+        for(Player player: players) {
+            leaveGame(player);
+        }
+        scores.clear();
+        roundScores.clear();
+        state = GameState.NOT_STARTED;
+        moveTimeoutTimer.stop();
+        moverTimer.stop();
+    }
 }
