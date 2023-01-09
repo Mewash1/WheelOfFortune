@@ -349,6 +349,7 @@ public class Game {
             if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
             }
+            reportActionToServer(player, "guessp:" + phrase);
             if (!result) {
                 assignNextPlayer();
                 nextMove();
@@ -366,6 +367,7 @@ public class Game {
                 }
                 moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
                 nextMove();
+                reportActionToServer(player, "guessp:" + phrase);
             } else if (moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) {
                 result = gameWord.guessPhrase(phrase);
                 if (window != null) {
@@ -374,6 +376,7 @@ public class Game {
                 if(result) {
                     roundScores.put(winner, wheel.getLastRolled());
                 }
+                reportActionToServer(player, "guessp:" + phrase);
                 beingExecutedByServer = false;
                 advanceRound();
             }
@@ -381,7 +384,6 @@ public class Game {
         if(window != null) {
             window.updateGUI();
         }
-        reportActionToServer(player, "guessp:" + phrase);
         return result;
     }
 
