@@ -70,6 +70,7 @@ public class GameServer {
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
+                if(gameToStart.isInProgress()) return;
                 while (gameToStart.getPlayers().size() < 3) {
                     BotPlayer fillerPlayer = new BotPlayer();
                     while (!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();

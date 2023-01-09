@@ -31,6 +31,7 @@ public class WheelOfFortune {
                         game.joinGame(new HumanPlayer(players.getString(i)));
                     }
                 }
+                gameWindow.switchToGameCard();
             }
             case "lajconf" -> {
                 if(jsonData.getString("message").equals("success")) {
@@ -120,6 +121,7 @@ public class WheelOfFortune {
 
     public void updatePlayerName(String newName) {
         if(!ourPlayer.getName().equals(newName)) {
+            logout();
             ourPlayer.setName(newName);
             currentIp = "invalid";
         }
