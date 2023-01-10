@@ -113,7 +113,9 @@ public class WoF_GUI extends JFrame {
     }
 
     public void switchToGameCard() {
-        ipLogMessage.setText("");
+        ipLogMessage.setText(" ");
+        currentPlayer.setText(" ");
+        pricePool.setText(" ");
         swap_card(GamePanel);
     }
 

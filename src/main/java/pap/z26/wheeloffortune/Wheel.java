@@ -6,7 +6,7 @@ import java.util.Random;
 public class Wheel {
 
     private final HashMap<GameState, int[]> wheelContents = new HashMap<>();
-    private int lastRolled, riggedRoll = -174;
+    private int lastRolled = -3, riggedRoll = -174;
     private final Random random = new Random();
 
     public Wheel() {
@@ -36,5 +36,9 @@ public class Wheel {
 
     public int getLastRolled() {
         return lastRolled;
+    }
+
+    public void reset() {
+        lastRolled = -3;
     }
 }

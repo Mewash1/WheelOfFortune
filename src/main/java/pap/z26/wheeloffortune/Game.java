@@ -182,9 +182,9 @@ public class Game {
             }
         } else if (window != null && state == GameState.FINAL) {
             if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
-                window.writeToGameLog("Player" + winner.getName() + " has to choose a vowel and 3 consonants");
+                window.writeToGameLog("Player " + winner.getName() + " has to choose a vowel and 3 consonants");
             } else {
-                window.writeToGameLog("Player" + winner.getName() + " has 15 seconds to guess the phrase now!");
+                window.writeToGameLog("Player " + winner.getName() + " has 15 seconds to guess the phrase now!");
             }
         }
         moverTimer.stop();
@@ -478,6 +478,7 @@ public class Game {
         switch (wheel.getLastRolled()) {
             case -2 -> lastRolled = "Roll again";
             case -1 -> lastRolled = "Pass";
+            case -3 -> lastRolled = " ";
             case 0 -> lastRolled = "Bankrupt!";
             default -> lastRolled = "$" + wheel.getLastRolled();
         }
@@ -609,6 +610,7 @@ public class Game {
         state = GameState.NOT_STARTED;
         moveTimeoutTimer.stop();
         moverTimer.stop();
+        wheel.reset();
     }
 
     public MoveState getMoveState() {
