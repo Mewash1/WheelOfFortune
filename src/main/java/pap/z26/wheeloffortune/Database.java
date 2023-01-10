@@ -1,13 +1,15 @@
 package pap.z26.wheeloffortune;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.Console;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 public class Database {
 
@@ -179,17 +181,7 @@ public class Database {
         }
     }
     private void insertPhrases() {
-        HashMap<String, Integer> categories = new HashMap<String, Integer>();
-        ResultSet results = null;
-        try {
-            results = statement.executeQuery("SELECT * from Category");
-            while (results.next()) {
-                categories.put(results.getString("Name"), results.getInt("ID"));
-            }
-        } catch (SQLException ignored) {
-        }
-
-
+        HashMap<String, Integer> categories = getCategoriesID();
         ArrayList<Phrase> phrases = new ArrayList<>();
         phrases.add(new Phrase("Cicha woda brzegi rwie", "Przysłowia"));
         phrases.add(new Phrase("Baba z wozu koniom lżej", "Przysłowia"));
@@ -278,8 +270,7 @@ public class Database {
                                     WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
                         phrase, phrase);
                 statement.execute(sql);
-            } catch (SQLException ignored) {
-            }
+            } catch (SQLException ignored) {}
         }
     }
 
@@ -307,6 +298,19 @@ public class Database {
             ResultSet results = statement.executeQuery("SELECT Name from Category");
             while (results.next()) {
                 categories.add(results.getString("Name"));
+            }
+        } catch (SQLException ignored) {
+        }
+        return categories;
+    }
+
+    public HashMap<String, Integer> getCategoriesID(){
+        HashMap<String, Integer> categories = new HashMap<String, Integer>();
+        ResultSet results = null;
+        try {
+            results = statement.executeQuery("SELECT * from Category");
+            while (results.next()) {
+                categories.put(results.getString("Name"), results.getInt("ID"));
             }
         } catch (SQLException ignored) {
         }
@@ -375,17 +379,63 @@ public class Database {
         return leaderboard;
     }
 
-    public boolean updateDatabase(String serverIpAddress, int serverPort) {
-        try{
-            Socket socket = new Socket(serverIpAddress, serverPort);
+    public boolean updateDatabase(JSONObject phrases, JSONObject records) {
+        Iterator<String> keyPhrase = phrases.keys();
+        while (keyPhrase.hasNext()) {
+            String phrase = keyPhrase.next();
+            String category = phrases.getString(phrase);
 
-        } catch (IOException ignored) {}
+            // if there is a new category, add it
+            try {
+                String sql = String.format("""
+                                    INSERT OR REPLACE INTO Category (ID, Name)
+                                    SELECT NULL, '%s'
+                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
+                        category, category);
+                statement.execute(sql);
+            } catch (SQLException ignored) {}
 
-        return false;
+            // add new phrases
+            HashMap<String, Integer> categories = getCategoriesID();
+            String sql = String.format("""
+                            INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
+                            SELECT NULL, '%s', %d
+                            WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
+                    phrase, categories.get(category), phrase, categories.get(category));
+            try {
+                statement.execute(sql);
+            } catch (SQLException ignored) {
+            }
+        }
+
+        try {
+            statement.execute("DELETE FROM RECORD");
+        } catch (SQLException ignored) {
+        }
+
+        Iterator<String> keyRecord = records.keys();
+        while (keyRecord.hasNext()) {
+            String player = keyRecord.next();
+            Integer score = records.getInt(player);
+            // if there is a new player - add him
+            String sql = String.format("""
+                            INSERT OR REPLACE INTO Player (ID, Name)
+                            SELECT NULL, '%s'
+                            WHERE NOT EXISTS (SELECT * FROM Player WHERE Name = '%s')""", player, player);
+            try {
+                statement.execute(sql);
+            } catch (SQLException ignored) {}
+
+            // add new high scores table
+            try {
+                sql = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (SELECT ID FROM Player where Name = '%s'));", score, player);
+                statement.execute(sql);
+            } catch (SQLException ignored) {
+            }
+        }
+        return true;
     }
-
     public static void main(String[] args){
-        Database db = Database.getInstance();
-
+        System.out.println("no elo");
+        }
     }
-}

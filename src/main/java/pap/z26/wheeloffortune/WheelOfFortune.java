@@ -3,6 +3,8 @@ package pap.z26.wheeloffortune;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.xml.crypto.Data;
+
 public class WheelOfFortune {
 
     public Game game;
@@ -49,7 +51,8 @@ public class WheelOfFortune {
                 game.joinGame(new HumanPlayer(jsonData.getString("player")));
             }
             case "update" -> {
-
+                Database db = Database.getInstance();
+                db.updateDatabase(jsonData.getJSONObject("phrases"), jsonData.getJSONObject("leaderboard"));
             }
             default -> {
                 game.executeFromOutside(jsonData, false);
@@ -67,6 +70,7 @@ public class WheelOfFortune {
         loginData.put("action", "login");
         loginData.put("player", ourPlayer.getName());
         networkClient.sendData(loginData.toString());
+        updateDatabase();
     }
 
     public void logout() {
