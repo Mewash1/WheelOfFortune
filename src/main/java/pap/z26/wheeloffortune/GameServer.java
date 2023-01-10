@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GameServer {
 
@@ -91,6 +92,31 @@ public class GameServer {
                     }
                 }
                 gameToStart.startGame();
+            }
+            case "update" -> {
+                JSONObject response = new JSONObject();
+
+                Database db = Database.getInstance();
+
+                ArrayList<Phrase> phrases = db.getAllPhrasesFromCategory(null);
+                Map<String, String> hphrases = new HashMap<>();
+                for (Phrase phrase : phrases){
+                    hphrases.put(phrase.phrase(), phrase.category());
+                }
+
+                ArrayList<LeaderboardRecord> leaderboard = db.getHighScores(null);
+                Map<String, Integer> hrecords = new HashMap<>();
+                for (LeaderboardRecord record : leaderboard){
+                    hrecords.put(record.playerName(), record.score());
+                }
+
+                JSONObject jphrases = new JSONObject(hphrases);
+                JSONObject jrecords = new JSONObject(hrecords);
+
+                response.put("action", "update");
+                response.put("phrases", jphrases);
+                response.put("leaderboard", jrecords);
+                networkClient.sendData(response.toString());
             }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
