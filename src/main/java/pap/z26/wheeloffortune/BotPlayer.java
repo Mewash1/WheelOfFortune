@@ -13,10 +13,6 @@ public class BotPlayer implements Player {
         currVowels.addAll(GameWord.vowels);
         currConsWeights.addAll(consonantWeights);
         currVowelWeights.addAll(vowelWeights);
-//        Collections.copy(currConsonants, GameWord.consonants);
-//        Collections.copy(currVowels, GameWord.vowels);
-//        Collections.copy(currConsWeights, consonantWeights);
-//        Collections.copy(currVowelWeights, vowelWeights);
         currSumConsWeights = consonantSumWeights;
         currSumVowelWeights = vowelSumWeights;
     }
@@ -36,6 +32,22 @@ public class BotPlayer implements Player {
     private static final ArrayList<Integer> vowelWeights;
     private static final Integer consonantSumWeights;
     private static final Integer vowelSumWeights;
+
+    private ArrayList<Character> getLetterList(){
+        ArrayList<Character> letterList = new ArrayList<>();
+        letterList.addAll(currVowels);
+        letterList.addAll(currConsonants);
+        return letterList;
+    }
+
+    private ArrayList<Integer> getLetterWeights(){
+        ArrayList<Integer> letterWeights = new ArrayList<>();
+        letterWeights.addAll(currVowelWeights);
+        letterWeights.addAll(currConsWeights);
+        return letterWeights;
+    }
+
+
 
     static {
         int tempVowelSumWeights = 0;
@@ -101,6 +113,7 @@ public class BotPlayer implements Player {
     }
 
     public void notifyLetter(Character letter){
+
         for(int i=0; i< currConsonants.size(); i++){
             if (letter.charValue() == currConsonants.get(i)){
                 currConsonants.remove(i);
@@ -159,13 +172,8 @@ public class BotPlayer implements Player {
     }
 
     private String stupidGetPhrase() {
-        ArrayList<Character> letterList = new ArrayList<>();
-        letterList.addAll(currVowels);
-        letterList.addAll(currConsonants);
-
-        ArrayList<Integer> letterWeights = new ArrayList<>();
-        letterWeights.addAll(currVowelWeights);
-        letterWeights.addAll(currConsWeights);
+        ArrayList<Character> letterList = getLetterList();
+        ArrayList<Integer> letterWeights = getLetterWeights();
 
         Integer sumLetterWeights = currSumConsWeights + currSumVowelWeights;
 
@@ -205,7 +213,9 @@ public class BotPlayer implements Player {
 
                 if (hasSpunTheWheel) {
                     //guess a consonant after spinning the wheel
-                    hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
+                    if (consonantSumWeights == 0) {
+                        hasGuessedCorrectly = (this.game.guessLetter(this, 't') != 0);
+                    }else hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
                     hasSpunTheWheel = false;
                     return;
                 }
@@ -216,22 +226,28 @@ public class BotPlayer implements Player {
                 int choice;
 
                 if (!this.game.hasNotGuessedConsonants()) {
-                    while (currConsonants.size() != 0) notifyLetter(currConsonants.get(0));
+
                     //no consonants - cannot spin the wheel
                     //guess a phrase or buy vowel if you can afford it
+                    currConsonants = new ArrayList<>();
+                    currConsWeights = new ArrayList<>();
+                    currSumConsWeights = 0;
                     if (this.game.getRoundScores().get(this) >= 200) {
                         ArrayList <Integer> options = new ArrayList<>(Arrays.asList(1, 3));
-                        ArrayList <Integer> optionsWages = new ArrayList<>(Arrays.asList(1, 1));
+                        ArrayList <Integer> optionsWages = new ArrayList<>(Arrays.asList(1, Math.min(1, currSumVowelWeights)));
                         choice = options.get(randomLetterIndex(optionsWages, 2));
                     } else {
                         choice = 1;
                     }
+                } else if (amountOfPossiblePhrases == 0) {
+                    choice = 2;
                 } else {
                     if (hasGuessedCorrectly) {
                         //can spin, buy vowel, guess the phrase
                         if (this.game.getRoundScores().get(this) >= 200) {
                             ArrayList <Integer> options = new ArrayList<>(Arrays.asList(1, 2, 3));
                             int chanceVowel = Math.max(0, this.game.getRoundScores().get(this)/1000 + countEmptyLetters(game.getPhrase())/2 - Math.max(0, (5000 - this.game.getRoundScores().get(this))/1000));
+                            chanceVowel *= Math.min(1, currSumVowelWeights);
                             ArrayList <Integer> optionsWages = new ArrayList<>(Arrays.asList(3/amountOfPossiblePhrases, countEmptyLetters(game.getPhrase()), chanceVowel));
                             int chanceSum = 0;
                             for (int i=0; i<3; i++){
@@ -239,6 +255,7 @@ public class BotPlayer implements Player {
                             }
                             choice = options.get(randomLetterIndex(optionsWages, chanceSum));
                         } else {
+                            //can spin or guess the phrase
                             ArrayList <Integer> options = new ArrayList<>(Arrays.asList(1, 2));
                             ArrayList <Integer> optionsWages = new ArrayList<>(Arrays.asList(2, countEmptyLetters(game.getPhrase())));
                             int chanceSum = 0;
@@ -275,15 +292,11 @@ public class BotPlayer implements Player {
             case ROUND2 -> {
                 if (!hasGuessedCorrectly){
                     if (this.game.hasNotGuessedConsonants()){
-                        ArrayList<Character> letterList = new ArrayList<>();
-                        letterList.addAll(currVowels);
-                        letterList.addAll(currConsonants);
 
-                        ArrayList<Integer> letterWeights = new ArrayList<>();
-                        letterWeights.addAll(currVowelWeights);
-                        letterWeights.addAll(currConsWeights);
-
+                        ArrayList<Character> letterList = getLetterList();
+                        ArrayList<Integer> letterWeights = getLetterWeights();
                         Integer sumLetterWeights = currSumConsWeights + currSumVowelWeights;
+
                         hasGuessedCorrectly = this.game.guessLetter(this, letterList.get(randomLetterIndex(letterWeights,sumLetterWeights))) != 0;
                     }else {
                         hasGuessedCorrectly = this.game.guessLetter(this, currVowels.get(randomLetterIndex(vowelWeights, currSumVowelWeights))) != 0;
@@ -322,9 +335,7 @@ public class BotPlayer implements Player {
                     }
                 }
             }
-            default -> {
-                System.out.println("Wrong game state");
-            }
+            default -> System.out.println("Wrong game state");
         }
     }
 
