@@ -103,6 +103,7 @@ public class WheelOfFortune {
         lajData.put("action", "laj");
         lajData.put("player", ourPlayer.getName());
         networkClient.sendData(lajData.toString());
+        updateDatabase();
     }
 
     public String join(String serverIp) {
@@ -144,6 +145,7 @@ public class WheelOfFortune {
     public void updateDatabase(){
         JSONObject updateData = new JSONObject();
         updateData.put("action", "update");
+        updateData.put("player", ourPlayer.getName());
         networkClient.sendData(updateData.toString());
     }
 

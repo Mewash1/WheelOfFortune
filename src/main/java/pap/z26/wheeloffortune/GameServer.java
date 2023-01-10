@@ -116,7 +116,10 @@ public class GameServer {
                 response.put("action", "update");
                 response.put("phrases", jphrases);
                 response.put("leaderboard", jrecords);
-                networkClient.sendData(response.toString());
+
+                Player playerRequesting = players.get(jsonData.getString("player"));
+                IpAndPort address = addresses.get(playerRequesting);
+                networkClient.sendData(response.toString(), address.address, address.port);
             }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
