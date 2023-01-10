@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.xml.crypto.Data;
+import java.sql.SQLException;
 
 public class WheelOfFortune {
 
@@ -55,7 +56,10 @@ public class WheelOfFortune {
             }
             case "update" -> {
                 Database db = Database.getInstance();
-                db.updateDatabase(jsonData.getJSONObject("phrases"), jsonData.getJSONObject("leaderboard"));
+                try {
+                    db.updateDatabase(jsonData.getJSONObject("phrases"), jsonData.getJSONObject("leaderboard"));
+                } catch (SQLException ignored) {}
+
             }
             default -> {
                 game.executeFromOutside(jsonData, false);

@@ -379,39 +379,33 @@ public class Database {
         return leaderboard;
     }
 
-    public boolean updateDatabase(JSONObject phrases, JSONObject records) {
+    public boolean updateDatabase(JSONObject phrases, JSONObject records) throws SQLException {
         Iterator<String> keyPhrase = phrases.keys();
         while (keyPhrase.hasNext()) {
             String phrase = keyPhrase.next();
             String category = phrases.getString(phrase);
 
             // if there is a new category, add it
-            try {
-                String sql = String.format("""
+
+            String sql = String.format("""
                                     INSERT OR REPLACE INTO Category (ID, Name)
                                     SELECT NULL, '%s'
                                     WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
                         category, category);
-                statement.execute(sql);
-            } catch (SQLException ignored) {}
+            statement.execute(sql);
+
 
             // add new phrases
             HashMap<String, Integer> categories = getCategoriesID();
-            String sql = String.format("""
+            sql = String.format("""
                             INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
                             SELECT NULL, '%s', %d
                             WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
                     phrase, categories.get(category), phrase, categories.get(category));
-            try {
-                statement.execute(sql);
-            } catch (SQLException ignored) {
-            }
+            statement.execute(sql);
         }
 
-        try {
-            statement.execute("DELETE FROM RECORD");
-        } catch (SQLException ignored) {
-        }
+        statement.execute("DELETE FROM RECORD");
 
         Iterator<String> keyRecord = records.keys();
         while (keyRecord.hasNext()) {
@@ -422,20 +416,23 @@ public class Database {
                             INSERT OR REPLACE INTO Player (ID, Name)
                             SELECT NULL, '%s'
                             WHERE NOT EXISTS (SELECT * FROM Player WHERE Name = '%s')""", player, player);
-            try {
-                statement.execute(sql);
-            } catch (SQLException ignored) {}
+            statement.execute(sql);
 
             // add new high scores table
-            try {
-                sql = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (SELECT ID FROM Player where Name = '%s'));", score, player);
-                statement.execute(sql);
-            } catch (SQLException ignored) {
-            }
+            sql = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (SELECT ID FROM Player where Name = '%s'));", score, player);
+            statement.execute(sql);
         }
         return true;
     }
+
+    public void insertMove(String rollResult, char guessedLetter, String guessedPhrase, Integer result, Integer gameID, Integer playerID) throws SQLException {
+        String in = String.format("NULL, '%s', '%c', '%s', %d, %d, %d", rollResult, guessedLetter, guessedPhrase, result, gameID, playerID);
+        statement.execute(String.format("INSERT INTO MOVE (ID, RollResult, GuessedLetter, GuessedPhrase, Result, Game_ID, Player_ID) VALUES (%s)", in));
+    }
     public static void main(String[] args){
-        System.out.println("no elo");
+        Database db = Database.getInstance();
+        try {
+            db.insertMove("300$", 'c', null, 1, 1, 1);
+        } catch (SQLException ignored) {}
         }
     }
