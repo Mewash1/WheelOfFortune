@@ -90,6 +90,16 @@ public class GameServer {
                 }
                 gameToStart.startGame();
             }
+            case "update" -> {
+                JSONObject response = new JSONObject();
+                Database db = Database.getInstance();
+                ArrayList<Phrase> phrases = db.getAllPhrasesFromCategory(null);
+                ArrayList<LeaderboardRecord> leaderboard = db.getHighScores(null);
+                response.put("action", "update");
+                response.put("phrases", phrases);
+                response.put("leaderboard", leaderboard);
+                networkClient.sendData(response.toString());
+            }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();

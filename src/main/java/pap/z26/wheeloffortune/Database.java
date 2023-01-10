@@ -283,7 +283,7 @@ public class Database {
         }
     }
 
-    private  ArrayList<Phrase> getAllPhrasesFromCategory(String category){
+    public ArrayList<Phrase> getAllPhrasesFromCategory(String category){
         // if category == null, the method returns all phrases
         ArrayList<Phrase> phrases = new ArrayList<>();
         try {
@@ -301,7 +301,7 @@ public class Database {
         return phrases;
     }
 
-    private ArrayList<String> getAllCategories(){
+    public ArrayList<String> getAllCategories(){
         ArrayList<String> categories = new ArrayList<>();
         try {
             ResultSet results = statement.executeQuery("SELECT Name from Category");
@@ -353,14 +353,18 @@ public class Database {
         return matchingPhrases;
     }
 
-    public ArrayList<LeaderboardRecord> getHighScores(int count) {
+    public ArrayList<LeaderboardRecord> getHighScores(Integer count) {
         ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
         try {
-            ResultSet results = statement.executeQuery(String.format("""
+            String sql;
+            sql = """
                     SELECT Name, Points from Record
                     join Player P on P.ID = Record.Player_ID
-                    order by Points desc
-                    limit %d;""", count));
+                    order by Points desc""";
+            if ((count != null)){
+                sql += String.format("\nlimit %d", count);
+            }
+            ResultSet results = statement.executeQuery(sql);
             int i = 1;
             while (results.next()) {
                 LeaderboardRecord record = new LeaderboardRecord(i, results.getString("Name"), results.getInt("Points"));
@@ -374,7 +378,6 @@ public class Database {
     public boolean updateDatabase(String serverIpAddress, int serverPort) {
         try{
             Socket socket = new Socket(serverIpAddress, serverPort);
-            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 
         } catch (IOException ignored) {}
 
@@ -383,13 +386,6 @@ public class Database {
 
     public static void main(String[] args){
         Database db = Database.getInstance();
-        System.out.println(db.getRandomPhrase(null));
-        System.out.println(db.getRandomPhrase(null));
-        //db.saveGameResult("Adam", 10);
-        ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
-        leaderboard = db.getHighScores(6);
-        for (LeaderboardRecord record : leaderboard){
-            System.out.println(record);
-        }
+
     }
 }

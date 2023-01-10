@@ -48,6 +48,9 @@ public class WheelOfFortune {
             case "joinoth" -> {
                 game.joinGame(new HumanPlayer(jsonData.getString("player")));
             }
+            case "update" -> {
+
+            }
             default -> {
                 game.executeFromOutside(jsonData, false);
             }
@@ -105,6 +108,12 @@ public class WheelOfFortune {
 
     public void connectToServer(String ipAddress) {
 
+    }
+
+    public void updateDatabase(){
+        JSONObject updateData = new JSONObject();
+        updateData.put("action", "update");
+        networkClient.sendData(updateData.toString());
     }
 
     public WheelOfFortune() {
