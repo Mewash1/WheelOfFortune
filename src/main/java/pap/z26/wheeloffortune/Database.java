@@ -62,126 +62,127 @@ public class Database {
         return null;
     }
 
-    private void createTables(){
+    private void createTables() {
         String sql;
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Category
-                        (
-                            ID INTEGER PRIMARY KEY,
-                            Name TEXT NOT NULL
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Category
+                    (
+                        ID INTEGER PRIMARY KEY,
+                        Name TEXT NOT NULL
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
 
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Phrase
-                        (
-                            ID INTEGER PRIMARY KEY,
-                            Phrase TEXT NOT NULL,
-                            Category_ID references Category(ID)
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Phrase
+                    (
+                        ID INTEGER PRIMARY KEY,
+                        Phrase TEXT NOT NULL,
+                        Category_ID references Category(ID)
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
 
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Game
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            Record_ID INTEGER references Record(ID)
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Game
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Type TEXT,
+                        Record_ID INTEGER references Record(ID)
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Player
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            Name TEXT NOT NULL
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Player
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Record
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            Points INTEGER NOT NULL,
-                            Player_ID INTEGER references Player(ID)
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Record
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Points INTEGER NOT NULL,
+                        Player_ID INTEGER references Player(ID)
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Move
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            RollResult TEXT not null,
-                            GuessedLetter CHAR,
-                            GuessedPhrase TEXT,
-                            Result INTEGER,
-                            Game_ID INTEGER references Game(ID),
-                            Player_ID INTEGER references Player(ID)
-                        )
-                        """;
+                    CREATE TABLE IF NOT EXISTS Move
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        RollResult INTEGER,
+                        GuessedLetter TEXT,
+                        GuessedPhrase TEXT,
+                        Result INTEGER,
+                        Game_ID INTEGER references Game(ID),
+                        Player_ID INTEGER references Player(ID)
+                    )
+                    """;
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Player_Games
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            Player_ID INTEGER references Player(ID),
-                            Game_ID INTEGER references Game(ID)
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Player_Games
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Player_ID INTEGER references Player(ID),
+                        Game_ID INTEGER references Game(ID)
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Phrase_Games
-                        (
-                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            Phrase_ID INTEGER references Phrase(ID),
-                            Game_ID INTEGER references Game(ID)
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Phrase_Games
+                    (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Phrase_ID INTEGER references Phrase(ID),
+                        Game_ID INTEGER references Game(ID)
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                        CREATE TABLE IF NOT EXISTS Wheel
-                        (
-                            ID INTEGER PRIMARY KEY,
-                            item1 INTEGER,
-                            item2 INTEGER,
-                            item3 INTEGER,
-                            item4 INTEGER,
-                            item5 INTEGER,
-                            item6 INTEGER,
-                            item7 INTEGER,
-                            item8 INTEGER,
-                            item9 INTEGER,
-                            item10 INTEGER,
-                            item11 INTEGER,
-                            item12 INTEGER,
-                            item13 INTEGER,
-                            item14 INTEGER,
-                            item15 INTEGER,
-                            item16 INTEGER,
-                            item17 INTEGER,
-                            item18 INTEGER,
-                            item19 INTEGER,
-                            item20 INTEGER
-                        )""";
+                    CREATE TABLE IF NOT EXISTS Wheel
+                    (
+                        ID INTEGER PRIMARY KEY,
+                        item1 INTEGER,
+                        item2 INTEGER,
+                        item3 INTEGER,
+                        item4 INTEGER,
+                        item5 INTEGER,
+                        item6 INTEGER,
+                        item7 INTEGER,
+                        item8 INTEGER,
+                        item9 INTEGER,
+                        item10 INTEGER,
+                        item11 INTEGER,
+                        item12 INTEGER,
+                        item13 INTEGER,
+                        item14 INTEGER,
+                        item15 INTEGER,
+                        item16 INTEGER,
+                        item17 INTEGER,
+                        item18 INTEGER,
+                        item19 INTEGER,
+                        item20 INTEGER
+                    )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
@@ -280,7 +281,7 @@ public class Database {
 //        }
 //    }
 
-    public ArrayList<Phrase> getAllPhrasesFromCategory(String category){
+    public ArrayList<Phrase> getAllPhrasesFromCategory(String category) {
         // if category == null, the method returns all phrases
         ArrayList<Phrase> phrases = new ArrayList<>();
         try {
@@ -298,7 +299,7 @@ public class Database {
         return phrases;
     }
 
-    public ArrayList<String> getAllCategories(){
+    public ArrayList<String> getAllCategories() {
         ArrayList<String> categories = new ArrayList<>();
         try {
             ResultSet results = statement.executeQuery("SELECT Name from Category");
@@ -310,7 +311,7 @@ public class Database {
         return categories;
     }
 
-    public HashMap<String, Integer> getCategoriesID(){
+    public HashMap<String, Integer> getCategoriesID() {
         HashMap<String, Integer> categories = new HashMap<String, Integer>();
         ResultSet results = null;
         try {
@@ -330,20 +331,21 @@ public class Database {
     }
 
     private int getPlayerID(String playerName) {
+        if (playerName.equals("SYSTEM")) return -1;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID from Player WHERE Name = ?");
             preparedStatement.setString(1, playerName);
             ResultSet resultSet = preparedStatement.executeQuery();
             int id = -1;
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 id = resultSet.getInt(1);
             }
-            if(id == -1) {
+            if (id == -1) {
                 preparedStatement = connection.prepareStatement("INSERT INTO Player(Name) VALUES(?)");
                 preparedStatement.setString(1, playerName);
                 preparedStatement.executeUpdate();
                 ResultSet ids = preparedStatement.getGeneratedKeys();
-                if(ids.next()) {
+                if (ids.next()) {
                     id = ids.getInt(1);
                 }
             }
@@ -355,7 +357,7 @@ public class Database {
     }
 
     private boolean recordNotInDatabase(int playerID, int score) {
-        try{
+        try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Record WHERE Player_ID = ? AND Points = ?");
             preparedStatement.setInt(1, playerID);
             preparedStatement.setInt(2, score);
@@ -367,17 +369,29 @@ public class Database {
         }
     }
 
-    public boolean saveGameResult(String playerName, int score) {
+    public boolean saveGameResult(String playerName, int score, int gameID) {
         try {
             int playerID = getPlayerID(playerName);
-            if(recordNotInDatabase(playerID, score)) {
+            if (recordNotInDatabase(playerID, score)) {
                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Record(Points, Player_ID) VALUES(?, ?)");
                 preparedStatement.setInt(1, score);
                 preparedStatement.setInt(2, playerID);
-                return preparedStatement.executeUpdate() == 1;
+                if(preparedStatement.executeUpdate() == 1) {
+                    int recordID = -1;
+                    ResultSet keys = preparedStatement.getGeneratedKeys();
+                    if(keys.next()) recordID = keys.getInt(1);
+                    if(recordID == -1) return false;
+                    preparedStatement = connection.prepareStatement("UPDATE Game SET Record_ID = ? WHERE ID = ?");
+                    preparedStatement.setInt(1, recordID);
+                    preparedStatement.setInt(2, gameID);
+                    return preparedStatement.executeUpdate() == 1;
+                }
+                return false;
             }
             return true;
-        } catch (Exception ignored) {return false;}
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch) {
@@ -413,7 +427,7 @@ public class Database {
                     SELECT Name, Points from Record
                     join Player P on P.ID = Record.Player_ID
                     order by Points desc""";
-            if ((count != null)){
+            if ((count != null)) {
                 sql += String.format("\nlimit %d", count);
             }
             ResultSet results = statement.executeQuery(sql);
@@ -423,7 +437,8 @@ public class Database {
                 leaderboard.add(record);
                 i++;
             }
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+        }
         return leaderboard;
     }
 
@@ -436,10 +451,10 @@ public class Database {
             // if there is a new category, add it
 
             String sql = String.format("""
-                                    INSERT OR REPLACE INTO Category (ID, Name)
-                                    SELECT NULL, '%s'
-                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
-                        category, category);
+                            INSERT OR REPLACE INTO Category (ID, Name)
+                            SELECT NULL, '%s'
+                            WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
+                    category, category);
             statement.execute(sql);
 
 
@@ -453,7 +468,7 @@ public class Database {
             statement.execute(sql);
         }
 
-        statement.execute("DELETE FROM RECORD");
+//        statement.execute("DELETE FROM RECORD");
 
         Iterator<String> keyRecord = records.keys();
         while (keyRecord.hasNext()) {
@@ -461,9 +476,9 @@ public class Database {
             Integer score = records.getInt(player);
             // if there is a new player - add him
             String sql = String.format("""
-                            INSERT OR REPLACE INTO Player (ID, Name)
-                            SELECT NULL, '%s'
-                            WHERE NOT EXISTS (SELECT * FROM Player WHERE Name = '%s')""", player, player);
+                    INSERT OR REPLACE INTO Player (ID, Name)
+                    SELECT NULL, '%s'
+                    WHERE NOT EXISTS (SELECT * FROM Player WHERE Name = '%s')""", player, player);
             statement.execute(sql);
 
             // add new high scores table
@@ -473,9 +488,19 @@ public class Database {
         return true;
     }
 
-    public void insertMove(String rollResult, char guessedLetter, String guessedPhrase, Integer result, Integer gameID, Integer playerID) throws SQLException {
-        String in = String.format("NULL, '%s', '%c', '%s', %d, %d, %d", rollResult, guessedLetter, guessedPhrase, result, gameID, playerID);
-        statement.execute(String.format("INSERT INTO MOVE (ID, RollResult, GuessedLetter, GuessedPhrase, Result, Game_ID, Player_ID) VALUES (%s)", in));
+    public void insertMove(int rollResult, String guessedLetter, String guessedPhrase, Integer result, Integer gameID, String playerName) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Move(RollResult, GuessedLetter, GuessedPhrase, Result, Game_ID, Player_ID) VALUES(?, ?, ?, ?, ?, ?)");
+            preparedStatement.setInt(1, rollResult);
+            preparedStatement.setString(2, guessedLetter);
+            preparedStatement.setString(3, guessedPhrase);
+            preparedStatement.setInt(4, result == null ? -174 : result);
+            preparedStatement.setInt(5, gameID);
+            preparedStatement.setInt(6, getPlayerID(playerName));
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public HashMap<GameState, ArrayList<Integer>> getWheelContents() {
@@ -485,10 +510,10 @@ public class Database {
             HashMap<GameState, ArrayList<Integer>> wheelContents = new HashMap<>();
             GameState[] states = GameState.values();
             int index = 0;
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 ArrayList<Integer> contents = new ArrayList<>();
                 int partIndex = 2;
-                while(partIndex <= 21 && resultSet.getInt(partIndex) != -174) {
+                while (partIndex <= 21 && resultSet.getInt(partIndex) != -174) {
                     contents.add(resultSet.getInt(partIndex));
                     partIndex++;
                 }
@@ -502,10 +527,19 @@ public class Database {
         }
     }
 
-    public static void main(String[] args){
-        Database db = Database.getInstance();
+    public synchronized int getGameID(String type) {
         try {
-            db.insertMove("300$", 'c', null, 1, 1, 1);
-        } catch (SQLException ignored) {}
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Game(Type) VALUES(?)");
+            preparedStatement.setString(1, type);
+            preparedStatement.executeUpdate();
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if (keys.next()) {
+                return keys.getInt(1);
+            }
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
+}
