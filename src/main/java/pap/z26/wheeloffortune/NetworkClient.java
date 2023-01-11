@@ -10,7 +10,7 @@ public class NetworkClient extends Thread {
     private DatagramSocket socket;
     private GameServer server;
     private WheelOfFortune game;
-    private final int port;
+    private int port;
 
     public NetworkClient(String serverIpAddress, int serverPort, WheelOfFortune game) {
         this.game = game;
@@ -69,9 +69,10 @@ public class NetworkClient extends Thread {
         }
     }
 
-    public boolean setServerAddress(String ipAddress) {
+    public boolean setServerAddress(String ipAddress, int port) {
         try {
             this.serverAddress = InetAddress.getByName(ipAddress);
+            this.port = port;
             return true;
         } catch (UnknownHostException e) {
             return false;

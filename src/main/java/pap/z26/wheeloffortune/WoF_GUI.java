@@ -146,14 +146,12 @@ public class WoF_GUI extends JFrame {
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
         setSize(1280, 960);
-//        roundProgress.setMaximum(5);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
         spinWheelButton.setIcon(new ImageIcon("src/main/resources/wof_temp.png"));
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) creditsList.getCellRenderer();
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         setLocationRelativeTo(null);
         setVisible(true);
-//        spinWheelButton.setIcon(new ImageIcon(getClass().getResource("res/wheel.png")));
 
         this.game = wof.game;
 
@@ -176,7 +174,7 @@ public class WoF_GUI extends JFrame {
         newGameButton.addActionListener(e -> wof.startGame());
         ExitButton.addActionListener(e -> System.exit(0));
         SinglePlayerButton.addActionListener(e -> {
-            if (wof.join("localhost").equals("Success")) {
+            if (wof.join("localhost", 26969).equals("Success")) {
                 swap_card(GamePanel);
                 wof.startGame();
             }
@@ -212,6 +210,7 @@ public class WoF_GUI extends JFrame {
         });
         joinGameButton.addActionListener(e -> {
             String serverIp = ipInputField.getText();
+            String serverPort = portInputField.getText();
             String userName = nameField.getText();
 
             if (userName.isEmpty() || userName.equals("SYSTEM")) {
@@ -220,7 +219,8 @@ public class WoF_GUI extends JFrame {
                 wof.updatePlayerName(userName);
                 nameLogMessage.setText("");
                 if (serverIp.isEmpty()) serverIp = "localhost";
-                wof.requestGameJoin(serverIp);
+                if(serverPort.isEmpty()) serverPort = "26969";
+                wof.requestGameJoin(serverIp, serverPort);
             }
             //todo user name to login
         });

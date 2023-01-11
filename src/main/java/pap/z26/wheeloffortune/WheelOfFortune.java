@@ -12,6 +12,7 @@ public class WheelOfFortune {
     private final WoF_GUI gameWindow;
     private NetworkClient networkClient;
     private String currentIp = "";
+    private int currentPort = 0;
 
     public void receiveDataFromServer(String data) {
         JSONObject jsonData = new JSONObject(data);
@@ -99,20 +100,31 @@ public class WheelOfFortune {
         updateDatabase();
     }
 
-    public String join(String serverIp) {
-        if(serverIp.equals(currentIp)) { // just need to join
+    public String join(String serverIp, int serverPort) {
+        if(serverIp.equals(currentIp) && serverPort == currentPort) { // just need to join
             joinGame();
         } else {
             currentIp = serverIp;
+            currentPort = serverPort;
             logout();
-            if(!networkClient.setServerAddress(serverIp)) return "Invalid IP";
+            if(!networkClient.setServerAddress(serverIp, serverPort)) return "Invalid IP";
             loginAndJoin();
         }
         return "Success";
     }
 
-    public void requestGameJoin(String serverIp) {
-        String response = join(serverIp);
+    public void requestGameJoin(String serverIp, String serverPort) {
+        int port;
+        try {
+            port = Integer.parseInt(serverPort);
+        } catch (NumberFormatException e) {
+            port = -1;
+        }
+        if(port < 1 || port > 65535) {
+            gameWindow.setJoinMessage("Invalid port number");
+            return;
+        }
+        String response = join(serverIp, port);
         if(response.equals("Success")) {
             gameWindow.setJoinMessage("Connecting...");
         } else {
