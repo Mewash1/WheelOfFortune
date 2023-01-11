@@ -19,8 +19,8 @@ public class GameServer {
     private final HashMap<Player, IpAndPort> addresses = new HashMap<>();
     private final HashMap<String, Player> players = new HashMap<>();
 
-    public GameServer() {
-        networkClient = new NetworkClient(26969, this);
+    public GameServer(int listenPort) {
+        networkClient = new NetworkClient(listenPort, this);
         networkClient.start();
     }
 

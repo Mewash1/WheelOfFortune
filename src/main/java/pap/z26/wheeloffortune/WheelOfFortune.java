@@ -148,7 +148,7 @@ public class WheelOfFortune {
     }
 
     public void updateDatabase(){
-        if(currentIp.equals("localhost") || currentIp.equals("127.0.0.1")) return;
+        if((currentIp.equals("localhost") || currentIp.equals("127.0.0.1")) && currentPort == 26969) return;
         JSONObject updateData = new JSONObject();
         updateData.put("action", "update");
         updateData.put("player", ourPlayer.getName());

@@ -219,7 +219,7 @@ public class WoF_GUI extends JFrame {
                 wof.updatePlayerName(userName);
                 nameLogMessage.setText("");
                 if (serverIp.isEmpty()) serverIp = "localhost";
-                if(serverPort.isEmpty()) serverPort = "26969";
+                if (serverPort.isEmpty()) serverPort = "26969";
                 wof.requestGameJoin(serverIp, serverPort);
             }
             //todo user name to login
