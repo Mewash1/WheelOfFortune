@@ -6,11 +6,6 @@ public class HumanPlayer implements Player {
     Game game;
     String name;
 
-    public HumanPlayer(Game game) {
-        setGame(game);
-        setName("Player");
-    }
-
     public HumanPlayer(String name) {
         this.name = name;
     }

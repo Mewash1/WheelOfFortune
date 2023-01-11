@@ -9,7 +9,7 @@ public class WheelOfFortune {
 
     public Game game;
     public HumanPlayer ourPlayer;
-    private WoF_GUI gameWindow;
+    private final WoF_GUI gameWindow;
     private NetworkClient networkClient;
     private String currentIp = "";
 
@@ -24,35 +24,15 @@ public class WheelOfFortune {
                     gameWindow.writeToGameLog(jsonData.getString("message"));
                 }
             }
-            case "joinconf" -> {
-                JSONArray players = jsonData.getJSONArray("players");
-                for (int i = 0; i < players.length(); i++) {
-                    if (ourPlayer.getName().equals(players.getString(i))) {
-                        game.joinGame(ourPlayer);
-                    } else {
-                        game.joinGame(new HumanPlayer(players.getString(i)));
-                    }
-                }
-                gameWindow.switchToGameCard();
-            }
+            case "joinconf" -> joinpart(jsonData);
             case "lajconf" -> {
                 if(jsonData.getString("message").equals("success")) {
-                    JSONArray players = jsonData.getJSONArray("players");
-                    for (int i = 0; i < players.length(); i++) {
-                        if (ourPlayer.getName().equals(players.getString(i))) {
-                            game.joinGame(ourPlayer);
-                        } else {
-                            game.joinGame(new HumanPlayer(players.getString(i)));
-                        }
-                    }
-                    gameWindow.switchToGameCard();
+                    joinpart(jsonData);
                 } else {
                     gameWindow.setJoinMessage(jsonData.getString("message"));
                 }
             }
-            case "joinoth" -> {
-                game.joinGame(new HumanPlayer(jsonData.getString("player")));
-            }
+            case "joinoth" -> game.joinGame(new HumanPlayer(jsonData.getString("player")));
             case "update" -> {
                 Database db = Database.getInstance();
                 try {
@@ -60,10 +40,20 @@ public class WheelOfFortune {
                 } catch (SQLException ignored) {}
 
             }
-            default -> {
-                game.executeFromOutside(jsonData, false);
+            default -> game.executeFromOutside(jsonData, false);
+        }
+    }
+
+    private void joinpart(JSONObject jsonData) {
+        JSONArray players = jsonData.getJSONArray("players");
+        for (int i = 0; i < players.length(); i++) {
+            if (ourPlayer.getName().equals(players.getString(i))) {
+                game.joinGame(ourPlayer);
+            } else {
+                game.joinGame(new HumanPlayer(players.getString(i)));
             }
         }
+        gameWindow.switchToGameCard();
     }
 
     public void setNetworkClient(NetworkClient client) {

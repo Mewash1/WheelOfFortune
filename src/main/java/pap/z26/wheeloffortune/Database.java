@@ -1,20 +1,14 @@
 package pap.z26.wheeloffortune;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.Console;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.*;
 
 public class Database {
 
     private static volatile Database instance;
-    private Statement statement;
+    private final Statement statement;
     private Connection connection;
 
     private Database() {
@@ -25,8 +19,6 @@ public class Database {
             e.printStackTrace();
         }
         this.createTables();
-//        this.insertCategories();
-//        this.insertPhrases();
     }
 
     public static Database getInstance() {
@@ -187,105 +179,12 @@ public class Database {
         } catch (SQLException ignored) {
         }
     }
-//    private void insertPhrases() {
-//        HashMap<String, Integer> categories = getCategoriesID();
-//        ArrayList<Phrase> phrases = new ArrayList<>();
-//        phrases.add(new Phrase("Cicha woda brzegi rwie", "Przysłowia"));
-//        phrases.add(new Phrase("Baba z wozu koniom lżej", "Przysłowia"));
-//        phrases.add(new Phrase("Co się odwlecze to się nie uciecze", "Przysłowia"));
-//        phrases.add(new Phrase("Uderz w stół a nożyce się odezwą", "Przysłowia"));
-//        phrases.add(new Phrase("Ciągnie swój do swego", "Przysłowia"));
-//        phrases.add(new Phrase("Im dalej w las tym więcej drzew", "Przysłowia"));
-//        phrases.add(new Phrase("Co dwie głowy to nie jedna", "Przysłowia"));
-//        phrases.add(new Phrase("Dzieci i ryby głosu nie mają", "Przysłowia"));
-//        phrases.add(new Phrase("Czas to pieniądz", "Przysłowia"));
-//        phrases.add(new Phrase("Elektryka prąd nie tyka", "Przysłowia"));
-//
-//        phrases.add(new Phrase("Szklana pułapka", "Filmy"));
-//        phrases.add(new Phrase("Przeminęło z wiatrem", "Filmy"));
-//        phrases.add(new Phrase("Ojciec chrzestny", "Filmy"));
-//        phrases.add(new Phrase("Kod da Vinci", "Filmy"));
-//        phrases.add(new Phrase("Faceci w czerni", "Filmy"));
-//        phrases.add(new Phrase("To nie jest kraj dla starych ludzi", "Filmy"));
-//        phrases.add(new Phrase("Zielony rycerz", "Filmy"));
-//        phrases.add(new Phrase("Raport mniejszosci", "Filmy"));
-//        phrases.add(new Phrase("Pulp fiction", "Filmy"));
-//        phrases.add(new Phrase("John Wick", "Filmy"));
-//
-//        phrases.add(new Phrase("Ania z Zielonego Wzgórza", "Książki"));
-//        phrases.add(new Phrase("Sto lat samotności", "Książki"));
-//        phrases.add(new Phrase("Pan Tadeusz", "Książki"));
-//        phrases.add(new Phrase("Pan Wołodyjowski", "Książki"));
-//        phrases.add(new Phrase("Ziemia obiecana", "Książki"));
-//        phrases.add(new Phrase("I już nie było nikogo", "Książki"));
-//        phrases.add(new Phrase("Zbrodnia i kara", "Książki"));
-//        phrases.add(new Phrase("Cierpienia młodego Wertera", "Książki"));
-//        phrases.add(new Phrase("Morderstwo w Orient Expressie", "Książki"));
-//        phrases.add(new Phrase("Dom z liści", "Książki"));
-//
-//        phrases.add(new Phrase("Super Mario Bros", "Gry"));
-//        phrases.add(new Phrase("The Legend of Zelda", "Gry"));
-//        phrases.add(new Phrase("DOOM", "Gry"));
-//        phrases.add(new Phrase("Geometry Dash", "Gry"));
-//        phrases.add(new Phrase("Uncharted", "Gry"));
-//        phrases.add(new Phrase("Deep Rock Galactic", "Gry"));
-//        phrases.add(new Phrase("Fallout", "Gry"));
-//        phrases.add(new Phrase("Bioshock", "Gry"));
-//        phrases.add(new Phrase("Final Fantasy", "Gry"));
-//        phrases.add(new Phrase("Tetris", "Gry"));
-//
-//        phrases.add(new Phrase("Warszawa", "Stolice"));
-//        phrases.add(new Phrase("Kijów", "Stolice"));
-//        phrases.add(new Phrase("Paryz", "Stolice"));
-//        phrases.add(new Phrase("Berlin", "Stolice"));
-//        phrases.add(new Phrase("Praga", "Stolice"));
-//        phrases.add(new Phrase("Meksyk", "Stolice"));
-//        phrases.add(new Phrase("Waszyngton", "Stolice"));
-//        phrases.add(new Phrase("Mińsk", "Stolice"));
-//        phrases.add(new Phrase("Rzym", "Stolice"));
-//        phrases.add(new Phrase("Lizbona", "Stolice"));
-//
-//        for (Phrase phrase : phrases) {
-//            try {
-//                int category = categories.get(phrase.category());
-//                String sql = String.format("""
-//                                    INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
-//                                    SELECT NULL, '%s', %d
-//                                    WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
-//                        phrase.phrase(), category, phrase.phrase(), category);
-//                statement.execute(sql);
-//            } catch (SQLException ignored) {
-//            }
-//        }
-//    }
-//
-//
-//    private void insertCategories(){
-//        ArrayList<String> phrases = new ArrayList<>();
-//
-//        phrases.add("Przysłowia");
-//        phrases.add("Książki");
-//        phrases.add("Filmy");
-//        phrases.add("Gry");
-//        phrases.add("Stolice");
-//
-//        for (String phrase : phrases) {
-//            try {
-//                String sql = String.format("""
-//                                    INSERT OR REPLACE INTO Category (ID, Name)
-//                                    SELECT NULL, '%s'
-//                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
-//                        phrase, phrase);
-//                statement.execute(sql);
-//            } catch (SQLException ignored) {}
-//        }
-//    }
 
     public ArrayList<Phrase> getAllPhrasesFromCategory(String category) {
         // if category == null, the method returns all phrases
         ArrayList<Phrase> phrases = new ArrayList<>();
         try {
-            String sql = null;
+            String sql;
             if (category != null)
                 sql = String.format("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID WHERE C2.NAME = '%s'", category);
             else
@@ -312,8 +211,8 @@ public class Database {
     }
 
     public HashMap<String, Integer> getCategoriesID() {
-        HashMap<String, Integer> categories = new HashMap<String, Integer>();
-        ResultSet results = null;
+        HashMap<String, Integer> categories = new HashMap<>();
+        ResultSet results;
         try {
             results = statement.executeQuery("SELECT * from Category");
             while (results.next()) {
@@ -369,7 +268,7 @@ public class Database {
         }
     }
 
-    public boolean saveGameResult(String playerName, int score, int gameID) {
+    public void saveGameResult(String playerName, int score, int gameID) {
         try {
             int playerID = getPlayerID(playerName);
             if (recordNotInDatabase(playerID, score)) {
@@ -380,17 +279,14 @@ public class Database {
                     int recordID = -1;
                     ResultSet keys = preparedStatement.getGeneratedKeys();
                     if(keys.next()) recordID = keys.getInt(1);
-                    if(recordID == -1) return false;
+                    if(recordID == -1) return;
                     preparedStatement = connection.prepareStatement("UPDATE Game SET Record_ID = ? WHERE ID = ?");
                     preparedStatement.setInt(1, recordID);
                     preparedStatement.setInt(2, gameID);
-                    return preparedStatement.executeUpdate() == 1;
+                    preparedStatement.executeUpdate();
                 }
-                return false;
             }
-            return true;
         } catch (Exception ignored) {
-            return false;
         }
     }
 
@@ -442,7 +338,7 @@ public class Database {
         return leaderboard;
     }
 
-    public boolean updateDatabase(JSONObject phrases, JSONObject records) throws SQLException {
+    public void updateDatabase(JSONObject phrases, JSONObject records) throws SQLException {
         Iterator<String> keyPhrase = phrases.keys();
         while (keyPhrase.hasNext()) {
             String phrase = keyPhrase.next();
@@ -481,7 +377,6 @@ public class Database {
                 preparedStatement.executeUpdate();
             }
         }
-        return true;
     }
 
     public void insertMove(int rollResult, String guessedLetter, String guessedPhrase, Integer result, Integer gameID, String playerName) {

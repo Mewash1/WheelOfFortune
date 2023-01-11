@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class GameServer {
 
-    private NetworkClient networkClient;
-    private ArrayList<Game> games = new ArrayList<>();
+    private final NetworkClient networkClient;
+    private final ArrayList<Game> games = new ArrayList<>();
 
     private record IpAndPort(InetAddress address, int port) {
     }
 
-    private HashMap<Player, IpAndPort> addresses = new HashMap<>();
-    private HashMap<String, Player> players = new HashMap<>();
+    private final HashMap<Player, IpAndPort> addresses = new HashMap<>();
+    private final HashMap<String, Player> players = new HashMap<>();
 
     public GameServer() {
         networkClient = new NetworkClient(26969, this);
@@ -47,7 +47,7 @@ public class GameServer {
                 JSONObject response = new JSONObject();
                 response.put("action", "joinconf");
                 Player joiningPlayer = players.get(jsonData.getString("player"));
-                response = join(jsonData, response, joiningPlayer);
+                join(response, joiningPlayer);
                 IpAndPort joiningPlayerAddress = addresses.get(joiningPlayer);
                 networkClient.sendData(response.toString(), joiningPlayerAddress.address, joiningPlayerAddress.port);
                 joinOth(joiningPlayer);
@@ -59,15 +59,13 @@ public class GameServer {
                 response.put("message", loginResult);
                 if(loginResult.equals("success")) {
                     Player joiningPlayer = players.get(jsonData.getString("player"));
-                    response = join(jsonData, response, joiningPlayer);
+                    join(response, joiningPlayer);
                     IpAndPort joiningPlayerAddress = addresses.get(joiningPlayer);
                     networkClient.sendData(response.toString(), joiningPlayerAddress.address, joiningPlayerAddress.port);
                     joinOth(joiningPlayer);
                 }
             }
-            case "leave" -> {
-                leaveGame(jsonData);
-            }
+            case "leave" -> leaveGame(jsonData);
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
@@ -179,7 +177,7 @@ public class GameServer {
         return "success";
     }
 
-    private JSONObject join(JSONObject jsonData, JSONObject response, Player joiningPlayer) {
+    private void join(JSONObject response, Player joiningPlayer) {
         for (Game game : games) {
             if (game.getPlayers().size() < 3) {
                 if (game.joinGame(joiningPlayer)) {
@@ -197,7 +195,6 @@ public class GameServer {
             inGamePlayers.put(inGamePlayer.getName());
         }
         response.put("players", inGamePlayers);
-        return response;
     }
 
     private void joinOth(Player joiningPlayer) {

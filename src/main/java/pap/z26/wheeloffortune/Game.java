@@ -110,7 +110,7 @@ public class Game {
         return true;
     }
 
-    public boolean leaveGame(Player player) {
+    public void leaveGame(Player player) {
         if (!inProgress) {
             player.setGame(null);
             players.remove(player);
@@ -119,9 +119,7 @@ public class Game {
             if (window != null) {
                 window.writeToGameLog("Player " + player.getName() + " left the game");
             }
-            return true;
         }
-        return false;
     }
 
     public void leaveGameAndReplace(Player player, String replacementBotName) {
@@ -167,7 +165,6 @@ public class Game {
             scores.put(player, 0);
         }
         gameID = database.getGameID(gameServer == null ? "local" : "online");
-        System.out.println(gameID);
     }
 
     private void applyMoveTimeLimit(int limit) {
@@ -183,7 +180,7 @@ public class Game {
     private void nextMove() {
         if (currentPlayer == null && state != GameState.ROUND4) return;
         if (state != GameState.FINAL && state != GameState.ROUND4) {
-            if ((moveState == MoveState.HAS_TO_SPIN || (moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2)) && window != null && currentPlayer != null) {
+            if ((moveState == MoveState.HAS_TO_SPIN || moveState == MoveState.HAS_TO_GUESS_CONSONANT && state == GameState.ROUND2) && window != null) {
                 window.writeToGameLog("Player " + currentPlayer.getName() + " moves now");
             }
         } else if (window != null && state == GameState.FINAL) {
@@ -357,11 +354,11 @@ public class Game {
         return result;
     }
 
-    public boolean guessPhrase(Player player, String phrase) {
-        boolean result = false;
+    public void guessPhrase(Player player, String phrase) {
+        boolean result;
         if (state != GameState.FINAL) {
             if (currentPlayer == null || player != currentPlayer || (moveState != MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS && hasNotGuessedConsonants())) {
-                if (state != GameState.ROUND4) return false;
+                if (state != GameState.ROUND4) return;
             }
             result = gameWord.guessPhrase(phrase);
             if (window != null) {
@@ -409,7 +406,6 @@ public class Game {
         if (window != null) {
             window.updateGUI();
         }
-        return result;
     }
 
     private Player assignRoundStarter() {
@@ -572,9 +568,7 @@ public class Game {
                 category = jsonData.getString("cat");
                 advanceRound();
             }
-            case "start" -> {
-                start();
-            }
+            case "start" -> start();
             case "uncov" -> {
                 gameWord.uncoverRandomLetter(jsonData.getInt("index"));
                 if (window != null) window.updateGUI();
@@ -601,22 +595,14 @@ public class Game {
         String[] parts = action.split(":");
         response.put("action", parts[0]);
         switch (parts[0]) {
-            case "spin" -> {
-                response.put("value", Integer.parseInt(parts[1]));
-            }
-            case "guessl" -> {
-                response.put("letter", parts[1]);
-            }
-            case "guessp" -> {
-                response.put("phrase", parts[1]);
-            }
+            case "spin" -> response.put("value", Integer.parseInt(parts[1]));
+            case "guessl" -> response.put("letter", parts[1]);
+            case "guessp" -> response.put("phrase", parts[1]);
             case "newword" -> {
                 response.put("word", parts[1]);
                 response.put("cat", parts[2]);
             }
-            case "uncov" -> {
-                response.put("index", Integer.parseInt(parts[1]));
-            }
+            case "uncov" -> response.put("index", Integer.parseInt(parts[1]));
         }
         if (gameServer == null) { // local game
             networkClient.sendData(response.toString());

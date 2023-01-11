@@ -10,8 +10,6 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -31,7 +29,6 @@ public class WoF_GUI extends JFrame {
     private JPanel GamePanel;
     private JToolBar topToolBar;
     private JButton newGameButton;
-    private JButton addPlayerButton;
     private JButton LeaveGameButton;
     private JSplitPane mainDivider;
     private JPanel leftMenu;
@@ -71,10 +68,11 @@ public class WoF_GUI extends JFrame {
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
-    private Game game;
+    private final Game game;
 
     public void writeToGameLog(String content) {
         listModel.add(0, content);
+        //noinspection unchecked
         guessesHistory.setModel(listModel);
     }
 
@@ -102,6 +100,15 @@ public class WoF_GUI extends JFrame {
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
+        if(game.getState() == GameState.FINAL) {
+            if(game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
+                fullGuess.setText("Reveal 4 letters");
+            } else {
+                fullGuess.setText("Guess the final phrase!");
+            }
+        } else {
+            fullGuess.setText("PHRASE");
+        }
     }
 
     private void swap_card(JPanel card) {
@@ -150,64 +157,38 @@ public class WoF_GUI extends JFrame {
             JCheckBox c = (JCheckBox) e.getSource();
             playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
-        spinWheelButton.addActionListener(e -> {
-            boolean result = game.spinTheWheel(wof.ourPlayer);
-        });
-        newGameButton.addActionListener(e -> {
-            wof.startGame();
-        });
-        ExitButton.addActionListener(e -> {
-            System.exit(0);
-        });
+        spinWheelButton.addActionListener(e -> game.spinTheWheel(wof.ourPlayer));
+        newGameButton.addActionListener(e -> wof.startGame());
+        ExitButton.addActionListener(e -> System.exit(0));
         SinglePlayerButton.addActionListener(e -> {
             if (wof.join("localhost").equals("Success")) {
                 swap_card(GamePanel);
                 wof.startGame();
-            } else {
-                // toast something went wrong
             }
         });
-        MultiPlayerButton.addActionListener(e -> {
-            swap_card(MultiLoginPanel);
+        MultiPlayerButton.addActionListener(e -> swap_card(MultiLoginPanel));
+        backButton.addActionListener(e -> swap_card(MainMenuPanel));
+        backButton1.addActionListener(e -> swap_card(MainMenuPanel));
+        LeaveGameButton.addActionListener(e -> {
+            wof.leaveGame();
+            swap_card(MainMenuPanel);
+            listModel.clear();
         });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(MainMenuPanel);
-            }
-        });
-        backButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(MainMenuPanel);
-            }
-        });
-        LeaveGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wof.leaveGame();
-                swap_card(MainMenuPanel);
-                listModel.clear();
-            }
-        });
-        HighScoresButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Database database = Database.getInstance();
-                ArrayList<LeaderboardRecord> records = database.getHighScores(10);
-                if (!records.isEmpty()) {
-                    DefaultTableModel tableModel = new DefaultTableModel();
-                    tableModel.setColumnCount(3);
-                    Object[] header = {"#", "Player", "Score"};
-                    tableModel.addRow(header);
-                    for (LeaderboardRecord record : records) {
-                        Object[] row = {record.position(), record.playerName(), record.score()};
-                        tableModel.addRow(row);
-                    }
-                    HighScoresTable.setModel(tableModel);
+        HighScoresButton.addActionListener(e -> {
+            Database database = Database.getInstance();
+            ArrayList<LeaderboardRecord> records = database.getHighScores(10);
+            if (!records.isEmpty()) {
+                DefaultTableModel tableModel = new DefaultTableModel();
+                tableModel.setColumnCount(3);
+                Object[] header = {"#", "Player", "Score"};
+                tableModel.addRow(header);
+                for (LeaderboardRecord record : records) {
+                    Object[] row = {record.position(), record.playerName(), record.score()};
+                    tableModel.addRow(row);
                 }
-                swap_card(HighScoressPanel);
+                HighScoresTable.setModel(tableModel);
             }
+            swap_card(HighScoressPanel);
         });
         ipVisibityCheckBox.addActionListener(e -> {
             JCheckBox c = (JCheckBox) e.getSource();
@@ -262,17 +243,12 @@ public class WoF_GUI extends JFrame {
                 }
             }
         });
-        CreditsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(CreditsPanel);
-            }
-        });
+        CreditsButton.addActionListener(e -> swap_card(CreditsPanel));
     }
 
-    public static void main(String[] args) {
-        System.out.println("UI Compiled");
-    }
+//    public static void main(String[] args) {
+//        System.out.println("UI Compiled");
+//    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
