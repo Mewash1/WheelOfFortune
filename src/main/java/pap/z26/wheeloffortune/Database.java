@@ -62,7 +62,7 @@ public class Database {
         return null;
     }
 
-    private void createTables(){
+    private void createTables() {
         String sql;
         try {
             sql = """
@@ -392,7 +392,8 @@ public class Database {
             boolean isMatching = true;
             if (phrase.length() == toMatch.length()) {
                 for (int i = 0; i < phrase.length(); i++) {
-                    if ((toMatch.charAt(i) != '_' && (toMatch.charAt(i) != phrase.charAt(i)))) {
+                    char match = Character.toLowerCase(toMatch.charAt(i));
+                    if ((match != '_' && match != phrase.charAt(i))) {
                         isMatching = false;
                         break;
                     }
@@ -479,8 +480,9 @@ public class Database {
     }
     public static void main(String[] args){
         Database db = Database.getInstance();
-        try {
-            db.insertMove("300$", 'c', null, 1, 1, 1);
-        } catch (SQLException ignored) {}
+        ArrayList<String> phrases = db.getMatchingPhrases("A__");
+        for (String phrase : phrases){
+            System.out.println(phrase);
         }
     }
+}
