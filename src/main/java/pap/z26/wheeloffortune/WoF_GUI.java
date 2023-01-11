@@ -139,6 +139,7 @@ public class WoF_GUI extends JFrame {
         });
         fullGuess.addActionListener(e -> {
             String toGuess = playerInput.getText();
+            if (toGuess.isEmpty()) return;
             game.guessPhrase(wof.ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
@@ -239,7 +240,7 @@ public class WoF_GUI extends JFrame {
                 if (key == KeyEvent.VK_SHIFT) {
                     shifted = true;
                 }
-                if (key == KeyEvent.VK_CONTROL) {
+                if (key == KeyEvent.VK_CONTROL && shifted) {
                     spinWheelButton.doClick();
                 }
             }
