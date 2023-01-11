@@ -3,7 +3,6 @@ package pap.z26.wheeloffortune;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 
 public class WheelOfFortune {
