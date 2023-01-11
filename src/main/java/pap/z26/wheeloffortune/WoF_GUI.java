@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -185,6 +186,19 @@ public class WoF_GUI extends JFrame {
         HighScoresButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                Database database = Database.getInstance();
+                ArrayList<LeaderboardRecord> records = database.getHighScores(10);
+                if(!records.isEmpty()) {
+                    DefaultTableModel tableModel = new DefaultTableModel();
+                    tableModel.setColumnCount(3);
+                    Object[] header = {"#", "Player", "Score"};
+                    tableModel.addRow(header);
+                    for (LeaderboardRecord record: records) {
+                        Object[] row = {record.position(), record.playerName(), record.score()};
+                        tableModel.addRow(row);
+                    }
+                    HighScoresTable.setModel(tableModel);
+                }
                 swap_card(HighScoressPanel);
             }
         });

@@ -15,9 +15,15 @@ public class Database {
 
     private static volatile Database instance;
     private Statement statement;
+    private Connection connection;
 
     private Database() {
         this.statement = establishConnection();
+        try {
+            this.connection = statement.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         this.createTables();
         this.insertCategories();
         this.insertPhrases();
@@ -85,7 +91,7 @@ public class Database {
             sql = """
                         CREATE TABLE Game
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Record_ID INTEGER references Record(ID)
                         )""";
             statement.execute(sql);
@@ -95,7 +101,7 @@ public class Database {
             sql = """
                         CREATE TABLE Player
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Name TEXT NOT NULL
                         )""";
             statement.execute(sql);
@@ -105,7 +111,7 @@ public class Database {
             sql = """
                         CREATE TABLE Record
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Points INTEGER NOT NULL,
                             Player_ID INTEGER references Player(ID)
                         )""";
@@ -116,7 +122,7 @@ public class Database {
             sql = """
                         CREATE TABLE Move
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             RollResult TEXT not null,
                             GuessedLetter CHAR,
                             GuessedPhrase TEXT,
@@ -132,7 +138,7 @@ public class Database {
             sql = """
                         CREATE TABLE Player_Games
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Player_ID INTEGER references Player(ID),
                             Game_ID INTEGER references Game(ID)
                         )""";
@@ -143,7 +149,7 @@ public class Database {
             sql = """
                         CREATE TABLE Phrase_Games
                         (
-                            ID INTEGER PRIMARY KEY,
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Phrase_ID INTEGER references Phrase(ID),
                             Game_ID INTEGER references Game(ID)
                         )""";
@@ -323,13 +329,55 @@ public class Database {
         return phrases.get(randomizer.nextInt(phrases.size()));
     }
 
+    private int getPlayerID(String playerName) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID from Player WHERE Name = ?");
+            preparedStatement.setString(1, playerName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int id = -1;
+            if(resultSet.next()) {
+                id = resultSet.getInt(1);
+            }
+            if(id == -1) {
+                preparedStatement = connection.prepareStatement("INSERT INTO Player(Name) VALUES(?)");
+                preparedStatement.setString(1, playerName);
+                preparedStatement.executeUpdate();
+                ResultSet ids = preparedStatement.getGeneratedKeys();
+                if(ids.next()) {
+                    id = ids.getInt(1);
+                }
+            }
+            return id;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    private boolean recordNotInDatabase(int playerID, int score) {
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Record WHERE Player_ID = ? AND Points = ?");
+            preparedStatement.setInt(1, playerID);
+            preparedStatement.setInt(2, score);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return !resultSet.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean saveGameResult(String playerName, int score) {
         try {
-            String sql_select = String.format("SELECT ID from Player WHERE Name LIKE '%s'", playerName);
-            String sql_insert = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (%s))", score, sql_select);
-            statement.executeQuery(sql_insert);
+            int playerID = getPlayerID(playerName);
+            if(recordNotInDatabase(playerID, score)) {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Record(Points, Player_ID) VALUES(?, ?)");
+                preparedStatement.setInt(1, score);
+                preparedStatement.setInt(2, playerID);
+                return preparedStatement.executeUpdate() == 1;
+            }
+            return true;
         } catch (Exception ignored) {return false;}
-        return true;
     }
 
     public ArrayList<String> getMatchingPhrases(String toMatch) {
