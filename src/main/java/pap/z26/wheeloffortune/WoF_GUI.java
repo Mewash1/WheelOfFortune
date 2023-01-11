@@ -238,9 +238,6 @@ public class WoF_GUI extends JFrame {
         });
     }
 
-//    public static void main(String[] args) {
-//        System.out.println("UI Compiled");
-//    }
 }
 
 
