@@ -25,8 +25,8 @@ public class Database {
             e.printStackTrace();
         }
         this.createTables();
-        this.insertCategories();
-        this.insertPhrases();
+//        this.insertCategories();
+//        this.insertPhrases();
     }
 
     public static Database getInstance() {
@@ -66,7 +66,7 @@ public class Database {
         String sql;
         try {
             sql = """
-                        CREATE TABLE Category
+                        CREATE TABLE IF NOT EXISTS Category
                         (
                             ID INTEGER PRIMARY KEY,
                             Name TEXT NOT NULL
@@ -77,7 +77,7 @@ public class Database {
 
         try {
             sql = """
-                        CREATE TABLE Phrase
+                        CREATE TABLE IF NOT EXISTS Phrase
                         (
                             ID INTEGER PRIMARY KEY,
                             Phrase TEXT NOT NULL,
@@ -89,7 +89,7 @@ public class Database {
 
         try {
             sql = """
-                        CREATE TABLE Game
+                        CREATE TABLE IF NOT EXISTS Game
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Record_ID INTEGER references Record(ID)
@@ -99,7 +99,7 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Player
+                        CREATE TABLE IF NOT EXISTS Player
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Name TEXT NOT NULL
@@ -109,7 +109,7 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Record
+                        CREATE TABLE IF NOT EXISTS Record
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Points INTEGER NOT NULL,
@@ -120,7 +120,7 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Move
+                        CREATE TABLE IF NOT EXISTS Move
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             RollResult TEXT not null,
@@ -136,7 +136,7 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Player_Games
+                        CREATE TABLE IF NOT EXISTS Player_Games
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Player_ID INTEGER references Player(ID),
@@ -147,7 +147,7 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Phrase_Games
+                        CREATE TABLE IF NOT EXISTS Phrase_Games
                         (
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
                             Phrase_ID INTEGER references Phrase(ID),
@@ -158,127 +158,127 @@ public class Database {
         }
         try {
             sql = """
-                        CREATE TABLE Wheel
+                        CREATE TABLE IF NOT EXISTS Wheel
                         (
                             ID INTEGER PRIMARY KEY,
-                            item1 TEXT,
-                            item2 TEXT,
-                            item3 TEXT,
-                            item4 TEXT,
-                            item5 TEXT,
-                            item6 TEXT,
-                            item7 TEXT,
-                            item8 TEXT,
-                            item9 TEXT,
-                            item10 TEXT,
-                            item11 TEXT,
-                            item12 TEXT,
-                            item13 TEXT,
-                            item14 TEXT,
-                            item15 TEXT,
-                            item16 TEXT,
-                            item17 TEXT,
-                            item18 TEXT,
-                            item19 TEXT,
-                            item20 TEXT
+                            item1 INTEGER,
+                            item2 INTEGER,
+                            item3 INTEGER,
+                            item4 INTEGER,
+                            item5 INTEGER,
+                            item6 INTEGER,
+                            item7 INTEGER,
+                            item8 INTEGER,
+                            item9 INTEGER,
+                            item10 INTEGER,
+                            item11 INTEGER,
+                            item12 INTEGER,
+                            item13 INTEGER,
+                            item14 INTEGER,
+                            item15 INTEGER,
+                            item16 INTEGER,
+                            item17 INTEGER,
+                            item18 INTEGER,
+                            item19 INTEGER,
+                            item20 INTEGER
                         )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
     }
-    private void insertPhrases() {
-        HashMap<String, Integer> categories = getCategoriesID();
-        ArrayList<Phrase> phrases = new ArrayList<>();
-        phrases.add(new Phrase("Cicha woda brzegi rwie", "Przysłowia"));
-        phrases.add(new Phrase("Baba z wozu koniom lżej", "Przysłowia"));
-        phrases.add(new Phrase("Co się odwlecze to się nie uciecze", "Przysłowia"));
-        phrases.add(new Phrase("Uderz w stół a nożyce się odezwą", "Przysłowia"));
-        phrases.add(new Phrase("Ciągnie swój do swego", "Przysłowia"));
-        phrases.add(new Phrase("Im dalej w las tym więcej drzew", "Przysłowia"));
-        phrases.add(new Phrase("Co dwie głowy to nie jedna", "Przysłowia"));
-        phrases.add(new Phrase("Dzieci i ryby głosu nie mają", "Przysłowia"));
-        phrases.add(new Phrase("Czas to pieniądz", "Przysłowia"));
-        phrases.add(new Phrase("Elektryka prąd nie tyka", "Przysłowia"));
-
-        phrases.add(new Phrase("Szklana pułapka", "Filmy"));
-        phrases.add(new Phrase("Przeminęło z wiatrem", "Filmy"));
-        phrases.add(new Phrase("Ojciec chrzestny", "Filmy"));
-        phrases.add(new Phrase("Kod da Vinci", "Filmy"));
-        phrases.add(new Phrase("Faceci w czerni", "Filmy"));
-        phrases.add(new Phrase("To nie jest kraj dla starych ludzi", "Filmy"));
-        phrases.add(new Phrase("Zielony rycerz", "Filmy"));
-        phrases.add(new Phrase("Raport mniejszosci", "Filmy"));
-        phrases.add(new Phrase("Pulp fiction", "Filmy"));
-        phrases.add(new Phrase("John Wick", "Filmy"));
-
-        phrases.add(new Phrase("Ania z Zielonego Wzgórza", "Książki"));
-        phrases.add(new Phrase("Sto lat samotności", "Książki"));
-        phrases.add(new Phrase("Pan Tadeusz", "Książki"));
-        phrases.add(new Phrase("Pan Wołodyjowski", "Książki"));
-        phrases.add(new Phrase("Ziemia obiecana", "Książki"));
-        phrases.add(new Phrase("I już nie było nikogo", "Książki"));
-        phrases.add(new Phrase("Zbrodnia i kara", "Książki"));
-        phrases.add(new Phrase("Cierpienia młodego Wertera", "Książki"));
-        phrases.add(new Phrase("Morderstwo w Orient Expressie", "Książki"));
-        phrases.add(new Phrase("Dom z liści", "Książki"));
-
-        phrases.add(new Phrase("Super Mario Bros", "Gry"));
-        phrases.add(new Phrase("The Legend of Zelda", "Gry"));
-        phrases.add(new Phrase("DOOM", "Gry"));
-        phrases.add(new Phrase("Geometry Dash", "Gry"));
-        phrases.add(new Phrase("Uncharted", "Gry"));
-        phrases.add(new Phrase("Deep Rock Galactic", "Gry"));
-        phrases.add(new Phrase("Fallout", "Gry"));
-        phrases.add(new Phrase("Bioshock", "Gry"));
-        phrases.add(new Phrase("Final Fantasy", "Gry"));
-        phrases.add(new Phrase("Tetris", "Gry"));
-
-        phrases.add(new Phrase("Warszawa", "Stolice"));
-        phrases.add(new Phrase("Kijów", "Stolice"));
-        phrases.add(new Phrase("Paryz", "Stolice"));
-        phrases.add(new Phrase("Berlin", "Stolice"));
-        phrases.add(new Phrase("Praga", "Stolice"));
-        phrases.add(new Phrase("Meksyk", "Stolice"));
-        phrases.add(new Phrase("Waszyngton", "Stolice"));
-        phrases.add(new Phrase("Mińsk", "Stolice"));
-        phrases.add(new Phrase("Rzym", "Stolice"));
-        phrases.add(new Phrase("Lizbona", "Stolice"));
-
-        for (Phrase phrase : phrases) {
-            try {
-                int category = categories.get(phrase.category());
-                String sql = String.format("""
-                                    INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
-                                    SELECT NULL, '%s', %d
-                                    WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
-                        phrase.phrase(), category, phrase.phrase(), category);
-                statement.execute(sql);
-            } catch (SQLException ignored) {
-            }
-        }
-    }
-
-
-    private void insertCategories(){
-        ArrayList<String> phrases = new ArrayList<>();
-
-        phrases.add("Przysłowia");
-        phrases.add("Książki");
-        phrases.add("Filmy");
-        phrases.add("Gry");
-        phrases.add("Stolice");
-
-        for (String phrase : phrases) {
-            try {
-                String sql = String.format("""
-                                    INSERT OR REPLACE INTO Category (ID, Name)
-                                    SELECT NULL, '%s'
-                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
-                        phrase, phrase);
-                statement.execute(sql);
-            } catch (SQLException ignored) {}
-        }
-    }
+//    private void insertPhrases() {
+//        HashMap<String, Integer> categories = getCategoriesID();
+//        ArrayList<Phrase> phrases = new ArrayList<>();
+//        phrases.add(new Phrase("Cicha woda brzegi rwie", "Przysłowia"));
+//        phrases.add(new Phrase("Baba z wozu koniom lżej", "Przysłowia"));
+//        phrases.add(new Phrase("Co się odwlecze to się nie uciecze", "Przysłowia"));
+//        phrases.add(new Phrase("Uderz w stół a nożyce się odezwą", "Przysłowia"));
+//        phrases.add(new Phrase("Ciągnie swój do swego", "Przysłowia"));
+//        phrases.add(new Phrase("Im dalej w las tym więcej drzew", "Przysłowia"));
+//        phrases.add(new Phrase("Co dwie głowy to nie jedna", "Przysłowia"));
+//        phrases.add(new Phrase("Dzieci i ryby głosu nie mają", "Przysłowia"));
+//        phrases.add(new Phrase("Czas to pieniądz", "Przysłowia"));
+//        phrases.add(new Phrase("Elektryka prąd nie tyka", "Przysłowia"));
+//
+//        phrases.add(new Phrase("Szklana pułapka", "Filmy"));
+//        phrases.add(new Phrase("Przeminęło z wiatrem", "Filmy"));
+//        phrases.add(new Phrase("Ojciec chrzestny", "Filmy"));
+//        phrases.add(new Phrase("Kod da Vinci", "Filmy"));
+//        phrases.add(new Phrase("Faceci w czerni", "Filmy"));
+//        phrases.add(new Phrase("To nie jest kraj dla starych ludzi", "Filmy"));
+//        phrases.add(new Phrase("Zielony rycerz", "Filmy"));
+//        phrases.add(new Phrase("Raport mniejszosci", "Filmy"));
+//        phrases.add(new Phrase("Pulp fiction", "Filmy"));
+//        phrases.add(new Phrase("John Wick", "Filmy"));
+//
+//        phrases.add(new Phrase("Ania z Zielonego Wzgórza", "Książki"));
+//        phrases.add(new Phrase("Sto lat samotności", "Książki"));
+//        phrases.add(new Phrase("Pan Tadeusz", "Książki"));
+//        phrases.add(new Phrase("Pan Wołodyjowski", "Książki"));
+//        phrases.add(new Phrase("Ziemia obiecana", "Książki"));
+//        phrases.add(new Phrase("I już nie było nikogo", "Książki"));
+//        phrases.add(new Phrase("Zbrodnia i kara", "Książki"));
+//        phrases.add(new Phrase("Cierpienia młodego Wertera", "Książki"));
+//        phrases.add(new Phrase("Morderstwo w Orient Expressie", "Książki"));
+//        phrases.add(new Phrase("Dom z liści", "Książki"));
+//
+//        phrases.add(new Phrase("Super Mario Bros", "Gry"));
+//        phrases.add(new Phrase("The Legend of Zelda", "Gry"));
+//        phrases.add(new Phrase("DOOM", "Gry"));
+//        phrases.add(new Phrase("Geometry Dash", "Gry"));
+//        phrases.add(new Phrase("Uncharted", "Gry"));
+//        phrases.add(new Phrase("Deep Rock Galactic", "Gry"));
+//        phrases.add(new Phrase("Fallout", "Gry"));
+//        phrases.add(new Phrase("Bioshock", "Gry"));
+//        phrases.add(new Phrase("Final Fantasy", "Gry"));
+//        phrases.add(new Phrase("Tetris", "Gry"));
+//
+//        phrases.add(new Phrase("Warszawa", "Stolice"));
+//        phrases.add(new Phrase("Kijów", "Stolice"));
+//        phrases.add(new Phrase("Paryz", "Stolice"));
+//        phrases.add(new Phrase("Berlin", "Stolice"));
+//        phrases.add(new Phrase("Praga", "Stolice"));
+//        phrases.add(new Phrase("Meksyk", "Stolice"));
+//        phrases.add(new Phrase("Waszyngton", "Stolice"));
+//        phrases.add(new Phrase("Mińsk", "Stolice"));
+//        phrases.add(new Phrase("Rzym", "Stolice"));
+//        phrases.add(new Phrase("Lizbona", "Stolice"));
+//
+//        for (Phrase phrase : phrases) {
+//            try {
+//                int category = categories.get(phrase.category());
+//                String sql = String.format("""
+//                                    INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
+//                                    SELECT NULL, '%s', %d
+//                                    WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
+//                        phrase.phrase(), category, phrase.phrase(), category);
+//                statement.execute(sql);
+//            } catch (SQLException ignored) {
+//            }
+//        }
+//    }
+//
+//
+//    private void insertCategories(){
+//        ArrayList<String> phrases = new ArrayList<>();
+//
+//        phrases.add("Przysłowia");
+//        phrases.add("Książki");
+//        phrases.add("Filmy");
+//        phrases.add("Gry");
+//        phrases.add("Stolice");
+//
+//        for (String phrase : phrases) {
+//            try {
+//                String sql = String.format("""
+//                                    INSERT OR REPLACE INTO Category (ID, Name)
+//                                    SELECT NULL, '%s'
+//                                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
+//                        phrase, phrase);
+//                statement.execute(sql);
+//            } catch (SQLException ignored) {}
+//        }
+//    }
 
     public ArrayList<Phrase> getAllPhrasesFromCategory(String category){
         // if category == null, the method returns all phrases
@@ -477,6 +477,31 @@ public class Database {
         String in = String.format("NULL, '%s', '%c', '%s', %d, %d, %d", rollResult, guessedLetter, guessedPhrase, result, gameID, playerID);
         statement.execute(String.format("INSERT INTO MOVE (ID, RollResult, GuessedLetter, GuessedPhrase, Result, Game_ID, Player_ID) VALUES (%s)", in));
     }
+
+    public HashMap<GameState, ArrayList<Integer>> getWheelContents() {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Wheel");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            HashMap<GameState, ArrayList<Integer>> wheelContents = new HashMap<>();
+            GameState[] states = GameState.values();
+            int index = 0;
+            while(resultSet.next()) {
+                ArrayList<Integer> contents = new ArrayList<>();
+                int partIndex = 2;
+                while(partIndex <= 21 && resultSet.getInt(partIndex) != -174) {
+                    contents.add(resultSet.getInt(partIndex));
+                    partIndex++;
+                }
+                wheelContents.put(states[index], contents);
+                index++;
+            }
+            return wheelContents;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void main(String[] args){
         Database db = Database.getInstance();
         try {
