@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GameServer {
 
@@ -70,6 +71,7 @@ public class GameServer {
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
+                if(gameToStart.isInProgress()) return;
                 while (gameToStart.getPlayers().size() < 3) {
                     BotPlayer fillerPlayer = new BotPlayer();
                     while (!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();
@@ -90,6 +92,34 @@ public class GameServer {
                     }
                 }
                 gameToStart.startGame();
+            }
+            case "update" -> {
+                JSONObject response = new JSONObject();
+
+                Database db = Database.getInstance();
+
+                ArrayList<Phrase> phrases = db.getAllPhrasesFromCategory(null);
+                Map<String, String> hphrases = new HashMap<>();
+                for (Phrase phrase : phrases){
+                    hphrases.put(phrase.phrase(), phrase.category());
+                }
+
+                ArrayList<LeaderboardRecord> leaderboard = db.getHighScores(null);
+                Map<String, Integer> hrecords = new HashMap<>();
+                for (LeaderboardRecord record : leaderboard){
+                    hrecords.put(record.playerName(), record.score());
+                }
+
+                JSONObject jphrases = new JSONObject(hphrases);
+                JSONObject jrecords = new JSONObject(hrecords);
+
+                response.put("action", "update");
+                response.put("phrases", jphrases);
+                response.put("leaderboard", jrecords);
+
+                Player playerRequesting = players.get(jsonData.getString("player"));
+                IpAndPort address = addresses.get(playerRequesting);
+                networkClient.sendData(response.toString(), address.address, address.port);
             }
             default -> {
                 Player playerStarting = players.get(jsonData.getString("player"));

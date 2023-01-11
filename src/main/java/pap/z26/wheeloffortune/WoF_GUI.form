@@ -270,7 +270,7 @@
                         <properties>
                           <horizontalAlignment value="0"/>
                           <horizontalTextPosition value="0"/>
-                          <text value="Round"/>
+                          <text value=" "/>
                           <toolTipText value="Round number"/>
                         </properties>
                       </component>

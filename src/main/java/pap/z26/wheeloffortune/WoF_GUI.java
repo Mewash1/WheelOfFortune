@@ -113,7 +113,9 @@ public class WoF_GUI extends JFrame {
     }
 
     public void switchToGameCard() {
-        ipLogMessage.setText("");
+        ipLogMessage.setText(" ");
+        currentPlayer.setText(" ");
+        pricePool.setText(" ");
         swap_card(GamePanel);
     }
 
@@ -198,7 +200,6 @@ public class WoF_GUI extends JFrame {
             if (userName.isEmpty() || userName.equals("SYSTEM")) {
                 nameLogMessage.setText("Invalid user name");
             } else {
-                wof.logout();
                 wof.updatePlayerName(userName);
                 nameLogMessage.setText("");
                 if (serverIp.isEmpty()) serverIp = "localhost";

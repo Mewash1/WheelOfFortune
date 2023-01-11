@@ -3,6 +3,9 @@ package pap.z26.wheeloffortune;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.xml.crypto.Data;
+import java.sql.SQLException;
+
 public class WheelOfFortune {
 
     public Game game;
@@ -31,6 +34,7 @@ public class WheelOfFortune {
                         game.joinGame(new HumanPlayer(players.getString(i)));
                     }
                 }
+                gameWindow.switchToGameCard();
             }
             case "lajconf" -> {
                 if(jsonData.getString("message").equals("success")) {
@@ -50,6 +54,13 @@ public class WheelOfFortune {
             case "joinoth" -> {
                 game.joinGame(new HumanPlayer(jsonData.getString("player")));
             }
+            case "update" -> {
+                Database db = Database.getInstance();
+                try {
+                    db.updateDatabase(jsonData.getJSONObject("phrases"), jsonData.getJSONObject("leaderboard"));
+                } catch (SQLException ignored) {}
+
+            }
             default -> {
                 game.executeFromOutside(jsonData, false);
             }
@@ -66,6 +77,7 @@ public class WheelOfFortune {
         loginData.put("action", "login");
         loginData.put("player", ourPlayer.getName());
         networkClient.sendData(loginData.toString());
+        updateDatabase();
     }
 
     public void logout() {
@@ -95,6 +107,7 @@ public class WheelOfFortune {
         lajData.put("action", "laj");
         lajData.put("player", ourPlayer.getName());
         networkClient.sendData(lajData.toString());
+        updateDatabase();
     }
 
     public String join(String serverIp) {
@@ -120,6 +133,7 @@ public class WheelOfFortune {
 
     public void updatePlayerName(String newName) {
         if(!ourPlayer.getName().equals(newName)) {
+            logout();
             ourPlayer.setName(newName);
             currentIp = "invalid";
         }
@@ -130,6 +144,14 @@ public class WheelOfFortune {
         startData.put("action", "start");
         startData.put("player", ourPlayer.getName());
         networkClient.sendData(startData.toString());
+    }
+
+    public void updateDatabase(){
+        if(currentIp.equals("localhost") || currentIp.equals("127.0.0.1")) return;
+        JSONObject updateData = new JSONObject();
+        updateData.put("action", "update");
+        updateData.put("player", ourPlayer.getName());
+        networkClient.sendData(updateData.toString());
     }
 
     public WheelOfFortune() {
