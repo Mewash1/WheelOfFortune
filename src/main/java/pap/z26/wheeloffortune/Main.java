@@ -10,7 +10,7 @@ public class Main {
                     listenPort = Integer.parseInt(args[2]);
                 } catch (NumberFormatException ignored) {}
             }
-            GameServer onlyServer = new GameServer(listenPort);
+            GameServer onlyServer = new GameServer(listenPort, true);
             System.out.println("Started server on port " + listenPort + ". To change the port, add option -port <port number>");
         } else {
             WheelOfFortune game = new WheelOfFortune();
