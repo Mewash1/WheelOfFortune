@@ -10,7 +10,7 @@ public class NetworkClient extends Thread {
     private DatagramSocket socket;
     private GameServer server;
     private WheelOfFortune game;
-    private int port;
+    private final int port;
 
     public NetworkClient(String serverIpAddress, int serverPort, WheelOfFortune game) {
         this.game = game;
@@ -34,6 +34,7 @@ public class NetworkClient extends Thread {
     }
 
     public void run() {
+        //noinspection InfiniteLoopStatement
         while (true) {
             byte[] data = new byte[8192];
             DatagramPacket packet = new DatagramPacket(data, data.length);

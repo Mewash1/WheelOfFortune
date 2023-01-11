@@ -17,11 +17,6 @@ public class BotPlayer implements Player {
         currSumVowelWeights = vowelSumWeights;
     }
 
-    public BotPlayer(String name) {
-        if (name.length() == 0) name = "";
-        setName(name);
-    }
-
     Game game;
     String name;
 
@@ -131,11 +126,6 @@ public class BotPlayer implements Player {
                 return;
             }
         }
-    }
-
-    public void setName(String name) {
-        this.name = name;
-        if (name.equals("")) this.name = "Jeff";
     }
 
     private ArrayList<String> getAllMatchingPhrases(String currGameState){

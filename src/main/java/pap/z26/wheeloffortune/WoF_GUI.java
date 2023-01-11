@@ -10,8 +10,6 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ public class WoF_GUI extends JFrame {
     private JButton HighScoresButton;
     private JPanel GamePanel;
     private JButton newGameButton;
-    private JButton addPlayerButton;
     private JButton LeaveGameButton;
     private JButton guessLetter;
     private JPasswordField playerInput;
@@ -84,10 +81,11 @@ public class WoF_GUI extends JFrame {
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
 
-    private Game game;
+    private final Game game;
 
     public void writeToGameLog(String content) {
         listModel.add(0, content);
+        //noinspection unchecked
         guessesHistory.setModel(listModel);
     }
 
@@ -115,6 +113,15 @@ public class WoF_GUI extends JFrame {
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
+        if(game.getState() == GameState.FINAL) {
+            if(game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
+                fullGuess.setText("Reveal 4 letters");
+            } else {
+                fullGuess.setText("Guess the final phrase!");
+            }
+        } else {
+            fullGuess.setText("PHRASE");
+        }
     }
 
     private void swap_card(JPanel card) {
@@ -165,64 +172,38 @@ public class WoF_GUI extends JFrame {
             JCheckBox c = (JCheckBox) e.getSource();
             playerInput.setEchoChar(c.isSelected() ? '\u0000' : '•');
         });
-        spinWheelButton.addActionListener(e -> {
-            boolean result = game.spinTheWheel(wof.ourPlayer);
-        });
-        newGameButton.addActionListener(e -> {
-            wof.startGame();
-        });
-        ExitButton.addActionListener(e -> {
-            System.exit(0);
-        });
+        spinWheelButton.addActionListener(e -> game.spinTheWheel(wof.ourPlayer));
+        newGameButton.addActionListener(e -> wof.startGame());
+        ExitButton.addActionListener(e -> System.exit(0));
         SinglePlayerButton.addActionListener(e -> {
             if (wof.join("localhost").equals("Success")) {
                 swap_card(GamePanel);
                 wof.startGame();
-            } else {
-                // toast something went wrong
             }
         });
-        MultiPlayerButton.addActionListener(e -> {
-            swap_card(MultiLoginPanel);
+        MultiPlayerButton.addActionListener(e -> swap_card(MultiLoginPanel));
+        backButton.addActionListener(e -> swap_card(MainMenuPanel));
+        backButton1.addActionListener(e -> swap_card(MainMenuPanel));
+        LeaveGameButton.addActionListener(e -> {
+            wof.leaveGame();
+            swap_card(MainMenuPanel);
+            listModel.clear();
         });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(MainMenuPanel);
-            }
-        });
-        backButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(MainMenuPanel);
-            }
-        });
-        LeaveGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                wof.leaveGame();
-                swap_card(MainMenuPanel);
-                listModel.clear();
-            }
-        });
-        HighScoresButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Database database = Database.getInstance();
-                ArrayList<LeaderboardRecord> records = database.getHighScores(10);
-                if (!records.isEmpty()) {
-                    DefaultTableModel tableModel = new DefaultTableModel();
-                    tableModel.setColumnCount(3);
-                    Object[] header = {"#", "Player", "Score"};
-                    tableModel.addRow(header);
-                    for (LeaderboardRecord record : records) {
-                        Object[] row = {record.position(), record.playerName(), record.score()};
-                        tableModel.addRow(row);
-                    }
-                    HighScoresTable.setModel(tableModel);
+        HighScoresButton.addActionListener(e -> {
+            Database database = Database.getInstance();
+            ArrayList<LeaderboardRecord> records = database.getHighScores(10);
+            if (!records.isEmpty()) {
+                DefaultTableModel tableModel = new DefaultTableModel();
+                tableModel.setColumnCount(3);
+                Object[] header = {"#", "Player", "Score"};
+                tableModel.addRow(header);
+                for (LeaderboardRecord record : records) {
+                    Object[] row = {record.position(), record.playerName(), record.score()};
+                    tableModel.addRow(row);
                 }
-                swap_card(HighScoresPanel);
+                HighScoresTable.setModel(tableModel);
             }
+            swap_card(HighScoressPanel);
         });
         ipVisibityCheckBox.addActionListener(e -> {
             JCheckBox c = (JCheckBox) e.getSource();
@@ -278,17 +259,12 @@ public class WoF_GUI extends JFrame {
                 }
             }
         });
-        CreditsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                swap_card(CreditsPanel);
-            }
-        });
+        CreditsButton.addActionListener(e -> swap_card(CreditsPanel));
     }
 
-    public static void main(String[] args) {
-        System.out.println("UI Compiled");
-    }
+//    public static void main(String[] args) {
+//        System.out.println("UI Compiled");
+//    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -305,13 +281,13 @@ public class WoF_GUI extends JFrame {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         mainCardLayout = new JPanel();
         mainCardLayout.setLayout(new CardLayout(0, 0));
         mainCardLayout.setEnabled(true);
         mainCardLayout.setPreferredSize(new Dimension(1000, 750));
-        mainPanel.add(mainCardLayout, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(mainCardLayout, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         mainCardLayout.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLoweredBevelBorder(), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         MainMenuPanel = new JPanel();
         MainMenuPanel.setLayout(new GridLayoutManager(2, 1, new Insets(40, 20, 0, 20), -1, -1));
@@ -327,6 +303,13 @@ public class WoF_GUI extends JFrame {
         menuButtons = new JPanel();
         menuButtons.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         MainMenuPanel.add(menuButtons, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        SinglePlayerButton = new JButton();
+        Font SinglePlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, SinglePlayerButton.getFont());
+        if (SinglePlayerButtonFont != null) SinglePlayerButton.setFont(SinglePlayerButtonFont);
+        SinglePlayerButton.setForeground(new Color(-7829368));
+        SinglePlayerButton.setHorizontalAlignment(2);
+        SinglePlayerButton.setText("Single  Player");
+        menuButtons.add(SinglePlayerButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         ExitButton = new JButton();
         Font ExitButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, ExitButton.getFont());
         if (ExitButtonFont != null) ExitButton.setFont(ExitButtonFont);
@@ -337,31 +320,24 @@ public class WoF_GUI extends JFrame {
         CreditsButton = new JButton();
         Font CreditsButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, CreditsButton.getFont());
         if (CreditsButtonFont != null) CreditsButton.setFont(CreditsButtonFont);
-        CreditsButton.setForeground(new Color(-10777925));
+        CreditsButton.setForeground(new Color(-7829368));
         CreditsButton.setHorizontalAlignment(2);
         CreditsButton.setText("Credits");
         menuButtons.add(CreditsButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         MultiPlayerButton = new JButton();
         Font MultiPlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, MultiPlayerButton.getFont());
         if (MultiPlayerButtonFont != null) MultiPlayerButton.setFont(MultiPlayerButtonFont);
-        MultiPlayerButton.setForeground(new Color(-10777925));
+        MultiPlayerButton.setForeground(new Color(-7829368));
         MultiPlayerButton.setHorizontalAlignment(2);
         MultiPlayerButton.setText("Multi Player");
         menuButtons.add(MultiPlayerButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         HighScoresButton = new JButton();
         Font HighScoresButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, HighScoresButton.getFont());
         if (HighScoresButtonFont != null) HighScoresButton.setFont(HighScoresButtonFont);
-        HighScoresButton.setForeground(new Color(-10777925));
+        HighScoresButton.setForeground(new Color(-7829368));
         HighScoresButton.setHorizontalAlignment(2);
         HighScoresButton.setText("High Scores");
         menuButtons.add(HighScoresButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
-        SinglePlayerButton = new JButton();
-        Font SinglePlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, SinglePlayerButton.getFont());
-        if (SinglePlayerButtonFont != null) SinglePlayerButton.setFont(SinglePlayerButtonFont);
-        SinglePlayerButton.setForeground(new Color(-10777925));
-        SinglePlayerButton.setHorizontalAlignment(2);
-        SinglePlayerButton.setText("Single Player");
-        menuButtons.add(SinglePlayerButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         GamePanel = new JPanel();
         GamePanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         GamePanel.setEnabled(true);
@@ -430,17 +406,17 @@ public class WoF_GUI extends JFrame {
         pricePool.setText("");
         pricePool.setToolTipText("Price for guessing a letter");
         topPanel.add(pricePool, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.setBackground(new Color(-16777216));
-        leftMenu.add(panel1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.setBackground(new Color(-16777216));
+        leftMenu.add(panel2, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         spinWheelButton = new JButton();
         spinWheelButton.setEnabled(true);
         spinWheelButton.setInheritsPopupMenu(false);
         spinWheelButton.setLabel("");
         spinWheelButton.setText("");
         spinWheelButton.putClientProperty("hideActionText", Boolean.FALSE);
-        panel1.add(spinWheelButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel2.add(spinWheelButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         roundSollution = new JTextField();
         roundSollution.setEditable(false);
         roundSollution.setFocusable(false);
@@ -467,32 +443,53 @@ public class WoF_GUI extends JFrame {
         guessesHistory.setToolTipText("Game logs");
         guessLog.setViewportView(guessesHistory);
         MultiLoginPanel = new JPanel();
-        MultiLoginPanel.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1));
+        MultiLoginPanel.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         MultiLoginPanel.setPreferredSize(new Dimension(1000, 750));
         mainCardLayout.add(MultiLoginPanel, "Card2");
-        namePrompt = new JLabel();
-        namePrompt.setText("Name:");
-        MultiLoginPanel.add(namePrompt, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ipPannel = new JPanel();
-        ipPannel.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
-        MultiLoginPanel.add(ipPannel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setText("Name:");
+        MultiLoginPanel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
+        MultiLoginPanel.add(panel3, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Server IP:");
+        panel3.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        ipPannel.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        serverJoinPanel = new JPanel();
-        serverJoinPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        ipPannel.add(serverJoinPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel3.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.add(panel4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         joinGameButton = new JButton();
         joinGameButton.setText("Join Game");
-        serverJoinPanel.add(joinGameButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(joinGameButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mainMenuButton = new JButton();
         mainMenuButton.setText("Main Menu");
-        serverJoinPanel.add(mainMenuButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(mainMenuButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel5 = new JPanel();
+        panel5.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.add(panel5, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        ipVisibityCheckBox = new JCheckBox();
+        ipVisibityCheckBox.setHideActionText(true);
+        ipVisibityCheckBox.setHorizontalAlignment(10);
+        ipVisibityCheckBox.setText("Visible");
+        ipVisibityCheckBox.setVerticalTextPosition(1);
+        panel5.add(ipVisibityCheckBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ipInputField = new JPasswordField();
+        ipInputField.setEditable(true);
+        Font ipInputFieldFont = this.$$$getFont$$$(null, -1, 22, ipInputField.getFont());
+        if (ipInputFieldFont != null) ipInputField.setFont(ipInputFieldFont);
+        ipInputField.setText("");
+        ipInputField.setToolTipText("Your guess goes here:");
+        ipInputField.setVerifyInputWhenFocusTarget(true);
+        ipInputField.setVisible(true);
+        panel5.add(ipInputField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ipLogMessage = new JTextField();
         ipLogMessage.setEditable(false);
         ipLogMessage.setEnabled(true);
         ipLogMessage.setForeground(new Color(-4521982));
         ipLogMessage.setVisible(true);
-        ipPannel.add(ipLogMessage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panel3.add(ipLogMessage, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         infoField = new JLabel();
         infoField.setText("You are about to join multiplayer WoF  Please give us your name and ip of the host.");
         MultiLoginPanel.add(infoField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -503,100 +500,63 @@ public class WoF_GUI extends JFrame {
         MultiLoginPanel.add(nameLogMessage, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         nameField = new JTextField();
         MultiLoginPanel.add(nameField, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        MultiLoginPanel.add(inputPanel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        ipAndPortPanel = new JPanel();
-        ipAndPortPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        inputPanel.add(ipAndPortPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        ipInputPannel = new JPanel();
-        ipInputPannel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        ipAndPortPanel.add(ipInputPannel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        serverIpPrompt = new JLabel();
-        serverIpPrompt.setText("Server IP:");
-        ipInputPannel.add(serverIpPrompt, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ipInputField = new JPasswordField();
-        ipInputField.setEditable(true);
-        Font ipInputFieldFont = this.$$$getFont$$$(null, -1, 22, ipInputField.getFont());
-        if (ipInputFieldFont != null) ipInputField.setFont(ipInputFieldFont);
-        ipInputField.setText("");
-        ipInputField.setToolTipText("Your guess goes here:");
-        ipInputField.setVerifyInputWhenFocusTarget(true);
-        ipInputField.setVisible(true);
-        ipInputPannel.add(ipInputField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        portInputPannel = new JPanel();
-        portInputPannel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        ipAndPortPanel.add(portInputPannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        portPrompt = new JLabel();
-        portPrompt.setText("Server Port:");
-        portInputPannel.add(portPrompt, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        portInputField = new JPasswordField();
-        portInputField.setEditable(true);
-        Font portInputFieldFont = this.$$$getFont$$$(null, -1, 22, portInputField.getFont());
-        if (portInputFieldFont != null) portInputField.setFont(portInputFieldFont);
-        portInputField.setText("");
-        portInputField.setToolTipText("Your guess goes here:");
-        portInputField.setVerifyInputWhenFocusTarget(true);
-        portInputField.setVisible(true);
-        portInputPannel.add(portInputField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ipVisibityCheckBox = new JCheckBox();
-        ipVisibityCheckBox.setHideActionText(true);
-        ipVisibityCheckBox.setHorizontalAlignment(10);
-        ipVisibityCheckBox.setText("Visible");
-        ipVisibityCheckBox.setVerticalTextPosition(1);
-        inputPanel.add(ipVisibityCheckBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
-        HighScoresPanel = new JPanel();
-        HighScoresPanel.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
-        HighScoresPanel.setPreferredSize(new Dimension(1000, 750));
-        mainCardLayout.add(HighScoresPanel, "Card1");
-        HighScoresPanel.setBorder(BorderFactory.createTitledBorder(null, "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        HighScoressPanel = new JPanel();
+        HighScoressPanel.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+        HighScoressPanel.setPreferredSize(new Dimension(1000, 750));
+        mainCardLayout.add(HighScoressPanel, "Card1");
+        HighScoressPanel.setBorder(BorderFactory.createTitledBorder(null, "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         HighScoresLabel = new JLabel();
         Font HighScoresLabelFont = this.$$$getFont$$$("Impact", -1, 22, HighScoresLabel.getFont());
         if (HighScoresLabelFont != null) HighScoresLabel.setFont(HighScoresLabelFont);
         HighScoresLabel.setText("High Scores!!!");
-        HighScoresPanel.add(HighScoresLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        backButton = new JButton();
-        backButton.setText("Back");
-        HighScoresPanel.add(backButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(50, 20), null, null, 1, false));
+        HighScoressPanel.add(HighScoresLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ScoresButtonPannel = new JPanel();
+        ScoresButtonPannel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        HighScoressPanel.add(ScoresButtonPannel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         HighScoresTable = new JTable();
         HighScoresTable.setEnabled(false);
-        Font HighScoresTableFont = this.$$$getFont$$$(null, -1, 30, HighScoresTable.getFont());
+        Font HighScoresTableFont = this.$$$getFont$$$(null, -1, 20, HighScoresTable.getFont());
         if (HighScoresTableFont != null) HighScoresTable.setFont(HighScoresTableFont);
-        HighScoresTable.setRowHeight(35);
-        HighScoresPanel.add(HighScoresTable, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        HighScoresTable.setRowHeight(30);
+        HighScoressPanel.add(HighScoresTable, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        backButton = new JButton();
+        backButton.setText("Back");
+        HighScoressPanel.add(backButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(50, 20), null, null, 1, false));
         CreditsPanel = new JPanel();
         CreditsPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainCardLayout.add(CreditsPanel, "Card3");
-        creditsMainPanel = new JPanel();
-        creditsMainPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        creditsMainPanel.setPreferredSize(new Dimension(1000, 750));
-        CreditsPanel.add(creditsMainPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        creditsMainPanel.setBorder(BorderFactory.createTitledBorder(null, "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        mainCardLayout.add(CreditsPanel, "CreditsPanel");
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel6.setPreferredSize(new Dimension(1000, 750));
+        CreditsPanel.add(panel6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel6.setBorder(BorderFactory.createTitledBorder(null, "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         CreditsLabel = new JLabel();
         CreditsLabel.setEnabled(true);
         Font CreditsLabelFont = this.$$$getFont$$$("Impact", -1, 22, CreditsLabel.getFont());
         if (CreditsLabelFont != null) CreditsLabel.setFont(CreditsLabelFont);
         CreditsLabel.setText("Credits:");
-        creditsMainPanel.add(CreditsLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        creditsContentPanel = new JPanel();
-        creditsContentPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        creditsMainPanel.add(creditsContentPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        creditsContent = new JPanel();
-        creditsContent.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        creditsContentPanel.add(creditsContent, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        creditsList = new JList();
-        Font creditsListFont = this.$$$getFont$$$(null, -1, 30, creditsList.getFont());
-        if (creditsListFont != null) creditsList.setFont(creditsListFont);
+        panel6.add(CreditsLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel6.add(panel7, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        panel7.add(scrollPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        CreditsList = new JList();
+        Font CreditsListFont = this.$$$getFont$$$(null, -1, 20, CreditsList.getFont());
+        if (CreditsListFont != null) CreditsList.setFont(CreditsListFont);
         final DefaultListModel defaultListModel2 = new DefaultListModel();
-        defaultListModel2.addElement("Bartłomiej Pełka: Core Project Manager \"nyantastic job guys\"");
+        defaultListModel2.addElement("Bartłomiej Pełka: nyantastic job guys Core Project Menager");
         defaultListModel2.addElement("Wiktor Topolski: Artificial (not) Intelligence Developer");
-        defaultListModel2.addElement("Miłosz Mizak: Data Base Maintainer \"Impressive. Very based\"");
-        defaultListModel2.addElement("Milan Wróblewski: Graphical User Interface Creator");
-        creditsList.setModel(defaultListModel2);
-        creditsContent.add(creditsList, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        defaultListModel2.addElement("Miłosz Mizak: Data Base Mainteiner");
+        defaultListModel2.addElement("Milan Wróblewski: Grafical User Interface Creator");
+        CreditsList.setModel(defaultListModel2);
+        scrollPane1.setViewportView(CreditsList);
+        final JPanel panel8 = new JPanel();
+        panel8.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel7.add(panel8, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         backButton1 = new JButton();
         backButton1.setText("Back");
-        creditsContentPanel.add(backButton1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel8.add(backButton1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -619,13 +579,6 @@ public class WoF_GUI extends JFrame {
         boolean isMac = System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH).startsWith("mac");
         Font fontWithFallback = isMac ? new Font(font.getFamily(), font.getStyle(), font.getSize()) : new StyleContext().getFont(font.getFamily(), font.getStyle(), font.getSize());
         return fontWithFallback instanceof FontUIResource ? fontWithFallback : new FontUIResource(fontWithFallback);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return mainPanel;
     }
 
 }
