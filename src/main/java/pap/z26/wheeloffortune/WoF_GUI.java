@@ -100,8 +100,8 @@ public class WoF_GUI extends JFrame {
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
-        if(game.getState() == GameState.FINAL) {
-            if(game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
+        if (game.getState() == GameState.FINAL) {
+            if (game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
                 fullGuess.setText("Reveal 4 letters");
             } else {
                 fullGuess.setText("Guess the final phrase!");
@@ -450,16 +450,15 @@ public class WoF_GUI extends JFrame {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         HighScoressPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JScrollPane scrollPane1 = new JScrollPane();
-        panel2.add(scrollPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         HighScoresTable = new JTable();
         HighScoresTable.setEnabled(false);
         Font HighScoresTableFont = this.$$$getFont$$$(null, -1, 18, HighScoresTable.getFont());
         if (HighScoresTableFont != null) HighScoresTable.setFont(HighScoresTableFont);
-        scrollPane1.setViewportView(HighScoresTable);
+        HighScoresTable.setRowSelectionAllowed(false);
+        panel2.add(HighScoresTable, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         ScoresButtonPannel = new JPanel();
         ScoresButtonPannel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel2.add(ScoresButtonPannel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel2.add(ScoresButtonPannel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, 1, 1, null, null, null, 0, false));
         backButton = new JButton();
         backButton.setText("Back");
         ScoresButtonPannel.add(backButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
