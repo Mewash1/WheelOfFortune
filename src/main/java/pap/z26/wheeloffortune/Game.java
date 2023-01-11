@@ -460,6 +460,7 @@ public class Game {
         currentPlayer = roundStarter;
         if (state == GameState.ENDED) {
             currentPlayer = null;
+            inProgress = false;
         }
         moveState = (state == GameState.FINAL && gameServer != null) ? MoveState.HAS_TO_GUESS_CONSONANT : MoveState.HAS_TO_SPIN;
         nextMove();
