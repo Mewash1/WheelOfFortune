@@ -468,22 +468,18 @@ public class Database {
             statement.execute(sql);
         }
 
-//        statement.execute("DELETE FROM RECORD");
-
         Iterator<String> keyRecord = records.keys();
         while (keyRecord.hasNext()) {
             String player = keyRecord.next();
-            Integer score = records.getInt(player);
-            // if there is a new player - add him
-            String sql = String.format("""
-                    INSERT OR REPLACE INTO Player (ID, Name)
-                    SELECT NULL, '%s'
-                    WHERE NOT EXISTS (SELECT * FROM Player WHERE Name = '%s')""", player, player);
-            statement.execute(sql);
+            int score = records.getInt(player);
+            int playerID = getPlayerID(player);
 
-            // add new high scores table
-            sql = String.format("INSERT INTO Record (ID, Points, Player_ID) VALUES (NULL, %d, (SELECT ID FROM Player where Name = '%s'));", score, player);
-            statement.execute(sql);
+            if(recordNotInDatabase(playerID, score)) {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Record(Points, Player_ID) VALUES(?, ?)");
+                preparedStatement.setInt(1, score);
+                preparedStatement.setInt(2, playerID);
+                preparedStatement.executeUpdate();
+            }
         }
         return true;
     }
