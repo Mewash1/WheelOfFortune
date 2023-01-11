@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'pap.z26.wheeloffortune'
-version '1.0-PROTOTYPE'
+version '1.0-RC'
 compileJava.options.encoding = 'UTF-8'
 
 def mainClassName = "${group}.Main"
