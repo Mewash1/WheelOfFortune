@@ -189,12 +189,12 @@ public class WoF_GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Database database = Database.getInstance();
                 ArrayList<LeaderboardRecord> records = database.getHighScores(10);
-                if(!records.isEmpty()) {
+                if (!records.isEmpty()) {
                     DefaultTableModel tableModel = new DefaultTableModel();
                     tableModel.setColumnCount(3);
                     Object[] header = {"#", "Player", "Score"};
                     tableModel.addRow(header);
-                    for (LeaderboardRecord record: records) {
+                    for (LeaderboardRecord record : records) {
                         Object[] row = {record.position(), record.playerName(), record.score()};
                         tableModel.addRow(row);
                     }
@@ -291,13 +291,6 @@ public class WoF_GUI extends JFrame {
         menuButtons = new JPanel();
         menuButtons.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         MainMenuPanel.add(menuButtons, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        SinglePlayerButton = new JButton();
-        Font SinglePlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, SinglePlayerButton.getFont());
-        if (SinglePlayerButtonFont != null) SinglePlayerButton.setFont(SinglePlayerButtonFont);
-        SinglePlayerButton.setForeground(new Color(-7829368));
-        SinglePlayerButton.setHorizontalAlignment(2);
-        SinglePlayerButton.setText("Single  Player");
-        menuButtons.add(SinglePlayerButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         ExitButton = new JButton();
         Font ExitButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, ExitButton.getFont());
         if (ExitButtonFont != null) ExitButton.setFont(ExitButtonFont);
@@ -308,24 +301,31 @@ public class WoF_GUI extends JFrame {
         CreditsButton = new JButton();
         Font CreditsButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, CreditsButton.getFont());
         if (CreditsButtonFont != null) CreditsButton.setFont(CreditsButtonFont);
-        CreditsButton.setForeground(new Color(-7829368));
+        CreditsButton.setForeground(new Color(-10777925));
         CreditsButton.setHorizontalAlignment(2);
         CreditsButton.setText("Credits");
         menuButtons.add(CreditsButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         MultiPlayerButton = new JButton();
         Font MultiPlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, MultiPlayerButton.getFont());
         if (MultiPlayerButtonFont != null) MultiPlayerButton.setFont(MultiPlayerButtonFont);
-        MultiPlayerButton.setForeground(new Color(-7829368));
+        MultiPlayerButton.setForeground(new Color(-10777925));
         MultiPlayerButton.setHorizontalAlignment(2);
         MultiPlayerButton.setText("Multi Player");
         menuButtons.add(MultiPlayerButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         HighScoresButton = new JButton();
         Font HighScoresButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, HighScoresButton.getFont());
         if (HighScoresButtonFont != null) HighScoresButton.setFont(HighScoresButtonFont);
-        HighScoresButton.setForeground(new Color(-7829368));
+        HighScoresButton.setForeground(new Color(-10777925));
         HighScoresButton.setHorizontalAlignment(2);
         HighScoresButton.setText("High Scores");
         menuButtons.add(HighScoresButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
+        SinglePlayerButton = new JButton();
+        Font SinglePlayerButtonFont = this.$$$getFont$$$(null, Font.ITALIC, 24, SinglePlayerButton.getFont());
+        if (SinglePlayerButtonFont != null) SinglePlayerButton.setFont(SinglePlayerButtonFont);
+        SinglePlayerButton.setForeground(new Color(-10777925));
+        SinglePlayerButton.setHorizontalAlignment(2);
+        SinglePlayerButton.setText("Single Player");
+        menuButtons.add(SinglePlayerButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(500, -1), null, 0, false));
         GamePanel = new JPanel();
         GamePanel.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
         GamePanel.setEnabled(true);
@@ -394,7 +394,7 @@ public class WoF_GUI extends JFrame {
         roundNr3Label = new JLabel();
         roundNr3Label.setHorizontalAlignment(0);
         roundNr3Label.setHorizontalTextPosition(0);
-        roundNr3Label.setText("Round");
+        roundNr3Label.setText(" ");
         roundNr3Label.setToolTipText("Round number");
         topPanel.add(roundNr3Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
         pricePool = new JLabel();
@@ -415,6 +415,7 @@ public class WoF_GUI extends JFrame {
         roundSollution.setToolTipText("");
         leftMenu.add(roundSollution, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         playersScores = new JTable();
+        playersScores.setEnabled(true);
         playersScores.setShowHorizontalLines(true);
         playersScores.setShowVerticalLines(false);
         playersScores.setToolTipText("players");
@@ -541,5 +542,6 @@ public class WoF_GUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainCardLayout;
     }
+
 }
 
