@@ -172,7 +172,10 @@ public class WoF_GUI extends JFrame {
         });
         spinWheelButton.addActionListener(e -> game.spinTheWheel(wof.ourPlayer));
         newGameButton.addActionListener(e -> wof.startGame());
-        ExitButton.addActionListener(e -> System.exit(0));
+        ExitButton.addActionListener(e -> {
+            wof.logout();
+            System.exit(0);
+        });
         SinglePlayerButton.addActionListener(e -> {
             if (wof.join("localhost", 26969).equals("Success")) {
                 swap_card(GamePanel);
