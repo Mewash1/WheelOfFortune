@@ -6,9 +6,8 @@ public class HumanPlayer implements Player {
     Game game;
     String name;
 
-    public HumanPlayer(Game game) {
-        setGame(game);
-        setName("Player");
+    public HumanPlayer(String name) {
+        this.name = name;
     }
 
 
@@ -34,6 +33,21 @@ public class HumanPlayer implements Player {
 
     @Override
     public void makeAMove() {
+
+    }
+
+    @Override
+    public boolean isBot() {
+        return false;
+    }
+
+    @Override
+    public void notifyLetter(Character letter) {
+
+    }
+
+    @Override
+    public void notifyNewRound() {
 
     }
 }

@@ -1,2 +1,2 @@
 gradle build
-cp build/libs/WheelOfFortune-1.0-PROTOTYPE-all.jar WheelOfFortune.jar
+cp build/libs/WheelOfFortune-1.0-RC-all.jar WheelOfFortune.jar

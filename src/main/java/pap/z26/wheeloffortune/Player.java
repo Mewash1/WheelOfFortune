@@ -9,4 +9,10 @@ public interface Player {
     void setGame(Game game);
 
     void makeAMove();
+
+    boolean isBot();
+
+    void notifyLetter(Character letter);
+
+    void notifyNewRound();
 }

@@ -1,4 +1,8 @@
 /build/
 /.gradle/
 /.idea/
+/.fleet/
 /bin/
+/out/
+/temp/
+/wofDatabase.db
