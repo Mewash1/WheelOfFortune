@@ -184,12 +184,15 @@ public class Database {
         // if category == null, the method returns all phrases
         ArrayList<Phrase> phrases = new ArrayList<>();
         try {
-            String sql;
-            if (category != null)
-                sql = String.format("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID WHERE C2.NAME = '%s'", category);
+            PreparedStatement preparedStatement;
+
+            if (category != null) {
+                preparedStatement = connection.prepareStatement("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID WHERE C2.NAME = ?");
+                preparedStatement.setString(1, category);
+            }
             else
-                sql = "SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID";
-            ResultSet results = statement.executeQuery(sql);
+                preparedStatement = connection.prepareStatement("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID");
+            ResultSet results = preparedStatement.executeQuery();
             while (results.next()) {
                 phrases.add(new Phrase(results.getString("Phrase"), results.getString("Name")));
             }
@@ -318,15 +321,23 @@ public class Database {
     public ArrayList<LeaderboardRecord> getHighScores(Integer count) {
         ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
         try {
-            String sql;
-            sql = """
+            PreparedStatement preparedStatement;
+            if (count != null) {
+                preparedStatement = connection.prepareStatement("""
                     SELECT Name, Points from Record
                     join Player P on P.ID = Record.Player_ID
-                    order by Points desc""";
-            if ((count != null)) {
-                sql += String.format("\nlimit %d", count);
+                    order by Points desc
+                    limit ?""");
+                preparedStatement.setInt(1, count);
             }
-            ResultSet results = statement.executeQuery(sql);
+            else {
+                preparedStatement = connection.prepareStatement("""
+                    SELECT Name, Points from Record
+                    join Player P on P.ID = Record.Player_ID
+                    order by Points desc
+                    """);
+            }
+            ResultSet results = preparedStatement.executeQuery();
             int i = 1;
             while (results.next()) {
                 LeaderboardRecord record = new LeaderboardRecord(i, results.getString("Name"), results.getInt("Points"));
@@ -345,23 +356,25 @@ public class Database {
             String category = phrases.getString(phrase);
 
             // if there is a new category, add it
-
-            String sql = String.format("""
+            PreparedStatement preparedStatement = connection.prepareStatement("""
                             INSERT OR REPLACE INTO Category (ID, Name)
-                            SELECT NULL, '%s'
-                            WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = '%s')""",
-                    category, category);
-            statement.execute(sql);
-
+                            SELECT NULL, ?
+                            WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = ?)""");
+            preparedStatement.setString(1, category);
+            preparedStatement.setString(2, category);
+            preparedStatement.executeQuery();
 
             // add new phrases
             HashMap<String, Integer> categories = getCategoriesID();
-            sql = String.format("""
+            preparedStatement = connection.prepareStatement("""
                             INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
-                            SELECT NULL, '%s', %d
-                            WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = '%s' AND Category_ID = %d)""",
-                    phrase, categories.get(category), phrase, categories.get(category));
-            statement.execute(sql);
+                            SELECT NULL, ?, ?
+                            WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = ? AND Category_ID = ?)""");
+            preparedStatement.setString(1, phrase);
+            preparedStatement.setInt(2, categories.get(category));
+            preparedStatement.setString(3, phrase);
+            preparedStatement.setInt(4, categories.get(category));
+            preparedStatement.executeQuery();
         }
 
         Iterator<String> keyRecord = records.keys();
