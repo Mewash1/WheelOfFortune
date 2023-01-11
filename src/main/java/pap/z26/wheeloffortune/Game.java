@@ -54,6 +54,7 @@ public class Game {
                 }
             } else if (state == GameState.FINAL) {
                 if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
+                    moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
                     nextMove();
                 } else if (moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) {
                     advanceRound();
@@ -152,7 +153,7 @@ public class Game {
 
     public void start() {
         winner = null;
-        state = GameState.NOT_STARTED;
+        state = GameState.ROUND4;
         while (players.size() < 3) {
             joinGame(new BotPlayer());
         }
@@ -182,9 +183,9 @@ public class Game {
             }
         } else if (window != null && state == GameState.FINAL) {
             if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
-                window.writeToGameLog("Player " + winner.getName() + " has to choose a vowel and 3 consonants");
+                window.writeToGameLog("Player " + winner.getName() + " has 20 seconds to choose a vowel and 3 consonants");
             } else {
-                window.writeToGameLog("Player " + winner.getName() + " has 15 seconds to guess the phrase now!");
+                window.writeToGameLog("Player " + winner.getName() + " has 20 seconds to guess the phrase now!");
             }
         }
         moverTimer.stop();
@@ -193,14 +194,22 @@ public class Game {
         int limit = switch (state) {
             case ROUND2 -> 5;
             case ROUND4 -> 2;
-            case FINAL -> 15;
+            case FINAL -> 20;
             default -> 60;
         };
         applyMoveTimeLimit(limit);
     }
 
     public boolean spinTheWheel(Player player) {
-        if (currentPlayer == null || (!beingExecutedByServer && state == GameState.ROUND2)) return false;
+        if ((currentPlayer == null && state != GameState.FINAL) || (!beingExecutedByServer && state == GameState.ROUND2))
+            return false;
+        if (state == GameState.FINAL) {
+            if (player == null) {
+                player = winner;
+            } else {
+                return false;
+            }
+        }
         if (currentPlayer == player && (moveState == MoveState.HAS_TO_SPIN || moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) && gameWord.hasNotGuessedConsonants()) {
             moveState = MoveState.HAS_TO_GUESS_CONSONANT;
             int result = wheel.spin(state);
@@ -270,7 +279,7 @@ public class Game {
             }
             result = gameWord.guessLetter(letter);
             if (window != null) {
-                window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+                window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hit" + (result != 1 ? "s" : ""));
             }
             if (result == 0) {
                 assignNextPlayer();
@@ -299,7 +308,7 @@ public class Game {
                 }
                 result = gameWord.guessLetter(letter);
                 if (window != null) {
-                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hit" + (result != 1 ? "s" : ""));
                 }
                 if (result == 0) {
                     assignNextPlayer();
@@ -325,7 +334,7 @@ public class Game {
                 }
                 result = gameWord.guessLetter(letter);
                 if (window != null) {
-                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hits");
+                    window.writeToGameLog("Player " + player.getName() + " guessed the letter " + letter + " with " + result + " hit" + (result != 1 ? "s" : ""));
                 }
                 roundScores.put(player, roundScores.get(player) - 200);
             }
@@ -356,6 +365,10 @@ public class Game {
                 assignNextPlayer();
                 nextMove();
             } else {
+                if (state == GameState.ROUND4) {
+                    currentPlayer = player;
+                    roundScores.put(player, 1000);
+                }
                 nextMove();
                 beingExecutedByServer = false;
                 advanceRound();
@@ -438,13 +451,13 @@ public class Game {
         if (state == GameState.ENDED) {
             currentPlayer = null;
         }
-        moveState = state != GameState.FINAL ? MoveState.HAS_TO_SPIN : MoveState.HAS_TO_GUESS_CONSONANT;
+        moveState = (state == GameState.FINAL && gameServer != null) ? MoveState.HAS_TO_GUESS_CONSONANT : MoveState.HAS_TO_SPIN;
         nextMove();
         if (window != null) {
             window.updateGUI();
         }
         reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
-        if (state == GameState.ROUND2 && !beingExecutedByServer) {
+        if ((state == GameState.ROUND2 || state == GameState.FINAL) && !beingExecutedByServer) {
             int prizeForLetter = wheel.spin(state);
             reportActionToServer(null, "spin:" + prizeForLetter);
         }
@@ -506,7 +519,8 @@ public class Game {
 
     private Player getPlayerByName(String name) {
         if (name.equals("SYSTEM")) {
-            currentPlayer = players.get(0);
+            if (state == GameState.FINAL) return null;
+            currentPlayer = currentPlayer == null ? players.get(0) : currentPlayer;
             name = currentPlayer.getName();
         }
         for (Player player : players) {
