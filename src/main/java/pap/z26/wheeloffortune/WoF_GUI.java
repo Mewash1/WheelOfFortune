@@ -100,6 +100,15 @@ public class WoF_GUI extends JFrame {
         roundNr3Label.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
+        if(game.getState() == GameState.FINAL) {
+            if(game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
+                fullGuess.setText("Reveal 4 letters");
+            } else {
+                fullGuess.setText("Guess the final phrase!");
+            }
+        } else {
+            fullGuess.setText("PHRASE");
+        }
     }
 
     private void swap_card(JPanel card) {

@@ -23,7 +23,7 @@ public class Game {
     boolean beingExecutedByServer = false;
     private Timer moveTimeoutTimer, moverTimer;
 
-    private enum MoveState {
+    enum MoveState {
         HAS_TO_SPIN,
         HAS_TO_GUESS_CONSONANT,
         CAN_BUY_VOWEL_SPIN_OR_GUESS
