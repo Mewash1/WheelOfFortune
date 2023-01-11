@@ -235,7 +235,7 @@ public class Database {
 
         phrases.add(new Phrase("Warszawa", "Stolice"));
         phrases.add(new Phrase("Kijów", "Stolice"));
-        phrases.add(new Phrase("Paryz", "Stolice"));
+        phrases.add(new Phrase("Paryż", "Stolice"));
         phrases.add(new Phrase("Berlin", "Stolice"));
         phrases.add(new Phrase("Praga", "Stolice"));
         phrases.add(new Phrase("Meksyk", "Stolice"));
