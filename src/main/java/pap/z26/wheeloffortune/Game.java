@@ -380,8 +380,7 @@ public class Game {
             }
         } else if (player == winner) {
             if (moveState == MoveState.HAS_TO_GUESS_CONSONANT) {
-                int chosenLettersCount = Math.min(phrase.length(), 4);
-                char[] lettersToUncover = phrase.substring(0, chosenLettersCount).toCharArray();
+                ArrayList<Character> lettersToUncover = getLettersToUncover(phrase);
                 for (char letter : lettersToUncover) {
                     gameWord.guessLetter(letter);
                 }
@@ -627,5 +626,21 @@ public class Game {
 
     public MoveState getMoveState() {
         return moveState;
+    }
+
+    private ArrayList<Character> getLettersToUncover(String phrase) {
+        ArrayList<Character> toUncover = new ArrayList<>();
+        int vowelCount = 0, consonantCount = 0;
+        for(char letter: phrase.toCharArray()) {
+            if(GameWord.vowels.contains(letter) && vowelCount < 1) {
+                toUncover.add(letter);
+                vowelCount++;
+            } else if(GameWord.consonants.contains(letter) && consonantCount < 3) {
+                toUncover.add(letter);
+                consonantCount++;
+            }
+            if (vowelCount >= 1 && consonantCount >= 3) break;
+        }
+        return toUncover;
     }
 }

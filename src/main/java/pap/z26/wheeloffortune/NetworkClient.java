@@ -10,7 +10,8 @@ public class NetworkClient extends Thread {
     private DatagramSocket socket;
     private GameServer server;
     private WheelOfFortune game;
-    private final int port;
+    private int port;
+    private boolean outputLogs = false;
 
     public NetworkClient(String serverIpAddress, int serverPort, WheelOfFortune game) {
         this.game = game;
@@ -46,10 +47,10 @@ public class NetworkClient extends Thread {
             String message = (new String(packet.getData(), StandardCharsets.UTF_8)).replaceAll("\\x00*", "");
             if (!message.isEmpty()) {
                 if (game != null) {
-                    System.out.println("[CLIENT |  " + packet.getAddress().toString() + ":" + port + "]: " + message);
+                    if(outputLogs) System.out.println("[CLIENT |  " + packet.getAddress().toString() + ":" + port + "]: " + message);
                     game.receiveDataFromServer(message);
                 } else { // server mode
-                    System.out.println("[SERVER |  " + packet.getAddress().toString() + ":" + port + "]: " + message);
+                    if(outputLogs) System.out.println("[SERVER |  " + packet.getAddress().toString() + ":" + port + "]: " + message);
                     server.receiveDataFromClient(message, packet.getAddress(), packet.getPort());
                 }
             }
@@ -69,12 +70,17 @@ public class NetworkClient extends Thread {
         }
     }
 
-    public boolean setServerAddress(String ipAddress) {
+    public boolean setServerAddress(String ipAddress, int port) {
         try {
             this.serverAddress = InetAddress.getByName(ipAddress);
+            this.port = port;
             return true;
         } catch (UnknownHostException e) {
             return false;
         }
+    }
+
+    public void showLogs() {
+        outputLogs = true;
     }
 }

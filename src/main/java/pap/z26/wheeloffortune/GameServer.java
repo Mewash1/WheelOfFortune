@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class GameServer {
 
-    private final NetworkClient networkClient;
+    private NetworkClient networkClient;
     private final ArrayList<Game> games = new ArrayList<>();
 
     private record IpAndPort(InetAddress address, int port) {
@@ -19,9 +19,18 @@ public class GameServer {
     private final HashMap<Player, IpAndPort> addresses = new HashMap<>();
     private final HashMap<String, Player> players = new HashMap<>();
 
-    public GameServer() {
-        networkClient = new NetworkClient(26969, this);
+    public GameServer(int listenPort, boolean outputLogs) {
+        setup(listenPort, outputLogs);
+    }
+
+    public GameServer(int listenPort) {
+        setup(listenPort, false);
+    }
+
+    private void setup(int listenPort, boolean outputLogs) {
+        networkClient = new NetworkClient(listenPort, this);
         networkClient.start();
+        if(outputLogs) networkClient.showLogs();
     }
 
     public void receiveDataFromClient(String data, InetAddress ipAddress, int port) {
