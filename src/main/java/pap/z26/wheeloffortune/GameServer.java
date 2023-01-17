@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Game Server class, responds to requests from connected players and runs games
+ */
 public class GameServer {
 
     private NetworkClient networkClient;
@@ -27,12 +30,26 @@ public class GameServer {
         setup(listenPort, false);
     }
 
+    /**
+     * Sets up this server's {@link NetworkClient network client}
+     *
+     * @param listenPort number of the port that the client will be listening on
+     * @param outputLogs if set to true, the client will output logs with received data in the console
+     */
     private void setup(int listenPort, boolean outputLogs) {
         networkClient = new NetworkClient(listenPort, this);
         networkClient.start();
-        if(outputLogs) networkClient.showLogs();
+        if (outputLogs) networkClient.showLogs();
     }
 
+    /**
+     * Called by the {@link GameServer#networkClient network client}, receives the data sent by a connected game client
+     * and executes actions based on the data
+     *
+     * @param data      JSON with data in a String form
+     * @param ipAddress IP address from which the data came
+     * @param port      number of port from which the data came
+     */
     public void receiveDataFromClient(String data, InetAddress ipAddress, int port) {
         JSONObject jsonData = new JSONObject(data);
         String action = jsonData.getString("action");
@@ -45,7 +62,7 @@ public class GameServer {
             }
             case "logout" -> {
                 Player loggingOut = players.get(jsonData.getString("player"));
-                if(loggingOut == null) return;
+                if (loggingOut == null) return;
                 if (loggingOut.getGame() != null) {
                     leaveGame(jsonData);
                 }
@@ -66,7 +83,7 @@ public class GameServer {
                 response.put("action", "lajconf");
                 String loginResult = login(jsonData, ipAddress, port);
                 response.put("message", loginResult);
-                if(loginResult.equals("success")) {
+                if (loginResult.equals("success")) {
                     Player joiningPlayer = players.get(jsonData.getString("player"));
                     join(response, joiningPlayer);
                     IpAndPort joiningPlayerAddress = addresses.get(joiningPlayer);
@@ -78,7 +95,7 @@ public class GameServer {
             case "start" -> {
                 Player playerStarting = players.get(jsonData.getString("player"));
                 Game gameToStart = playerStarting.getGame();
-                if(gameToStart.isInProgress()) return;
+                if (gameToStart.isInProgress()) return;
                 while (gameToStart.getPlayers().size() < 3) {
                     BotPlayer fillerPlayer = new BotPlayer();
                     while (!gameToStart.joinGame(fillerPlayer)) fillerPlayer = new BotPlayer();
@@ -107,13 +124,13 @@ public class GameServer {
 
                 ArrayList<Phrase> phrases = db.getAllPhrasesFromCategory(null);
                 Map<String, String> hphrases = new HashMap<>();
-                for (Phrase phrase : phrases){
+                for (Phrase phrase : phrases) {
                     hphrases.put(phrase.phrase(), phrase.category());
                 }
 
                 ArrayList<LeaderboardRecord> leaderboard = db.getHighScores(null);
                 Map<String, Integer> hrecords = new HashMap<>();
-                for (LeaderboardRecord record : leaderboard){
+                for (LeaderboardRecord record : leaderboard) {
                     hrecords.put(record.playerName(), record.score());
                 }
 
@@ -136,6 +153,14 @@ public class GameServer {
         }
     }
 
+    /**
+     * Sends information about a particular action that happened in game to every game player besides the one from whom
+     * the information came to the server
+     *
+     * @param data   JSON with data to be sent out
+     * @param player {@link Player player} who will not be sent the data
+     * @param game   {@link Game game} in which the action reported happened
+     */
     public void tellEveryoneBut(String data, Player player, Game game) {
         for (Player gamePlayer : game.getPlayers()) {
             if (gamePlayer != player && !gamePlayer.isBot()) {
@@ -145,6 +170,11 @@ public class GameServer {
         }
     }
 
+    /**
+     * Method that handles a player's request to leave the game they're currently in
+     *
+     * @param jsonData JSON with data containing the username of the player leaving their game
+     */
     private void leaveGame(JSONObject jsonData) {
         Player leavingPlayer = players.get(jsonData.getString("player"));
         Game gameBeingLeft = leavingPlayer.getGame();
@@ -158,23 +188,32 @@ public class GameServer {
             gameBeingLeft.leaveGame(leavingPlayer);
         }
         boolean onlyBots = true;
-        for(Player inGamePlayer: gameBeingLeft.getPlayers()) {
-            if(!inGamePlayer.isBot()) {
+        for (Player inGamePlayer : gameBeingLeft.getPlayers()) {
+            if (!inGamePlayer.isBot()) {
                 onlyBots = false;
                 break;
             }
         }
-        if(onlyBots) {
+        if (onlyBots) {
             gameBeingLeft.reset();
         } else {
             tellEveryoneBut(response.toString(), leavingPlayer, gameBeingLeft);
         }
     }
 
+    /**
+     * Method that handles a player's request to log in to this server
+     *
+     * @param jsonData  JSON with data containing player's username
+     * @param ipAddress IP address of the player who sent this request
+     * @param port      port of the player who sent this request
+     * @return a text response with either an error like "Invalid user name" or "success" if the player was successfully
+     * logged in
+     */
     private String login(JSONObject jsonData, InetAddress ipAddress, int port) {
         for (Player player : addresses.keySet()) {
             if (player.getName().equals(jsonData.getString("player"))) {
-               return "You are already logged in";
+                return "You are already logged in";
             }
         }
         if (jsonData.getString("player").equals("SYSTEM")) {
@@ -186,6 +225,12 @@ public class GameServer {
         return "success";
     }
 
+    /**
+     * Method that handles a player's request to join a game on this server
+     *
+     * @param response      part of the already generated response to this request
+     * @param joiningPlayer {@link Player player} who is already logged in on this server who will be assigned a game
+     */
     private void join(JSONObject response, Player joiningPlayer) {
         for (Game game : games) {
             if (game.getPlayers().size() < 3) {
@@ -206,6 +251,11 @@ public class GameServer {
         response.put("players", inGamePlayers);
     }
 
+    /**
+     * Sends out a notice to every other player in a game that somebody just joined with a name of the joining player
+     *
+     * @param joiningPlayer {@link Player player} who just joined a game that other players will be notified about
+     */
     private void joinOth(Player joiningPlayer) {
         JSONObject responseToOthers = new JSONObject();
         responseToOthers.put("action", "joinoth");
