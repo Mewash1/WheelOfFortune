@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
+/**
+ * Class containing game logic
+ */
 public class Game {
 
     private final ArrayList<Player> players = new ArrayList<>();
@@ -25,6 +28,9 @@ public class Game {
     private Database database;
     private int gameID;
 
+    /**
+     * Specifies the current state of a {@link Player player's move}
+     */
     enum MoveState {
         HAS_TO_SPIN,
         HAS_TO_GUESS_CONSONANT,
@@ -33,6 +39,10 @@ public class Game {
 
     private MoveState moveState;
 
+    /**
+     * Class that prompts {@link BotPlayer BotPlayers} to make moves, an instance of this class
+     * is being scheduled after each move to make bots move
+     */
     private class Mover implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -46,6 +56,10 @@ public class Game {
         }
     }
 
+    /**
+     * Class that checks whether {@link Player Player} has run out of time to make their move and assigns the current
+     * move to the next player or advances the round itself (like in case of the final round)
+     */
     private class MoveTimeouter implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
@@ -77,6 +91,9 @@ public class Game {
         setup();
     }
 
+    /**
+     * Sets up timers responsible for timing out moves and sending bots information when they should move
+     */
     private void setup() {
         MoveTimeouter timeouter = new MoveTimeouter();
         moveTimeoutTimer = new Timer(1000000000, timeouter);
@@ -91,6 +108,13 @@ public class Game {
         this.window = window;
     }
 
+    /**
+     * Makes a {@link Player player} join the game if the game isn't in progress and there is an empty slot for a player
+     * available
+     *
+     * @param player player that will join the game
+     * @return true if the join was successful, false otherwise
+     */
     public boolean joinGame(Player player) {
         if (player.getGame() == null && players.size() < 3 && !inProgress && notInGame(player)) {
             players.add(player);
@@ -103,6 +127,12 @@ public class Game {
         return false;
     }
 
+    /**
+     * Checks whether a player was already added to this {@link Game game} already
+     *
+     * @param player {@link Player player} to check for existence in this {@link Game game}
+     * @return true if the player is not in this game, false otherwise
+     */
     private boolean notInGame(Player player) {
         for (Player inGamePlayer : players) {
             if (inGamePlayer.getName().equals(player.getName())) return false;
@@ -110,6 +140,11 @@ public class Game {
         return true;
     }
 
+    /**
+     * Makes a {@link Player player} leave this game
+     *
+     * @param player player that will leave this game. If the game is in progress, the player will not leave
+     */
     public void leaveGame(Player player) {
         if (!inProgress) {
             player.setGame(null);
@@ -122,17 +157,35 @@ public class Game {
         }
     }
 
+    /**
+     * Removes a {@link Player player} from this game and replaces them with a bot. This is a method called by clients
+     *
+     * @param player             {@link Player player} to remove from the game
+     * @param replacementBotName name of the replacement player
+     */
     public void leaveGameAndReplace(Player player, String replacementBotName) {
         HumanPlayer replacementPlayer = new HumanPlayer(replacementBotName);
         leaveGameAndReplace(player, replacementPlayer);
     }
 
+    /**
+     * Removes a {@link Player player} from this game and replaces them with a bot. This is a method called by server
+     *
+     * @param player {@link Player player} to remove from the game
+     */
     public BotPlayer leaveGameAndReplace(Player player) {
         BotPlayer replacementPlayer = new BotPlayer();
         leaveGameAndReplace(player, replacementPlayer);
         return replacementPlayer;
     }
 
+    /**
+     * Private method that executes player replacement, called by both {@link Game#leaveGameAndReplace(Player, String) the client's method}
+     * and by {@link Game#leaveGameAndReplace(Player) the server's method}
+     *
+     * @param player            {@link Player player} that will be removed and replaced with another player
+     * @param replacementPlayer {@link Player player} who will be put in the place of the leaving player
+     */
     private void leaveGameAndReplace(Player player, Player replacementPlayer) {
         replacementPlayer.setGame(this);
         player.setGame(null);
@@ -147,11 +200,17 @@ public class Game {
         }
     }
 
+    /**
+     * Starts the game by calling the method that initializes the game and advances the round
+     */
     public void startGame() {
         start();
         advanceRound();
     }
 
+    /**
+     * Initializes all fields used in the game
+     */
     public void start() {
         winner = null;
         state = GameState.NOT_STARTED;
@@ -167,6 +226,11 @@ public class Game {
         gameID = database.getGameID(gameServer == null ? "local" : "online");
     }
 
+    /**
+     * Applies the move time limit by stopping the current timeout timer and rescheduling it with a new limit
+     *
+     * @param limit time limit for the next move, in seconds
+     */
     private void applyMoveTimeLimit(int limit) {
         limit = limit * 1000;
         moveTimeoutTimer.stop();
@@ -177,6 +241,11 @@ public class Game {
         moveTimeoutTimer.start();
     }
 
+    /**
+     * Begins the next move by rescheduling move timers and reporting the current move to the {@link WoF_GUI game window}
+     * Puts "Player "player" moves now" in the log in every round besides the 4th and the final round, when it outputs
+     * phrases "Player "player" has 20 seconds to choose a vowel and 3 consonants / to guess the phrase now!
+     */
     private void nextMove() {
         if (currentPlayer == null && state != GameState.ROUND4) return;
         if (state != GameState.FINAL && state != GameState.ROUND4) {
@@ -202,6 +271,13 @@ public class Game {
         applyMoveTimeLimit(limit);
     }
 
+    /**
+     * Executes the wheel spinning action. Only the {@link Game#currentPlayer current player} is able to spin the wheel.
+     * The result of the spin is saved in the {@link Game#wheel game wheel}
+     *
+     * @param player {@link Player player} who tries to spin the wheel
+     * @return true if the spin was successful, false otherwise
+     */
     public boolean spinTheWheel(Player player) {
         if ((currentPlayer == null && state != GameState.FINAL) || (!beingExecutedByServer && state == GameState.ROUND2))
             return false;
@@ -240,6 +316,9 @@ public class Game {
         return false;
     }
 
+    /**
+     * Assigns the next player and sets the new moveState depending on the last action
+     */
     private void assignNextPlayer() {
         if (!inProgress) return;
         if (state == GameState.FINAL) {
@@ -262,6 +341,15 @@ public class Game {
         }
     }
 
+    /**
+     * Executes the letter guess action. Only the {@link Game#currentPlayer current player} is able to guess
+     *
+     * @param player {@link Player player} that is trying to guess a letter
+     * @param letter letter that is being guessed
+     * @return the amount of uncovered letters if the guess was successful, 0 if the guess wasn't successful, or -3 if
+     * the move was invalid, for example when a player who shouldn't move now tried to do so, or if a player tried to
+     * guess a letter before spinning (outside of round 2). A failure will be reported in the game log
+     */
     public int guessLetter(Player player, char letter) {
         if (currentPlayer == null || currentPlayer != player || state == GameState.ROUND4 || state == GameState.FINAL)
             return -3;
@@ -354,6 +442,15 @@ public class Game {
         return result;
     }
 
+    /**
+     * Executes the phrase guessing action. Only the {@link Game#currentPlayer current player} is able to guess, unless
+     * the round being currently played is round 2, when all players can guess. It's also used in the final round for
+     * providing the four letters to uncover in the first phase of the round. If the guess if correct, the round is
+     * advanced
+     *
+     * @param player {@link Player player} who is trying to guess the phrase
+     * @param phrase phrase being guessed
+     */
     public void guessPhrase(Player player, String phrase) {
         boolean result;
         if (state != GameState.FINAL) {
@@ -407,6 +504,11 @@ public class Game {
         }
     }
 
+    /**
+     * Assigns the round starter player according to the current round number
+     *
+     * @return {@link Player player} who starts the current round
+     */
     private Player assignRoundStarter() {
         return switch (state) {
             case NOT_STARTED, ROUND4, ENDED -> null;
@@ -417,6 +519,11 @@ public class Game {
         };
     }
 
+    /**
+     * Sums up everything that has happened in the current round and begins the next one. Adds points to the total of
+     * the player who won the current round and generates a new phrase for the next round, if the game has ended, saves
+     * game result to the database. If the next round is the final one, uncovers automatically letters "rstlne".
+     */
     private void advanceRound() {
         moverTimer.stop();
         moveTimeoutTimer.stop();
@@ -493,6 +600,11 @@ public class Game {
         return inProgress;
     }
 
+    /**
+     * Obtains a text interpretation of the value rolled on the {@link Wheel wheel}
+     *
+     * @return text containting information about the current wheel value
+     */
     public String getLastRolled() {
         String lastRolled;
         switch (wheel.getLastRolled()) {
@@ -524,6 +636,14 @@ public class Game {
         return category;
     }
 
+    /**
+     * Obtains a {@link Player player} with provided name. If the provided name is SYSTEM, the current moving player is
+     * returned (server makes a move on behalf of the chosen player)
+     *
+     * @param name name of the player to find
+     * @return {@link Player player} with the given name, of null if they weren't found or the current round is the
+     * final one
+     */
     private Player getPlayerByName(String name) {
         if (name.equals("SYSTEM")) {
             if (state == GameState.FINAL) return null;
@@ -542,6 +662,13 @@ public class Game {
         networkClient = client;
     }
 
+    /**
+     * Executes a command that arrived from the {@link NetworkClient network client}
+     *
+     * @param jsonData         data obtained from the network client
+     * @param executedOnServer if set to true, it means that this game is an instance created by the server, and certain
+     *                         actions like advancing rounds can be executed independently
+     */
     public void executeFromOutside(JSONObject jsonData, boolean executedOnServer) {
         beingExecutedByServer = !executedOnServer;
         Player actionMaker = null;
@@ -583,6 +710,13 @@ public class Game {
         beingExecutedByServer = false;
     }
 
+    /**
+     * Reports a player's action (or the beginning of a new round with a new phrase) to the server. This method will
+     * instantly end if it's executed in a game running on a server
+     *
+     * @param player {@link Player player} who executed an action in the game (or SYSTEM if a new word is assigned)
+     * @param action description of the executed action
+     */
     private void reportActionToServer(Player player, String action) {
         if (beingExecutedByServer) return;
         JSONObject response = new JSONObject();
@@ -610,6 +744,9 @@ public class Game {
         }
     }
 
+    /**
+     * Resets all fields
+     */
     public void reset() {
         inProgress = false;
         ArrayList<Player> playersCopy = new ArrayList<>(players);
@@ -628,14 +765,20 @@ public class Game {
         return moveState;
     }
 
+    /**
+     * Returns an array of characters to uncover in the final round based on the winner's input
+     *
+     * @param phrase string of letters that the winner has requested to uncover
+     * @return an {@link ArrayList array} of characters to uncover, containing at most 1 vowel and 3 consonants
+     */
     private ArrayList<Character> getLettersToUncover(String phrase) {
         ArrayList<Character> toUncover = new ArrayList<>();
         int vowelCount = 0, consonantCount = 0;
-        for(char letter: phrase.toCharArray()) {
-            if(GameWord.vowels.contains(letter) && vowelCount < 1) {
+        for (char letter : phrase.toCharArray()) {
+            if (GameWord.vowels.contains(letter) && vowelCount < 1) {
                 toUncover.add(letter);
                 vowelCount++;
-            } else if(GameWord.consonants.contains(letter) && consonantCount < 3) {
+            } else if (GameWord.consonants.contains(letter) && consonantCount < 3) {
                 toUncover.add(letter);
                 consonantCount++;
             }

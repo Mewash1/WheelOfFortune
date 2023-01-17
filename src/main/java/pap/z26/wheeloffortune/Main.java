@@ -2,6 +2,11 @@ package pap.z26.wheeloffortune;
 
 public class Main {
 
+    /**
+     * Starts the game and/or game server and creates their {@link NetworkClient NetworkClients}
+     * @param args can consist of "server -port <port number>" options which will launch only a game server, by default
+     *             on port 56969
+     */
     public static void main(String[] args) {
         if(args.length > 0 && args[0].equals("server")) {
             int listenPort = 56969;
