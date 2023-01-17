@@ -2,7 +2,7 @@ package pap.z26.wheeloffortune;
 
 import java.util.*;
 
-/*
+/**
  * class for Bots
  * makes a move if makeAMove is called
  * to work correctly:
@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class BotPlayer implements Player {
 
-        /*
+        /**
          * constructor for BotPlayer
          * assigns random name for bot
          *
@@ -23,47 +23,47 @@ public class BotPlayer implements Player {
             notifyNewRound();
         }
 
-        /*
+        /**
          * A game that bot is playing in
          */
         Game game;
 
-        /*
+        /**
          * Name of bot
          */
         String name;
 
-        /*
+        /**
          * variable to keep track if last move was spinning the wheel with positive outcome (a money amount)
          */
         private boolean hasSpunTheWheel = false;
 
-        /*
+        /**
          * variable to keep track if bot's last move was successful guess of either consonant or vowel
          */
         private boolean hasGuessedCorrectly = false;
 
-        /*
+        /**
          * list of initial weights (for randomization) of all possible consonants
          */
         private static final ArrayList<Integer> consonantWeights;
 
-        /*
+        /**
          * list of initial weights (for randomization) of all possible vowels
          */
         private static final ArrayList<Integer> vowelWeights;
 
-        /*
+        /**
          * sum of initial consonants weights (for randomization) (kept to not sum entire array many times)
          */
         private static final Integer consonantSumWeights;
 
-        /*
+        /**
          * sum of initial vowel weights (for randomization) (kept to not sum entire array many times)
          */
         private static final Integer vowelSumWeights;
 
-        /*
+        /**
          * gives list of all letter that weren't guessed already
          *
          * @return  ArrayList of Characters containing all letters that weren't guessed already
@@ -75,7 +75,7 @@ public class BotPlayer implements Player {
             return letterList;
         }
 
-        /*
+        /**
          * gives list of weights (for randomization)  of all letter that weren't guessed already
          *
          * @return  ArrayList of Characters containing all letters that weren't guessed already
@@ -88,7 +88,7 @@ public class BotPlayer implements Player {
         }
 
 
-        /*
+        /**
          * code that initializes consonantWeights, vowelWeights, vowelSumWeights, consonantSumWeights
          */
         static {
@@ -110,7 +110,7 @@ public class BotPlayer implements Player {
             consonantSumWeights = tempConsonantSumWeights;
         }
 
-        /*
+        /**
          * method to randomize an index of arrayList of weights given as a parameter
          * need to provide sum of given weights
          * if list is empty or sum is less than 1, 0 is returned
@@ -135,7 +135,7 @@ public class BotPlayer implements Player {
             return 0;
         }
 
-        /*
+        /**
          * method to count empty letters in phrase
          * @param   phrase the String to count letters in
          * @return  amount of empty letters in given phrase
@@ -149,32 +149,32 @@ public class BotPlayer implements Player {
             return result;
         }
 
-        /*
+        /**
          * list of consonants that weren't guessed already in current round
          */
         private ArrayList<Character> currConsonants = new ArrayList<>();
 
-        /*
+        /**
          * list of vowels that weren't guessed already in current round
          */
         private ArrayList<Character> currVowels = new ArrayList<>();
 
-        /*
+        /**
          * list of weights (for randomization) of consonants that weren't guessed already in current round
          */
         private ArrayList<Integer> currConsWeights = new ArrayList<>();
 
-        /*
+        /**
          * list of weights (for randomization) of vowels that weren't guessed already in current round
          */
         private ArrayList<Integer> currVowelWeights = new ArrayList<>();
 
-        /*
+        /**
          * sums of weights (for randomization) of consonants and vowels that weren't guessed already in current round
          */
         private Integer currSumConsWeights, currSumVowelWeights;
 
-        /*
+        /**
          * method that resets currConsonants, currVowels, currConsWeights,
          * currVowelWeights, currSumConsWeights, currSumVowelWeights,
          * hasGuessedCorrectly and hasSpunTheWheel to initial state for next round
@@ -195,7 +195,7 @@ public class BotPlayer implements Player {
             hasSpunTheWheel = false;
         }
 
-        /*
+        /**
          * method that needs to be invoked after every guess of letter (by game)
          * removes given letter from list of possible consonants or vowels and from list of weights
          * subtracts letter's weight from sum of weights
@@ -203,7 +203,7 @@ public class BotPlayer implements Player {
          */
         public void notifyLetter(Character letter){
 
-            /*
+            /**
              * loop for erasing consonants
              */
             for(int i=0; i< currConsonants.size(); i++){
@@ -215,7 +215,7 @@ public class BotPlayer implements Player {
                 }
             }
 
-            /*
+            /**
              * loop for erasing vowels
              */
             for(int i=0; i<currVowels.size(); i++){
@@ -228,16 +228,16 @@ public class BotPlayer implements Player {
             }
         }
 
-        /*
+        /**
          * method that gives lis of all phrases from database that match (only '_' signs are not matching) given game state
-         * @param   string of a game state to match ('_' in place of not known letter)
+         * @param   currGameState of a game state to match ('_' in place of not known letter)
          * @return  list of all matching phrases
          */
         private ArrayList<String> getAllMatchingPhrases(String currGameState){
             return Database.getInstance().getMatchingPhrases(currGameState);
         }
 
-        /*
+        /**
          * method that returns a random vowel from list of not guessed vowels (with probability of weights)
          * @return  randomized character
          */
@@ -245,7 +245,7 @@ public class BotPlayer implements Player {
             return currVowels.get(randomLetterIndex(currVowelWeights, currSumVowelWeights));
         }
 
-        /*
+        /**
          * method that returns a random consonant from list of not guessed consonant (with probability of weights)
          * @return  randomized character
          */
@@ -253,7 +253,7 @@ public class BotPlayer implements Player {
             return currConsonants.get(randomLetterIndex(currConsWeights, currSumConsWeights));
         }
 
-        /*
+        /**
          * method that returns a phrase based on game's current game state
          * returns one of matching to game state phrases (from database)
          * or phrase made by replacing '_' with random available letters (stupidGetPhrase)
@@ -280,7 +280,7 @@ public class BotPlayer implements Player {
             return returnPhrase;
         }
 
-        /*
+        /**
          * method that returns a phrase based on game's current game state
          * phrase made by replacing '_' with random available letters
          * @return  phrase to guess
@@ -301,7 +301,7 @@ public class BotPlayer implements Player {
             return String.valueOf(returnPhrase);
         }
 
-        /*
+        /**
          * setter of game where player is playing
          * @param   game instance of game where player is playing
          */
@@ -310,7 +310,7 @@ public class BotPlayer implements Player {
             this.game = game;
         }
 
-        /*
+        /**
          * getter of name of player
          * @return  name of player
          */
@@ -319,7 +319,7 @@ public class BotPlayer implements Player {
             return this.name;
         }
 
-        /*
+        /**
          * getter of game where player is playing
          * @return  instance of game player is playing in
          */
@@ -328,7 +328,7 @@ public class BotPlayer implements Player {
             return this.game;
         }
 
-        /*
+        /**
          * method to make player make a move
          * divided to rounds 1,3,5, round 2, round 4 and Final round options
          * randomizes move type by using randomLetterIndex - provides listOfWages of choices
@@ -475,7 +475,7 @@ public class BotPlayer implements Player {
             }
         }
 
-        /*
+        /**
          * info whether player is a bot
          * @return  True as bot is always a bot
          */
