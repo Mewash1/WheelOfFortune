@@ -112,9 +112,10 @@ public class WoF_GUI extends JFrame {
         playersScores.setModel(tableModel);
         roundNrLabel.setText(String.valueOf(game.getState()));
 
-        String wheel_name = String.format("src/main/resources/%d.gif",game.getState());
-        System.out.println(wheel_name);
-        spinWheelButton.setIcon(new ImageIcon(wheel_name));//set spin button icon
+        String wheel_name = game.getState().toString();
+        String wheel_path = String.format("src/main/resources/%s",wheel_name.charAt(wheel_name.length()-1) + ".gif");
+        spinWheelButton.setIcon(new ImageIcon((new ImageIcon(wheel_path).getImage().getScaledInstance(500, -1, Image.SCALE_DEFAULT))
+        ));//set spin button icon
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
         if (game.getState() == GameState.FINAL) {
@@ -149,7 +150,7 @@ public class WoF_GUI extends JFrame {
     public WoF_GUI(WheelOfFortune wof) { //window constructor
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
-        setSize(1280, 960);
+        setSize(1000, 750);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) creditsList.getCellRenderer();
         renderer.setHorizontalAlignment(SwingConstants.CENTER);//centers new window
