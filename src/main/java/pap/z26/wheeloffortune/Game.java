@@ -223,7 +223,7 @@ public class Game {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
-        gameID = database.getGameID(gameServer == null ? "local" : "online");
+        gameID = database.addNewGame(gameServer == null ? "local" : "online");
     }
 
     /**
