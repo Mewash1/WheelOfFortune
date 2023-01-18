@@ -181,8 +181,8 @@ public class Database {
     }
 
     /**
-     * @param category category
-     * @return all phrases from given category, unless the category is null, in which case it returns all phrases
+     * Return all phrases from given {@link String category}.
+     * If {@link String category} is null, return all phrases.
      */
     public ArrayList<Phrase> getAllPhrasesFromCategory(String category) {
         ArrayList<Phrase> phrases = new ArrayList<>();
@@ -199,7 +199,9 @@ public class Database {
             while (results.next()) {
                 phrases.add(new Phrase(results.getString("Phrase"), results.getString("Name")));
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
         return phrases;
     }
@@ -211,7 +213,9 @@ public class Database {
             while (results.next()) {
                 categories.add(results.getString("Name"));
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
         return categories;
     }
@@ -224,7 +228,9 @@ public class Database {
             while (results.next()) {
                 categories.put(results.getString("Name"), results.getInt("ID"));
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
         return categories;
     }
@@ -235,7 +241,11 @@ public class Database {
         return phrases.get(randomizer.nextInt(phrases.size()));
     }
 
-    private int getPlayerID(String playerName) {
+    /**
+     * Returns id of given player. If the player doesn't exist, it gets added to database
+     * with a new id.
+     */
+    public int getPlayerID(String playerName) {
         if (playerName.equals("SYSTEM")) return -1;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID from Player WHERE Name = ?");
@@ -261,7 +271,10 @@ public class Database {
         }
     }
 
-    private boolean recordNotInDatabase(int playerID, int score) {
+    /**
+     * Checks whether the record of given playerID and score exists in database.
+     */
+    public boolean recordNotInDatabase(int playerID, int score) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Record WHERE Player_ID = ? AND Points = ?");
             preparedStatement.setInt(1, playerID);
@@ -274,6 +287,9 @@ public class Database {
         }
     }
 
+    /**
+     * Save a new score to the Records table and update the Game table accordingly.
+     */
     public void saveGameResult(String playerName, int score, int gameID) {
         try {
             int playerID = getPlayerID(playerName);
@@ -292,13 +308,13 @@ public class Database {
                     preparedStatement.executeUpdate();
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     /**
      * Returns all phrases that match the given string.
      * For example, if the string is a_b_c, the method might return aAbBc, or aabbc.
-     * @param toMatch string to be matched
      */
     public ArrayList<String> getMatchingPhrases(String toMatch) {
         ArrayList<Phrase> allPhrases = getAllPhrasesFromCategory(null);
@@ -324,6 +340,10 @@ public class Database {
         return matchingPhrases;
     }
 
+    /**
+     * Get the top {@link Integer count} records from the leaderboard.
+     * If {@link Integer count} is null, get all records.
+     */
     public ArrayList<LeaderboardRecord> getHighScores(Integer count) {
         ArrayList<LeaderboardRecord> leaderboard = new ArrayList<>();
         try {
@@ -350,7 +370,9 @@ public class Database {
                 leaderboard.add(record);
                 i++;
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
         return leaderboard;
     }
@@ -358,9 +380,6 @@ public class Database {
     /**
      * Updates the local database with new phrases and new high scores. It also adds new categories and new players
      * if it's necessary.
-     * @param phrases new phrases
-     * @param records new high scores
-     * @throws SQLException in case database throws an error
      */
     public void updateDatabase(JSONObject phrases, JSONObject records) throws SQLException {
         Iterator<String> keyPhrase = phrases.keys();
@@ -444,7 +463,11 @@ public class Database {
         }
     }
 
-    public synchronized int getGameID(String type) {
+    /**
+     * Add a new game to the database and return its ID.
+     * @return -1 if the game couldn't be added to database, else - it's id
+     */
+    public synchronized int addNewGame(String type) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Game(Type) VALUES(?)");
             preparedStatement.setString(1, type);

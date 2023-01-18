@@ -32,7 +32,7 @@ public class WoF_GUI extends JFrame {
     private JButton fullGuess;
     private JCheckBox visibleCheckBox;
     private JLabel currentPlayer;
-    private JLabel roundNr3Label;
+    private JLabel roundNrLabel;
     private JLabel pricePool;
     private JButton spinWheelButton;
     private JTextField roundSollution;
@@ -77,6 +77,8 @@ public class WoF_GUI extends JFrame {
     private JPanel portInputPannel;
     private JPanel inputPanel;
     private JPanel ipAndPortPanel;
+    private JPanel buttonPanel;
+    private JTextField errorPrompt;
 
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -93,11 +95,11 @@ public class WoF_GUI extends JFrame {
         if (game.getState() != GameState.ENDED) {
             String phrase = game.getPhrase();
             if (!game.hasNotGuessedConsonants()) {
-                phrase += " [NO CONSONANTS LEFT]";
+                phrase += " [NO CONSONANTS LEFT]"; //checks if the phrase is filled with constants
             }
-            roundSollution.setText(phrase);
+            roundSollution.setText(phrase); //updetes the phrase with guess and new random phrase
         } else {
-            roundSollution.setText(game.getWinner().getName() + " wins!");
+            roundSollution.setText(game.getWinner().getName() + " wins!"); //display the winner
         }
         HashMap<Player, Integer> roundScores = game.getRoundScores();
         HashMap<Player, Integer> playerScoresMap = game.getScores();
@@ -110,21 +112,27 @@ public class WoF_GUI extends JFrame {
             tableModel.addRow(row);
         }
         playersScores.setModel(tableModel);
-        roundNr3Label.setText(String.valueOf(game.getState()));
+        roundNrLabel.setText(String.valueOf(game.getState()));
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
         if (game.getState() == GameState.FINAL) {
             if (game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
                 fullGuess.setText("Reveal 4 letters");
             } else {
-                fullGuess.setText("Guess the final phrase!");
+                fullGuess.setText("Guess the final phrase!"); //change in buttons for final round
             }
         } else {
             fullGuess.setText("PHRASE");
         }
     }
 
-    private void swap_card(JPanel card) {
+    public void updateWheel() {
+        String wheel_name = game.getState().toString();
+        String wheel_path = String.format("src/main/resources/%s", wheel_name.charAt(wheel_name.length() - 1) + ".gif");
+        spinWheelButton.setIcon(new ImageIcon(new ImageIcon(wheel_path).getImage().getScaledInstance(500, -1, Image.SCALE_DEFAULT)));//set spin button icon
+    }
+
+    private void swap_card(JPanel card) { //method used to swap cards in view
         mainCardLayout.removeAll();
         mainCardLayout.add(card);
         mainCardLayout.repaint();
@@ -133,37 +141,47 @@ public class WoF_GUI extends JFrame {
 
     public void setJoinMessage(String message) {
         ipLogMessage.setText(message);
-    }
+    } //add log message after login
 
-    public void switchToGameCard() {
+    public void switchToGameCard() { //clear the prompts and show the game card
         ipLogMessage.setText(" ");
         currentPlayer.setText(" ");
         pricePool.setText(" ");
         swap_card(GamePanel);
     }
 
-    public WoF_GUI(WheelOfFortune wof) {
+    public WoF_GUI(WheelOfFortune wof) { //window constructor
+        $$$setupUI$$$();
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
-        setSize(1280, 960);
+        setSize(1000, 750);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
-        spinWheelButton.setIcon(new ImageIcon("src/main/resources/wof_temp.png"));
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) creditsList.getCellRenderer();
-        renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);//centers new window
         setLocationRelativeTo(null);
         setVisible(true);
+        spinWheelButton.setBorder(BorderFactory.createEmptyBorder());
 
         this.game = wof.game;
 
         guessLetter.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            if (toGuess.isEmpty()) return;
+            if (toGuess.isEmpty()) {
+                errorPrompt.setText("input can't be empty"); //catch empty input with prompt
+                return;
+            }
+            else errorPrompt.setText("");
+
             char letterToGuess = toGuess.charAt(0);
             game.guessLetter(wof.ourPlayer, letterToGuess);
         });
         fullGuess.addActionListener(e -> {
             String toGuess = playerInput.getText();
-            if (toGuess.isEmpty()) return;
+            if (toGuess.isEmpty()) {
+                errorPrompt.setText("input can't be empty");
+                return;
+            }
+            else errorPrompt.setText("");
             game.guessPhrase(wof.ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
@@ -225,7 +243,6 @@ public class WoF_GUI extends JFrame {
                 if (serverPort.isEmpty()) serverPort = "26969";
                 wof.requestGameJoin(serverIp, serverPort);
             }
-            //todo user name to login
         });
         mainMenuButton.addActionListener(e -> {
             ipLogMessage.setText("");
@@ -265,15 +282,8 @@ public class WoF_GUI extends JFrame {
         CreditsButton.addActionListener(e -> swap_card(CreditsPanel));
     }
 
-//    public static void main(String[] args) {
-//        System.out.println("UI Compiled");
-//    }
-
-    {
-// GUI initializer generated by IntelliJ IDEA GUI Designer
-// >>> IMPORTANT!! <<<
-// DO NOT EDIT OR ADD ANY CODE HERE!
-        $$$setupUI$$$();
+    public static void main(String[] args) {
+        System.out.println("UI Compiled");
     }
 
     /**
@@ -349,7 +359,7 @@ public class WoF_GUI extends JFrame {
         mainCardLayout.add(GamePanel, "GameCard");
         topToolBar = new JToolBar();
         topToolBar.setFloatable(false);
-        GamePanel.add(topToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 20), null, 0, false));
+        GamePanel.add(topToolBar, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(475, 20), null, 0, false));
         newGameButton = new JButton();
         newGameButton.setText("New Game");
         topToolBar.add(newGameButton);
@@ -365,11 +375,12 @@ public class WoF_GUI extends JFrame {
         leftMenu.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainDivider.setLeftComponent(leftMenu);
         bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
-        leftMenu.add(bottomPanel, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        bottomPanel.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        leftMenu.add(bottomPanel, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         guessLetter = new JButton();
         guessLetter.setText("LETTER");
-        bottomPanel.add(guessLetter, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        guessLetter.setToolTipText("enter");
+        bottomPanel.add(guessLetter, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         playerInput = new JPasswordField();
         playerInput.setEditable(true);
         Font playerInputFont = this.$$$getFont$$$(null, -1, 22, playerInput.getFont());
@@ -381,6 +392,7 @@ public class WoF_GUI extends JFrame {
         bottomPanel.add(playerInput, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTHWEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(49, 33), null, 0, false));
         fullGuess = new JButton();
         fullGuess.setText("PHRASE");
+        fullGuess.setToolTipText("shift+enter");
         bottomPanel.add(fullGuess, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         visibleCheckBox = new JCheckBox();
         visibleCheckBox.setHideActionText(true);
@@ -388,6 +400,11 @@ public class WoF_GUI extends JFrame {
         visibleCheckBox.setText("Visible");
         visibleCheckBox.setVerticalTextPosition(1);
         bottomPanel.add(visibleCheckBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(76, 33), null, 0, false));
+        errorPrompt = new JTextField();
+        errorPrompt.setEditable(false);
+        errorPrompt.setEnabled(true);
+        errorPrompt.setForeground(new Color(-4521982));
+        bottomPanel.add(errorPrompt, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         topPanel = new JPanel();
         topPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         topPanel.setToolTipText("");
@@ -398,28 +415,30 @@ public class WoF_GUI extends JFrame {
         currentPlayer.setText("Category");
         currentPlayer.setToolTipText("Category");
         topPanel.add(currentPlayer, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        roundNr3Label = new JLabel();
-        roundNr3Label.setHorizontalAlignment(0);
-        roundNr3Label.setHorizontalTextPosition(0);
-        roundNr3Label.setText(" ");
-        roundNr3Label.setToolTipText("Round number");
-        topPanel.add(roundNr3Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
+        roundNrLabel = new JLabel();
+        roundNrLabel.setHorizontalAlignment(0);
+        roundNrLabel.setHorizontalTextPosition(0);
+        roundNrLabel.setText(" ");
+        roundNrLabel.setToolTipText("Round number");
+        topPanel.add(roundNrLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
         pricePool = new JLabel();
         pricePool.setEnabled(true);
         pricePool.setText("");
         pricePool.setToolTipText("Price for guessing a letter");
         topPanel.add(pricePool, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.setBackground(new Color(-16777216));
-        leftMenu.add(panel1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        buttonPanel.setBackground(new Color(-15659247));
+        leftMenu.add(buttonPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         spinWheelButton = new JButton();
+        spinWheelButton.setBackground(new Color(-15659247));
         spinWheelButton.setEnabled(true);
+        spinWheelButton.setForeground(new Color(-15659247));
         spinWheelButton.setInheritsPopupMenu(false);
         spinWheelButton.setLabel("");
         spinWheelButton.setText("");
         spinWheelButton.putClientProperty("hideActionText", Boolean.FALSE);
-        panel1.add(spinWheelButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        buttonPanel.add(spinWheelButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         roundSollution = new JTextField();
         roundSollution.setEditable(false);
         roundSollution.setFocusable(false);
