@@ -1,6 +1,6 @@
 package pap.z26.wheeloffortune;
 
-enum GameState {
+public enum GameState {
     NOT_STARTED,
     ROUND1,
     ROUND2,

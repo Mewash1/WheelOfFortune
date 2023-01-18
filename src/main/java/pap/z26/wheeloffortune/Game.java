@@ -223,7 +223,7 @@ public class Game {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
-        gameID = database.getGameID(gameServer == null ? "local" : "online");
+        gameID = database.addNewGame(gameServer == null ? "local" : "online");
     }
 
     /**
@@ -568,6 +568,7 @@ public class Game {
         nextMove();
         if (window != null) {
             window.updateGUI();
+            window.updateWheel();
         }
         reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
         if ((state == GameState.ROUND2 || state == GameState.FINAL) && !beingExecutedByServer) {

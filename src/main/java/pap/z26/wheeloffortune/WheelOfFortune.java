@@ -48,7 +48,8 @@ public class WheelOfFortune {
                 Database db = Database.getInstance();
                 try {
                     db.updateDatabase(jsonData.getJSONObject("phrases"), jsonData.getJSONObject("leaderboard"));
-                } catch (SQLException ignored) {
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
 
             }
