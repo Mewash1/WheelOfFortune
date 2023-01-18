@@ -18,7 +18,6 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        this.createTables();
     }
 
     public static Database getInstance() {
@@ -36,32 +35,85 @@ public class Database {
 
     private Statement establishConnection() {
         try {
-            Class.forName("org.sqlite.JDBC");
+            //Class.forName("org.sqlite.JDBC");
+            Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (ClassNotFoundException e) {
-            System.err.println("Missing SQLite JDBC driver");
+            System.err.println("Missing Oracle JDBC driver");
             e.printStackTrace();
             System.exit(1);
         }
 
         try {
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:wofDatabase.db");
+            Connection connection = DriverManager.getConnection("jdbc:oracle:thin:bpelka/bpelka@//ora4.ii.pw.edu.pl:1521/pdb1.ii.pw.edu.pl");
             return connection.createStatement();
         } catch (SQLException e) {
-            System.err.println("Couldn't connect to wofDatabase.db");
+            System.err.println("Couldn't connect to ora4");
             e.printStackTrace();
             System.exit(1);
         }
         return null;
     }
 
+    public void initDatabase() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Missing sqlite JDBC driver");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        try {
+            Connection localConnection = DriverManager.getConnection("jdbc:sqlite:wofDatabase.db");
+            // if there is no table - create tables
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Wheel");
+                preparedStatement.execute();
+            } catch (SQLException ignored){
+                this.createTables();
+                PreparedStatement preparedStatement = localConnection.prepareStatement("SELECT * FROM CATEGORY");
+                ResultSet results = preparedStatement.executeQuery();
+                while (results.next()) {
+                    preparedStatement = connection.prepareStatement("INSERT INTO Category (ID, Name) VALUES (?, ?)");
+                    preparedStatement.setInt(1, results.getInt("ID"));
+                    preparedStatement.setString(2, results.getString("Name"));
+                    preparedStatement.execute();
+                }
+                preparedStatement = localConnection.prepareStatement("SELECT * FROM PHRASE");
+                results = preparedStatement.executeQuery();
+                while (results.next()) {
+                    preparedStatement = connection.prepareStatement("INSERT INTO PHRASE (ID, Phrase, Category_ID) VALUES (?, ?, ?)");
+                    preparedStatement.setInt(1, results.getInt("ID"));
+                    preparedStatement.setString(2, results.getString("Phrase"));
+                    preparedStatement.setInt(3, results.getInt("Category_ID"));
+                    preparedStatement.execute();
+                }
+
+                preparedStatement = localConnection.prepareStatement("SELECT * FROM Wheel");
+                results = preparedStatement.executeQuery();
+                while (results.next()) {
+                    preparedStatement = connection.prepareStatement("INSERT INTO Wheel (ID, ITEM1, ITEM2, ITEM3, ITEM4, ITEM5, ITEM6, ITEM7, ITEM8, ITEM9, ITEM10, ITEM11, ITEM12, ITEM13, ITEM14, ITEM15, ITEM16, ITEM17, ITEM18, ITEM19, ITEM20) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?,?,?,?,?,?,?)");
+                    preparedStatement.setInt(1, results.getInt("ID"));
+                    for (Integer i = 2; i < 22; i++) {
+                        preparedStatement.setInt(i, results.getInt(String.format("item%d", i - 1)));
+                    }
+                    preparedStatement.execute();
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Couldn't connect to ora4");
+            e.printStackTrace();
+        }
+
+    }
+
     private void createTables() {
         String sql;
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Category
+                    CREATE TABLE  Category
                     (
-                        ID INTEGER PRIMARY KEY,
-                        Name TEXT NOT NULL
+                        ID INTEGER PRIMARY KEY ,
+                        Name VARCHAR2(100) NOT NULL
                     )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
@@ -69,42 +121,30 @@ public class Database {
 
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Phrase
+                    CREATE TABLE  Phrase
                     (
                         ID INTEGER PRIMARY KEY,
-                        Phrase TEXT NOT NULL,
+                        Phrase VARCHAR2(100) NOT NULL,
                         Category_ID references Category(ID)
                     )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
-
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Game
+                    CREATE TABLE  Player
                     (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Type TEXT,
-                        Record_ID INTEGER references Record(ID)
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
+                        Name VARCHAR2(100) NOT NULL
                     )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
         }
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Player
+                    CREATE TABLE  Record
                     (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Name TEXT NOT NULL
-                    )""";
-            statement.execute(sql);
-        } catch (SQLException ignored) {
-        }
-        try {
-            sql = """
-                    CREATE TABLE IF NOT EXISTS Record
-                    (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
                         Points INTEGER NOT NULL,
                         Player_ID INTEGER references Player(ID)
                     )""";
@@ -113,12 +153,23 @@ public class Database {
         }
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Move
+                    CREATE TABLE  Game
                     (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
+                        Type VARCHAR2(100),
+                        Record_ID INTEGER references Record(ID)
+                    )""";
+            statement.execute(sql);
+        } catch (SQLException ignored) {
+        }
+        try {
+            sql = """
+                    CREATE TABLE  Move
+                    (
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
                         RollResult INTEGER,
-                        GuessedLetter TEXT,
-                        GuessedPhrase TEXT,
+                        GuessedLetter VARCHAR2(100),
+                        GuessedPhrase VARCHAR2(100),
                         Result INTEGER,
                         Game_ID INTEGER references Game(ID),
                         Player_ID INTEGER references Player(ID)
@@ -129,9 +180,9 @@ public class Database {
         }
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Player_Games
+                    CREATE TABLE  Player_Games
                     (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
                         Player_ID INTEGER references Player(ID),
                         Game_ID INTEGER references Game(ID)
                     )""";
@@ -140,9 +191,9 @@ public class Database {
         }
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Phrase_Games
+                    CREATE TABLE  Phrase_Games
                     (
-                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ID INTEGER generated as IDENTITY PRIMARY KEY,
                         Phrase_ID INTEGER references Phrase(ID),
                         Game_ID INTEGER references Game(ID)
                     )""";
@@ -151,7 +202,7 @@ public class Database {
         }
         try {
             sql = """
-                    CREATE TABLE IF NOT EXISTS Wheel
+                    CREATE TABLE  Wheel
                     (
                         ID INTEGER PRIMARY KEY,
                         item1 INTEGER,
@@ -192,8 +243,7 @@ public class Database {
             if (category != null) {
                 preparedStatement = connection.prepareStatement("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID WHERE C2.NAME = ?");
                 preparedStatement.setString(1, category);
-            }
-            else
+            } else
                 preparedStatement = connection.prepareStatement("SELECT Phrase, c2.name from Phrase JOIN Category C2 on C2.ID = Phrase.Category_ID");
             ResultSet results = preparedStatement.executeQuery();
             while (results.next()) {
@@ -297,11 +347,11 @@ public class Database {
                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Record(Points, Player_ID) VALUES(?, ?)");
                 preparedStatement.setInt(1, score);
                 preparedStatement.setInt(2, playerID);
-                if(preparedStatement.executeUpdate() == 1) {
+                if (preparedStatement.executeUpdate() == 1) {
                     int recordID = -1;
                     ResultSet keys = preparedStatement.getGeneratedKeys();
-                    if(keys.next()) recordID = keys.getInt(1);
-                    if(recordID == -1) return;
+                    if (keys.next()) recordID = keys.getInt(1);
+                    if (recordID == -1) return;
                     preparedStatement = connection.prepareStatement("UPDATE Game SET Record_ID = ? WHERE ID = ?");
                     preparedStatement.setInt(1, recordID);
                     preparedStatement.setInt(2, gameID);
@@ -312,6 +362,7 @@ public class Database {
             e.printStackTrace();
         }
     }
+
     /**
      * Returns all phrases that match the given string.
      * For example, if the string is a_b_c, the method might return aAbBc, or aabbc.
@@ -465,6 +516,7 @@ public class Database {
 
     /**
      * Add a new game to the database and return its ID.
+     *
      * @return -1 if the game couldn't be added to database, else - it's id
      */
     public synchronized int addNewGame(String type) {
@@ -481,5 +533,10 @@ public class Database {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    public static void main(String[] args) {
+        Database db = Database.getInstance();
+        db.initDatabase();
     }
 }
