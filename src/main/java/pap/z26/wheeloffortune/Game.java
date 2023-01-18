@@ -31,7 +31,7 @@ public class Game {
     /**
      * Specifies the current state of a {@link Player player's move}
      */
-    enum MoveState {
+    public enum MoveState {
         HAS_TO_SPIN,
         HAS_TO_GUESS_CONSONANT,
         CAN_BUY_VOWEL_SPIN_OR_GUESS
@@ -581,6 +581,7 @@ public class Game {
     }
 
     public String getPhrase() {
+        if(gameWord == null) return null;
         return gameWord.getCurrentState();
     }
 
@@ -603,7 +604,7 @@ public class Game {
     /**
      * Obtains a text interpretation of the value rolled on the {@link Wheel wheel}
      *
-     * @return text containting information about the current wheel value
+     * @return text containing information about the current wheel value
      */
     public String getLastRolled() {
         String lastRolled;
@@ -644,7 +645,7 @@ public class Game {
      * @return {@link Player player} with the given name, of null if they weren't found or the current round is the
      * final one
      */
-    private Player getPlayerByName(String name) {
+    public Player getPlayerByName(String name) {
         if (name.equals("SYSTEM")) {
             if (state == GameState.FINAL) return null;
             currentPlayer = currentPlayer == null ? players.get(0) : currentPlayer;
@@ -694,7 +695,11 @@ public class Game {
                 category = jsonData.getString("cat");
                 advanceRound();
             }
-            case "start" -> start();
+            case "start" -> {
+                if(players.size() > 0) {
+                    start();
+                }
+            }
             case "uncov" -> {
                 gameWord.uncoverRandomLetter(jsonData.getInt("index"));
                 if (window != null) window.updateGUI();
@@ -785,5 +790,9 @@ public class Game {
             if (vowelCount >= 1 && consonantCount >= 3) break;
         }
         return toUncover;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }
