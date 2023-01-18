@@ -180,8 +180,11 @@ public class Database {
         }
     }
 
+    /**
+     * @param category category
+     * @return all phrases from given category, unless the category is null, in which case it returns all phrases
+     */
     public ArrayList<Phrase> getAllPhrasesFromCategory(String category) {
-        // if category == null, the method returns all phrases
         ArrayList<Phrase> phrases = new ArrayList<>();
         try {
             PreparedStatement preparedStatement;
@@ -292,9 +295,12 @@ public class Database {
         } catch (Exception ignored) {
         }
     }
-
+    /**
+     * Returns all phrases that match the given string.
+     * For example, if the string is a_b_c, the method might return aAbBc, or aabbc.
+     * @param toMatch string to be matched
+     */
     public ArrayList<String> getMatchingPhrases(String toMatch) {
-
         ArrayList<Phrase> allPhrases = getAllPhrasesFromCategory(null);
         ArrayList<String> phraseNames = new ArrayList<>();
         for (Phrase phrase : allPhrases) {
@@ -349,6 +355,13 @@ public class Database {
         return leaderboard;
     }
 
+    /**
+     * Updates the local database with new phrases and new high scores. It also adds new categories and new players
+     * if it's necessary.
+     * @param phrases new phrases
+     * @param records new high scores
+     * @throws SQLException in case database throws an error
+     */
     public void updateDatabase(JSONObject phrases, JSONObject records) throws SQLException {
         Iterator<String> keyPhrase = phrases.keys();
         while (keyPhrase.hasNext()) {
