@@ -68,7 +68,7 @@ public class BotPlayer implements Player {
          *
          * @return  ArrayList of Characters containing all letters that weren't guessed already
          */
-        private ArrayList<Character> getLetterList(){
+        public ArrayList<Character> getLetterList(){
             ArrayList<Character> letterList = new ArrayList<>();
             letterList.addAll(currVowels);
             letterList.addAll(currConsonants);
@@ -80,15 +80,14 @@ public class BotPlayer implements Player {
          *
          * @return  ArrayList of Characters containing all letters that weren't guessed already
          */
-        private ArrayList<Integer> getLetterWeights(){
+        public ArrayList<Integer> getLetterWeights(){
             ArrayList<Integer> letterWeights = new ArrayList<>();
             letterWeights.addAll(currVowelWeights);
             letterWeights.addAll(currConsWeights);
             return letterWeights;
         }
 
-
-        /**
+        /*
          * code that initializes consonantWeights, vowelWeights, vowelSumWeights, consonantSumWeights
          */
         static {
@@ -119,7 +118,7 @@ public class BotPlayer implements Player {
          * @param   sumOfWeights sum of all listOfWeights elements (for the {1, 9} example has to be 10)
          * @return  Integer of index that was randomized
          */
-        private Integer randomLetterIndex(ArrayList<Integer> listOfWeights, Integer sumOfWeights){
+        public Integer randomLetterIndex(ArrayList<Integer> listOfWeights, Integer sumOfWeights){
             try {
                 Random rand = new Random();
                 Integer randRes = rand.nextInt(sumOfWeights);
@@ -140,7 +139,7 @@ public class BotPlayer implements Player {
          * @param   phrase the String to count letters in
          * @return  amount of empty letters in given phrase
          */
-        private Integer countEmptyLetters(String phrase){
+        public Integer countEmptyLetters(String phrase){
             int result = 0;
             var phraseChars = phrase.toCharArray();
             for (char letter : phraseChars){
@@ -203,7 +202,7 @@ public class BotPlayer implements Player {
          */
         public void notifyLetter(Character letter){
 
-            /**
+            /*
              * loop for erasing consonants
              */
             for(int i=0; i< currConsonants.size(); i++){
@@ -215,7 +214,7 @@ public class BotPlayer implements Player {
                 }
             }
 
-            /**
+            /*
              * loop for erasing vowels
              */
             for(int i=0; i<currVowels.size(); i++){
@@ -233,7 +232,7 @@ public class BotPlayer implements Player {
          * @param   currGameState of a game state to match ('_' in place of not known letter)
          * @return  list of all matching phrases
          */
-        private ArrayList<String> getAllMatchingPhrases(String currGameState){
+        public ArrayList<String> getAllMatchingPhrases(String currGameState){
             return Database.getInstance().getMatchingPhrases(currGameState);
         }
 
@@ -241,7 +240,7 @@ public class BotPlayer implements Player {
          * method that returns a random vowel from list of not guessed vowels (with probability of weights)
          * @return  randomized character
          */
-        private char getVowel() {
+        public char getVowel() {
             return currVowels.get(randomLetterIndex(currVowelWeights, currSumVowelWeights));
         }
 
@@ -249,7 +248,7 @@ public class BotPlayer implements Player {
          * method that returns a random consonant from list of not guessed consonant (with probability of weights)
          * @return  randomized character
          */
-        private char getConsonant() {
+        public char getConsonant() {
             return currConsonants.get(randomLetterIndex(currConsWeights, currSumConsWeights));
         }
 
@@ -260,7 +259,7 @@ public class BotPlayer implements Player {
          * chance for stupid is 1/(amountOfMatchingPhrasesFromDatabase + 1)
          * @return  phrase to guess either from databse or from stupid get phrase
          */
-        private String getPhrase(){
+        public String getPhrase(){
 
             var listOfPhrases = getAllMatchingPhrases(this.game.getPhrase());
             String returnPhrase;
@@ -285,7 +284,7 @@ public class BotPlayer implements Player {
          * phrase made by replacing '_' with random available letters
          * @return  phrase to guess
          */
-        private String stupidGetPhrase() {
+        public String stupidGetPhrase() {
             ArrayList<Character> letterList = getLetterList();
             ArrayList<Integer> letterWeights = getLetterWeights();
 
@@ -345,8 +344,12 @@ public class BotPlayer implements Player {
             switch (this.game.getState()) {
 
                 case ROUND1, ROUND5, ROUND3 -> {
+                    if (!game.getCurrentPlayer().getName().equals(name)){
+                        return;
+                    }
+
                     //guess a consonant after spinning the wheel
-                    if (hasSpunTheWheel) {
+                    if (hasSpunTheWheel || game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT) {
                         if (consonantSumWeights == 0) {
                             hasGuessedCorrectly = (this.game.guessLetter(this, 't') != 0);
                         }else hasGuessedCorrectly = (this.game.guessLetter(this, getConsonant()) != 0);
@@ -361,6 +364,12 @@ public class BotPlayer implements Player {
 
                     //no consonants - cannot spin the wheel
                     //guess a phrase or buy vowel if you can afford it
+                    if(this.game.getMoveState() == Game.MoveState.HAS_TO_GUESS_CONSONANT){
+                        if (this.game.spinTheWheel(this)) {
+                            hasSpunTheWheel = this.game.getLastRolled().contains("$");
+                        }
+                    }
+
                     if (!this.game.hasNotGuessedConsonants()) {
                         currConsonants = new ArrayList<>();
                         currConsWeights = new ArrayList<>();
