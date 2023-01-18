@@ -568,6 +568,7 @@ public class Game {
         nextMove();
         if (window != null) {
             window.updateGUI();
+            window.updateWheel();
         }
         reportActionToServer(null, "newword:" + gameWord.getPhrase() + ":" + category);
         if ((state == GameState.ROUND2 || state == GameState.FINAL) && !beingExecutedByServer) {
