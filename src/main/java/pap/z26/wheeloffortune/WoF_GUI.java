@@ -32,7 +32,7 @@ public class WoF_GUI extends JFrame {
     private JButton fullGuess;
     private JCheckBox visibleCheckBox;
     private JLabel currentPlayer;
-    private JLabel roundNr3Label;
+    private JLabel roundNrLabel;
     private JLabel pricePool;
     private JButton spinWheelButton;
     private JTextField roundSollution;
@@ -93,11 +93,11 @@ public class WoF_GUI extends JFrame {
         if (game.getState() != GameState.ENDED) {
             String phrase = game.getPhrase();
             if (!game.hasNotGuessedConsonants()) {
-                phrase += " [NO CONSONANTS LEFT]";
+                phrase += " [NO CONSONANTS LEFT]"; //checks if the phrase is filled with constants
             }
-            roundSollution.setText(phrase);
+            roundSollution.setText(phrase); //updetes the phrase with guess and new random phrase
         } else {
-            roundSollution.setText(game.getWinner().getName() + " wins!");
+            roundSollution.setText(game.getWinner().getName() + " wins!"); //display the winner
         }
         HashMap<Player, Integer> roundScores = game.getRoundScores();
         HashMap<Player, Integer> playerScoresMap = game.getScores();
@@ -110,7 +110,12 @@ public class WoF_GUI extends JFrame {
             tableModel.addRow(row);
         }
         playersScores.setModel(tableModel);
-        roundNr3Label.setText(String.valueOf(game.getState()));
+        roundNrLabel.setText(String.valueOf(game.getState()));
+
+        String wheel_name = game.getState().toString();
+        String wheel_path = String.format("src/main/resources/%s",wheel_name.charAt(wheel_name.length()-1) + ".gif");
+        spinWheelButton.setIcon(new ImageIcon((new ImageIcon(wheel_path).getImage().getScaledInstance(500, -1, Image.SCALE_DEFAULT))
+        ));//set spin button icon
         currentPlayer.setText(game.getCategory());
         pricePool.setText(game.getLastRolled());
         if (game.getState() == GameState.FINAL) {
@@ -124,7 +129,7 @@ public class WoF_GUI extends JFrame {
         }
     }
 
-    private void swap_card(JPanel card) {
+    private void swap_card(JPanel card) { //method used to swap cards in view
         mainCardLayout.removeAll();
         mainCardLayout.add(card);
         mainCardLayout.repaint();
@@ -133,23 +138,22 @@ public class WoF_GUI extends JFrame {
 
     public void setJoinMessage(String message) {
         ipLogMessage.setText(message);
-    }
+    } //add log message after login
 
-    public void switchToGameCard() {
+    public void switchToGameCard() { //clear the prompts and show the game card
         ipLogMessage.setText(" ");
         currentPlayer.setText(" ");
         pricePool.setText(" ");
         swap_card(GamePanel);
     }
 
-    public WoF_GUI(WheelOfFortune wof) {
+    public WoF_GUI(WheelOfFortune wof) { //window constructor
         setContentPane(mainCardLayout);
         setTitle("WheelOfFortune");
-        setSize(1280, 960);
+        setSize(1000, 750);
         setDefaultCloseOperation((WindowConstants.EXIT_ON_CLOSE));
-        spinWheelButton.setIcon(new ImageIcon("src/main/resources/wof_temp.png"));
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) creditsList.getCellRenderer();
-        renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);//centers new window
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -398,12 +402,12 @@ public class WoF_GUI extends JFrame {
         currentPlayer.setText("Category");
         currentPlayer.setToolTipText("Category");
         topPanel.add(currentPlayer, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        roundNr3Label = new JLabel();
-        roundNr3Label.setHorizontalAlignment(0);
-        roundNr3Label.setHorizontalTextPosition(0);
-        roundNr3Label.setText(" ");
-        roundNr3Label.setToolTipText("Round number");
-        topPanel.add(roundNr3Label, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
+        roundNrLabel = new JLabel();
+        roundNrLabel.setHorizontalAlignment(0);
+        roundNrLabel.setHorizontalTextPosition(0);
+        roundNrLabel.setText(" ");
+        roundNrLabel.setToolTipText("Round number");
+        topPanel.add(roundNrLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, -1), null, 0, false));
         pricePool = new JLabel();
         pricePool.setEnabled(true);
         pricePool.setText("");
