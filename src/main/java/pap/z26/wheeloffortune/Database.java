@@ -365,7 +365,7 @@ public class Database {
     /**
      * Save a new score to the Records table and update the Game table accordingly.
      */
-    public void saveGameResult(String playerName, int score, int gameID) {
+    public boolean saveGameResult(String playerName, int score, int gameID) {
         try {
             int playerID = getPlayerID(playerName);
             if (recordNotInDatabase(playerID, score)) {
@@ -377,15 +377,17 @@ public class Database {
                     preparedStatement = connection.prepareStatement("SELECT Recordsequence.currval FROM DUAL");
                     ResultSet keys = preparedStatement.executeQuery();
                     if (keys.next()) recordID = keys.getInt(1);
-                    if (recordID == -1) return;
+                    if (recordID == -1) return false;
                     preparedStatement = connection.prepareStatement("UPDATE Game SET Record_ID = ? WHERE ID = ?");
                     preparedStatement.setInt(1, recordID);
                     preparedStatement.setInt(2, gameID);
                     preparedStatement.executeUpdate();
                 }
             }
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 

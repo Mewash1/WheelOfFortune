@@ -531,7 +531,11 @@ public class Game {
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
-            if(gameServer != null) database.saveGameResult(winner.getName(), scores.get(winner), gameID);
+            if(gameServer != null) {
+                if(!database.saveGameResult(winner.getName(), scores.get(winner), gameID) && window != null) {
+                    window.errorPrompt.setText("Failed to save the record!");
+                }
+            }
         } else {
             for (Player player : players) {
                 if (currentPlayer != null) {

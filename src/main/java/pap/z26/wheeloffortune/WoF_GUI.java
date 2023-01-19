@@ -78,7 +78,7 @@ public class WoF_GUI extends JFrame {
     private JPanel inputPanel;
     private JPanel ipAndPortPanel;
     private JPanel buttonPanel;
-    private JTextField errorPrompt;
+    public JTextField errorPrompt;
 
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
