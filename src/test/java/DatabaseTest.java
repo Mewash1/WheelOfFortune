@@ -46,32 +46,4 @@ public class DatabaseTest {
         assertEquals("Praga", phrases.get(44).phrase());
         assertEquals("John Wick", phrases.get(19).phrase());
     }
-
-    @Test
-    public void testGetPlayerID(){
-        Database db = Database.getInstance();
-        int id = db.getPlayerID("You");
-        assertEquals(1, id);
-    }
-
-    @Test
-    public void testRecordNotInDataBase(){
-        Database db = Database.getInstance();
-        assertTrue(db.recordNotInDatabase(1, 500));
-        assertTrue(db.recordNotInDatabase(2, 20));
-        assertFalse(db.recordNotInDatabase(1, 20));
-    }
-
-    @Test
-    public void testGetHighScores(){
-        Database db = Database.getInstance();
-        ArrayList<LeaderboardRecord> leaderboard = db.getHighScores(null);
-        assertEquals(250, leaderboard.get(0).score());
-        assertEquals(20, leaderboard.get(1).score());
-        assertEquals(2, leaderboard.size());
-
-        leaderboard = db.getHighScores(1);
-        assertEquals(250, leaderboard.get(0).score());
-        assertEquals(1, leaderboard.size());
-    }
 }

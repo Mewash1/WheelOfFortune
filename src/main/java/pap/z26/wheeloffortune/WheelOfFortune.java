@@ -205,11 +205,11 @@ public class WheelOfFortune {
      * Creates and sends a request to update the local words, categories and high scores database
      */
     public void updateDatabase() {
-        if ((currentIp.equals("localhost") || currentIp.equals("127.0.0.1")) && currentPort == 26969) return;
-        JSONObject updateData = new JSONObject();
-        updateData.put("action", "update");
-        updateData.put("player", ourPlayer.getName());
-        networkClient.sendData(updateData.toString());
+//        if ((currentIp.equals("localhost") || currentIp.equals("127.0.0.1")) && currentPort == 26969) return;
+//        JSONObject updateData = new JSONObject();
+//        updateData.put("action", "update");
+//        updateData.put("player", ourPlayer.getName());
+//        networkClient.sendData(updateData.toString());
     }
 
     public WheelOfFortune() {

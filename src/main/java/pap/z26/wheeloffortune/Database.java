@@ -68,7 +68,7 @@ public class Database {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from Wheel");
                 preparedStatement.execute();
-            } catch (SQLException ignored){
+            } catch (SQLException ignored) {
                 this.createTables();
                 PreparedStatement preparedStatement = localConnection.prepareStatement("SELECT * FROM CATEGORY");
                 ResultSet results = preparedStatement.executeQuery();
@@ -110,6 +110,27 @@ public class Database {
         String sql;
         try {
             sql = """
+                    CREATE SEQUENCE Playersequence
+                    """;
+            statement.execute(sql);
+        } catch (SQLException ignored) {
+        }
+        try {
+            sql = """
+                    CREATE SEQUENCE Recordsequence
+                    """;
+            statement.execute(sql);
+        } catch (SQLException ignored) {
+        }
+        try {
+            sql = """
+                    CREATE SEQUENCE Gamesequence
+                    """;
+            statement.execute(sql);
+        } catch (SQLException ignored) {
+        }
+        try {
+            sql = """
                     CREATE TABLE  Category
                     (
                         ID INTEGER PRIMARY KEY ,
@@ -134,7 +155,7 @@ public class Database {
             sql = """
                     CREATE TABLE  Player
                     (
-                        ID INTEGER generated as IDENTITY PRIMARY KEY,
+                        ID NUMBER DEFAULT Playersequence.nextval PRIMARY KEY,
                         Name VARCHAR2(100) NOT NULL
                     )""";
             statement.execute(sql);
@@ -144,7 +165,7 @@ public class Database {
             sql = """
                     CREATE TABLE  Record
                     (
-                        ID INTEGER generated as IDENTITY PRIMARY KEY,
+                        ID NUMBER DEFAULT Recordsequence.nextval PRIMARY KEY,
                         Points INTEGER NOT NULL,
                         Player_ID INTEGER references Player(ID)
                     )""";
@@ -155,9 +176,9 @@ public class Database {
             sql = """
                     CREATE TABLE  Game
                     (
-                        ID INTEGER generated as IDENTITY PRIMARY KEY,
+                        ID NUMBER DEFAULT Gamesequence.nextval PRIMARY KEY,
                         Type VARCHAR2(100),
-                        Record_ID INTEGER references Record(ID)
+                        Record_ID INTEGER
                     )""";
             statement.execute(sql);
         } catch (SQLException ignored) {
@@ -309,9 +330,10 @@ public class Database {
                 preparedStatement = connection.prepareStatement("INSERT INTO Player(Name) VALUES(?)");
                 preparedStatement.setString(1, playerName);
                 preparedStatement.executeUpdate();
-                ResultSet ids = preparedStatement.getGeneratedKeys();
-                if (ids.next()) {
-                    id = ids.getInt(1);
+                preparedStatement = connection.prepareStatement("SELECT Playersequence.currval FROM DUAL");
+                ResultSet keys = preparedStatement.executeQuery();
+                if (keys.next()) {
+                    id = keys.getInt(1);
                 }
             }
             return id;
@@ -349,7 +371,8 @@ public class Database {
                 preparedStatement.setInt(2, playerID);
                 if (preparedStatement.executeUpdate() == 1) {
                     int recordID = -1;
-                    ResultSet keys = preparedStatement.getGeneratedKeys();
+                    preparedStatement = connection.prepareStatement("SELECT Recordsequence.currval FROM DUAL");
+                    ResultSet keys = preparedStatement.executeQuery();
                     if (keys.next()) recordID = keys.getInt(1);
                     if (recordID == -1) return;
                     preparedStatement = connection.prepareStatement("UPDATE Game SET Record_ID = ? WHERE ID = ?");
@@ -401,18 +424,17 @@ public class Database {
             PreparedStatement preparedStatement;
             if (count != null) {
                 preparedStatement = connection.prepareStatement("""
-                    SELECT Name, Points from Record
-                    join Player P on P.ID = Record.Player_ID
-                    order by Points desc
-                    limit ?""");
+                        SELECT Name, Points from Record
+                        join Player P on P.ID = Record.Player_ID
+                        order by Points desc
+                        limit ?""");
                 preparedStatement.setInt(1, count);
-            }
-            else {
+            } else {
                 preparedStatement = connection.prepareStatement("""
-                    SELECT Name, Points from Record
-                    join Player P on P.ID = Record.Player_ID
-                    order by Points desc
-                    """);
+                        SELECT Name, Points from Record
+                        join Player P on P.ID = Record.Player_ID
+                        order by Points desc
+                        """);
             }
             ResultSet results = preparedStatement.executeQuery();
             int i = 1;
@@ -440,9 +462,9 @@ public class Database {
 
             // if there is a new category, add it
             PreparedStatement preparedStatement = connection.prepareStatement("""
-                            INSERT OR REPLACE INTO Category (ID, Name)
-                            SELECT NULL, ?
-                            WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = ?)""");
+                    INSERT OR REPLACE INTO Category (ID, Name)
+                    SELECT NULL, ?
+                    WHERE NOT EXISTS (SELECT * FROM Category WHERE Name = ?)""");
             preparedStatement.setString(1, category);
             preparedStatement.setString(2, category);
             preparedStatement.executeQuery();
@@ -450,9 +472,9 @@ public class Database {
             // add new phrases
             HashMap<String, Integer> categories = getCategoriesID();
             preparedStatement = connection.prepareStatement("""
-                            INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
-                            SELECT NULL, ?, ?
-                            WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = ? AND Category_ID = ?)""");
+                    INSERT OR REPLACE INTO Phrase (ID, Phrase, Category_ID)
+                    SELECT NULL, ?, ?
+                    WHERE NOT EXISTS (SELECT * FROM Phrase WHERE Phrase = ? AND Category_ID = ?)""");
             preparedStatement.setString(1, phrase);
             preparedStatement.setInt(2, categories.get(category));
             preparedStatement.setString(3, phrase);
@@ -466,7 +488,7 @@ public class Database {
             int score = records.getInt(player);
             int playerID = getPlayerID(player);
 
-            if(recordNotInDatabase(playerID, score)) {
+            if (recordNotInDatabase(playerID, score)) {
                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Record(Points, Player_ID) VALUES(?, ?)");
                 preparedStatement.setInt(1, score);
                 preparedStatement.setInt(2, playerID);
@@ -524,7 +546,8 @@ public class Database {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Game(Type) VALUES(?)");
             preparedStatement.setString(1, type);
             preparedStatement.executeUpdate();
-            ResultSet keys = preparedStatement.getGeneratedKeys();
+            preparedStatement = connection.prepareStatement("SELECT Gamesequence.currval FROM DUAL");
+            ResultSet keys = preparedStatement.executeQuery();
             if (keys.next()) {
                 return keys.getInt(1);
             }
