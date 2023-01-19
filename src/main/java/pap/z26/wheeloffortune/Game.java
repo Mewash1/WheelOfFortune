@@ -223,7 +223,7 @@ public class Game {
             roundScores.put(player, 0);
             scores.put(player, 0);
         }
-        gameID = database.addNewGame(gameServer == null ? "local" : "online");
+        gameID = gameServer == null ? 0 : database.addNewGame("online");
     }
 
     /**
@@ -306,7 +306,7 @@ public class Game {
             }
             nextMove();
             reportActionToServer(player, "spin:" + result);
-            database.insertMove(result, null, null, null, gameID, player.getName());
+            if(gameServer != null) database.insertMove(result, null, null, null, gameID, player.getName());
             return true;
         }
         if (window != null) {
@@ -435,7 +435,7 @@ public class Game {
         }
         nextMove();
         reportActionToServer(player, "guessl:" + letter);
-        database.insertMove(-174, String.valueOf(letter), null, result, gameID, player.getName());
+        if(gameServer != null) database.insertMove(-174, String.valueOf(letter), null, result, gameID, player.getName());
         for (Player playing : players) {
             if (playing.isBot()) playing.notifyLetter(letter);
         }
@@ -462,7 +462,7 @@ public class Game {
                 window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
             }
             reportActionToServer(player, "guessp:" + phrase);
-            database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
+            if(gameServer != null) database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
             if (!result) {
                 assignNextPlayer();
                 nextMove();
@@ -484,7 +484,7 @@ public class Game {
                 moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
                 nextMove();
                 reportActionToServer(player, "guessp:" + phrase);
-                database.insertMove(-174, null, phrase, 0, gameID, player.getName());
+                if(gameServer != null) database.insertMove(-174, null, phrase, 0, gameID, player.getName());
             } else if (moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) {
                 result = gameWord.guessPhrase(phrase);
                 if (window != null) {
@@ -494,7 +494,7 @@ public class Game {
                     roundScores.put(winner, wheel.getLastRolled());
                 }
                 reportActionToServer(player, "guessp:" + phrase);
-                database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
+                if(gameServer != null) database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
                 beingExecutedByServer = false;
                 advanceRound();
             }
@@ -531,7 +531,7 @@ public class Game {
         Database database = Database.getInstance();
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
-            database.saveGameResult(winner.getName(), scores.get(winner), gameID);
+            if(gameServer != null) database.saveGameResult(winner.getName(), scores.get(winner), gameID);
         } else {
             for (Player player : players) {
                 if (currentPlayer != null) {
@@ -574,7 +574,7 @@ public class Game {
         if ((state == GameState.ROUND2 || state == GameState.FINAL) && !beingExecutedByServer) {
             int prizeForLetter = wheel.spin(state);
             reportActionToServer(null, "spin:" + prizeForLetter);
-            database.insertMove(prizeForLetter, null, null, null, gameID, "SYSTEM");
+            if(gameServer != null) database.insertMove(prizeForLetter, null, null, null, gameID, "SYSTEM");
         }
         for (Player playing : players) {
             if (playing.isBot()) playing.notifyNewRound();

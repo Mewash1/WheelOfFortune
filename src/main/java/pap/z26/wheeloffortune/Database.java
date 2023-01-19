@@ -98,6 +98,10 @@ public class Database {
                     }
                     preparedStatement.execute();
                 }
+
+                preparedStatement = connection.prepareStatement("INSERT INTO Player (NAME) VALUES (?)");
+                preparedStatement.setString(1, "SYSTEM");
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
             System.err.println("Couldn't connect to ora4");
@@ -317,7 +321,6 @@ public class Database {
      * with a new id.
      */
     public int getPlayerID(String playerName) {
-        if (playerName.equals("SYSTEM")) return -1;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID from Player WHERE Name = ?");
             preparedStatement.setString(1, playerName);
