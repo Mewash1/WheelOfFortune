@@ -33,7 +33,7 @@ Powyższa komenda uruchomi serwer bez uruchamiania samej gry który będzie nas�
 ## Etap 2
 
 Dokumentacja wykonanych prac znajduje się w pliku `PAP22Z-Z26_etap_2.pdf`.  
-Film prezentujący działanie prototypu znajduje się [tutaj](https://youtu.be/BBDL65iB4lw).
+Film prezentujący działanie aplikacji z poprawkami się [tutaj](https://youtu.be/wEp-UFiG4L4).
 
 ## Etap 3
 
