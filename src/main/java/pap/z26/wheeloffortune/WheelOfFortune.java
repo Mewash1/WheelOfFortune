@@ -53,6 +53,9 @@ public class WheelOfFortune {
                 }
 
             }
+            case "error" -> {
+                gameWindow.setErrorMessage(jsonData.getString("message"));
+            }
             default -> game.executeFromOutside(jsonData, false);
         }
     }

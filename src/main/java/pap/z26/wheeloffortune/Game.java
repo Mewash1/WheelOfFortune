@@ -306,7 +306,11 @@ public class Game {
             }
             nextMove();
             reportActionToServer(player, "spin:" + result);
-            if(gameServer != null) database.insertMove(result, null, null, null, gameID, player.getName());
+            if(gameServer != null) {
+                if(!database.insertMove(result, null, null, null, gameID, player.getName())) {
+                    reportActionToServer(null, "error:Failed to save the spin result!");
+                }
+            }
             return true;
         }
         if (window != null) {
@@ -435,7 +439,11 @@ public class Game {
         }
         nextMove();
         reportActionToServer(player, "guessl:" + letter);
-        if(gameServer != null) database.insertMove(-174, String.valueOf(letter), null, result, gameID, player.getName());
+        if(gameServer != null) {
+            if(!database.insertMove(-174, String.valueOf(letter), null, result, gameID, player.getName())) {
+                reportActionToServer(null, "error:Failed to save the guess!");
+            }
+        }
         for (Player playing : players) {
             if (playing.isBot()) playing.notifyLetter(letter);
         }
@@ -462,7 +470,11 @@ public class Game {
                 window.writeToGameLog("Player " + player.getName() + " tried to guess " + phrase + " and " + (result ? "succeeded!" : "failed."));
             }
             reportActionToServer(player, "guessp:" + phrase);
-            if(gameServer != null) database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
+            if(gameServer != null) {
+                if(!database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName())) {
+                    reportActionToServer(null, "error:Failed to save the phrase guess!");
+                }
+            }
             if (!result) {
                 assignNextPlayer();
                 nextMove();
@@ -484,7 +496,11 @@ public class Game {
                 moveState = MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS;
                 nextMove();
                 reportActionToServer(player, "guessp:" + phrase);
-                if(gameServer != null) database.insertMove(-174, null, phrase, 0, gameID, player.getName());
+                if(gameServer != null) {
+                    if(!database.insertMove(-174, null, phrase, 0, gameID, player.getName())) {
+                        reportActionToServer(null, "error:Failed to save the uncovered letters move!");
+                    }
+                }
             } else if (moveState == MoveState.CAN_BUY_VOWEL_SPIN_OR_GUESS) {
                 result = gameWord.guessPhrase(phrase);
                 if (window != null) {
@@ -494,7 +510,11 @@ public class Game {
                     roundScores.put(winner, wheel.getLastRolled());
                 }
                 reportActionToServer(player, "guessp:" + phrase);
-                if(gameServer != null) database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName());
+                if(gameServer != null){
+                    if(!database.insertMove(-174, null, phrase, result ? 1 : 0, gameID, player.getName())) {
+                        reportActionToServer(null, "error:Failed to save the final phrase guess!");
+                    }
+                }
                 beingExecutedByServer = false;
                 advanceRound();
             }
@@ -532,8 +552,8 @@ public class Game {
         if (state == GameState.FINAL) {
             scores.put(winner, scores.get(winner) + roundScores.get(winner));
             if(gameServer != null) {
-                if(!database.saveGameResult(winner.getName(), scores.get(winner), gameID) && window != null) {
-                    window.errorPrompt.setText("Failed to save the record!");
+                if(!database.saveGameResult(winner.getName(), scores.get(winner), gameID)) {
+                    window.setErrorMessage("Failed to save the record in the database!");
                 }
             }
         } else {
@@ -578,7 +598,11 @@ public class Game {
         if ((state == GameState.ROUND2 || state == GameState.FINAL) && !beingExecutedByServer) {
             int prizeForLetter = wheel.spin(state);
             reportActionToServer(null, "spin:" + prizeForLetter);
-            if(gameServer != null) database.insertMove(prizeForLetter, null, null, null, gameID, "SYSTEM");
+            if(gameServer != null) {
+                if(!database.insertMove(prizeForLetter, null, null, null, gameID, "SYSTEM")) {
+                    reportActionToServer(null, "error:Failed to save the rolled reward!");
+                }
+            }
         }
         for (Player playing : players) {
             if (playing.isBot()) playing.notifyNewRound();
@@ -746,6 +770,7 @@ public class Game {
                 response.put("cat", parts[2]);
             }
             case "uncov" -> response.put("index", Integer.parseInt(parts[1]));
+            case "error" -> response.put("message", parts[1]);
         }
         if (gameServer == null) { // local game
             networkClient.sendData(response.toString());

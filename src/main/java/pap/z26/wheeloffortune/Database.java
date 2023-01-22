@@ -502,7 +502,7 @@ public class Database {
         }
     }
 
-    public void insertMove(int rollResult, String guessedLetter, String guessedPhrase, Integer result, Integer gameID, String playerName) {
+    public boolean insertMove(int rollResult, String guessedLetter, String guessedPhrase, Integer result, Integer gameID, String playerName) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Move(RollResult, GuessedLetter, GuessedPhrase, Result, Game_ID, Player_ID) VALUES(?, ?, ?, ?, ?, ?)");
             preparedStatement.setInt(1, rollResult);
@@ -511,9 +511,10 @@ public class Database {
             preparedStatement.setInt(4, result == null ? -174 : result);
             preparedStatement.setInt(5, gameID);
             preparedStatement.setInt(6, getPlayerID(playerName));
-            preparedStatement.executeUpdate();
+            return preparedStatement.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

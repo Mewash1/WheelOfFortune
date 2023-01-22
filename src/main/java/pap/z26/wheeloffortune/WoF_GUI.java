@@ -78,7 +78,7 @@ public class WoF_GUI extends JFrame {
     private JPanel inputPanel;
     private JPanel ipAndPortPanel;
     private JPanel buttonPanel;
-    public JTextField errorPrompt;
+    private JTextField errorPrompt;
 
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -143,6 +143,10 @@ public class WoF_GUI extends JFrame {
         ipLogMessage.setText(message);
     } //add log message after login
 
+    public void setErrorMessage(String message) {
+        errorPrompt.setText(message);
+    }
+
     public void switchToGameCard() { //clear the prompts and show the game card
         ipLogMessage.setText(" ");
         currentPlayer.setText(" ");
@@ -169,8 +173,7 @@ public class WoF_GUI extends JFrame {
             if (toGuess.isEmpty()) {
                 errorPrompt.setText("input can't be empty"); //catch empty input with prompt
                 return;
-            }
-            else errorPrompt.setText("");
+            } else errorPrompt.setText("");
 
             char letterToGuess = toGuess.charAt(0);
             game.guessLetter(wof.ourPlayer, letterToGuess);
@@ -180,8 +183,7 @@ public class WoF_GUI extends JFrame {
             if (toGuess.isEmpty()) {
                 errorPrompt.setText("input can't be empty");
                 return;
-            }
-            else errorPrompt.setText("");
+            } else errorPrompt.setText("");
             game.guessPhrase(wof.ourPlayer, toGuess);
         });
         visibleCheckBox.addActionListener(e -> {
